@@ -242,6 +242,7 @@
         <a class="card feature" href="#/tests"><span class="f-ico">📝</span><b>Testy</b><span>Tłumaczenie i przekształcanie całych zdań – sprawdzanie na końcu.</span></a>
         <a class="card feature" href="#/practice"><span class="f-ico">🎯</span><b>Trening mieszany</b><span>Losowe zadania z wielu lekcji – czy rozpoznasz konstrukcję?</span></a>
       </div>
+      ${ankiCard()}
       <div class="level-cards">
         ${LEVELS.map((lv) => {
           const ls = PATH.filter((l) => l.level === lv);
@@ -915,12 +916,24 @@
     box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
   }
 
+  // ---------- Talia Anki do pobrania ----------
+  const ANKI_FILE = "downloads/Angielski_A1-B2.apkg";
+  function ankiCard() {
+    return `<div class="card anki-dl">
+      <span class="f-ico">🗂️</span>
+      <div class="anki-txt"><b>Talia Anki do pobrania</b>
+        <span>Ok. 4500 słówek A1–B2 (plus trochę C1) w kierunku PL → EN, z transkrypcją IPA i nagraniem wymowy. Otwórz pobrany plik <code>.apkg</code> w programie Anki (na komputerze lub w AnkiDroid), a talia sama się zaimportuje.</span></div>
+      <a class="btn primary" href="${ANKI_FILE}" download>⬇ Pobierz (.apkg, ok. 50 MB)</a>
+    </div>`;
+  }
+
   // ---------- Słownictwo: działy tematyczne ----------
   let vocabLevels = LEVELS.slice();
   function renderVocabHome() {
     const list = VOCAB.filter((t) => vocabLevels.includes(t.level));
     return `<div class="page">
       <div class="hero"><h1>📚 Słownictwo</h1><p>Słówka, które trzeba znać na poziomach A1–B2, pogrupowane tematycznie. W każdym dziale: lista z wymową i przykładami, fiszki oraz dwa rodzaje quizu. Oznaczaj słowa, które już znasz – postęp zapisuje się w przeglądarce.</p></div>
+      ${ankiCard()}
       <div class="chips" id="vLevels" style="margin-bottom:18px">${LEVELS.map((l) => `<button class="chip ${vocabLevels.includes(l) ? "active" : ""}" data-level="${l}">${l} · ${LEVEL_INFO[l].name}</button>`).join("")}</div>
       ${VOCAB.length ? LEVELS.filter((lv) => vocabLevels.includes(lv)).map((lv) => {
         const ts = list.filter((t) => t.level === lv);

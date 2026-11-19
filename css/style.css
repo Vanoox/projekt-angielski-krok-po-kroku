@@ -459,6 +459,17 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
 .feature .f-ico { font-size: 24px; }
 .feature b { font-size: 17px; }
 .feature span:last-child { color: var(--text-2); font-size: 14px; }
+.anki-dl { display: flex; align-items: center; gap: 16px; padding: 16px 18px; margin: 0 0 32px; border-left: 4px solid var(--accent); }
+.anki-dl .f-ico { font-size: 28px; }
+.anki-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
+.anki-txt b { font-size: 17px; }
+.anki-txt span { color: var(--text-2); font-size: 14px; }
+.anki-dl .btn { white-space: nowrap; }
+@media (max-width: 640px) {
+  .anki-dl { flex-direction: column; align-items: stretch; text-align: left; }
+  .anki-dl .f-ico { display: none; }
+  .anki-dl .btn { text-align: center; white-space: normal; }
+}
 .nav-quick { border-bottom: 1px solid var(--border); padding-bottom: 10px; }
 .nav-ico { width: 22px; text-align: center; }
 
