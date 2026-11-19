@@ -1,0 +1,170 @@
+<!doctype html>
+<html lang="pl">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gramatyka angielska A1–B2</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="css/style.css">
+  <script>
+    try { const t = localStorage.getItem("eng-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
+  </script>
+</head>
+<body>
+  <header class="topbar">
+    <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu">☰</button>
+    <a href="#/" class="logo"><span class="logo-mark">En</span><span class="logo-text">Gramatyka <b>A1–B2</b></span></a>
+    <div class="search">
+      <input id="search" type="search" placeholder="Szukaj tematu lub słówka, np. „present perfect”, „kitchen”…  ( / )" autocomplete="off">
+    </div>
+    <nav class="top-links">
+      <a href="#/vocab" class="top-link" title="Słownictwo">📚<span class="tl-txt"> Słownictwo</span></a>
+      <a href="#/tests" class="top-link" title="Testy">📝<span class="tl-txt"> Testy</span></a>
+      <a href="#/practice" class="top-link" title="Trening mieszany">🎯<span class="tl-txt"> Trening</span></a>
+      <button class="icon-btn" id="themeBtn" aria-label="Zmień motyw" title="Jasny / ciemny motyw">◐</button>
+    </nav>
+  </header>
+
+  <div class="layout">
+    <aside class="sidebar" id="sidebar">
+      <div class="level-filter" id="levelFilter"></div>
+      <div class="nav" id="nav"></div>
+    </aside>
+    <div class="backdrop" id="backdrop"></div>
+    <main class="content" id="content"></main>
+  </div>
+
+  <!-- Dane: listę generuje `node tools/build-index.js` -->
+  <!-- DATA:START -->
+  <!-- Lekcje (teoria + szybki sprawdzian) -->
+  <script src="data/lessons/to-be.js"></script>
+  <script src="data/lessons/have-got.js"></script>
+  <script src="data/lessons/questions.js"></script>
+  <script src="data/lessons/imperatives-lets.js"></script>
+  <script src="data/lessons/plural-nouns.js"></script>
+  <script src="data/lessons/articles.js"></script>
+  <script src="data/lessons/pronouns-possessives.js"></script>
+  <script src="data/lessons/possessive-s.js"></script>
+  <script src="data/lessons/this-that.js"></script>
+  <script src="data/lessons/there-is-are.js"></script>
+  <script src="data/lessons/countable-uncountable.js"></script>
+  <script src="data/lessons/much-many.js"></script>
+  <script src="data/lessons/indefinite-pronouns.js"></script>
+  <script src="data/lessons/prepositions-time.js"></script>
+  <script src="data/lessons/prepositions-place.js"></script>
+  <script src="data/lessons/adverbs-frequency.js"></script>
+  <script src="data/lessons/comparatives-superlatives.js"></script>
+  <script src="data/lessons/adjectives-adverbs.js"></script>
+  <script src="data/lessons/too-enough-so-such.js"></script>
+  <script src="data/lessons/present-simple.js"></script>
+  <script src="data/lessons/present-continuous.js"></script>
+  <script src="data/lessons/present-simple-vs-continuous.js"></script>
+  <script src="data/lessons/past-simple.js"></script>
+  <script src="data/lessons/past-continuous.js"></script>
+  <script src="data/lessons/present-perfect.js"></script>
+  <script src="data/lessons/present-perfect-vs-past-simple.js"></script>
+  <script src="data/lessons/present-perfect-continuous.js"></script>
+  <script src="data/lessons/past-perfect.js"></script>
+  <script src="data/lessons/past-perfect-continuous.js"></script>
+  <script src="data/lessons/future-will.js"></script>
+  <script src="data/lessons/going-to.js"></script>
+  <script src="data/lessons/future-arrangements.js"></script>
+  <script src="data/lessons/future-time-clauses.js"></script>
+  <script src="data/lessons/future-continuous.js"></script>
+  <script src="data/lessons/future-perfect.js"></script>
+  <script src="data/lessons/used-to-would.js"></script>
+  <script src="data/lessons/tenses-overview.js"></script>
+  <script src="data/lessons/irregular-verbs.js"></script>
+  <script src="data/lessons/can-could.js"></script>
+  <script src="data/lessons/must-have-to.js"></script>
+  <script src="data/lessons/should-advice.js"></script>
+  <script src="data/lessons/modals-deduction.js"></script>
+  <script src="data/lessons/conditionals-0-1.js"></script>
+  <script src="data/lessons/conditional-2.js"></script>
+  <script src="data/lessons/conditional-3-mixed.js"></script>
+  <script src="data/lessons/wish-if-only.js"></script>
+  <script src="data/lessons/passive-voice.js"></script>
+  <script src="data/lessons/reported-speech.js"></script>
+  <script src="data/lessons/relative-clauses.js"></script>
+  <script src="data/lessons/gerund-infinitive.js"></script>
+  <script src="data/lessons/question-tags.js"></script>
+  <script src="data/lessons/causative.js"></script>
+  <script src="data/lessons/linking-words.js"></script>
+  <script src="data/lessons/phrasal-verbs.js"></script>
+  <script src="data/lessons/word-order.js"></script>
+  <!-- Ćwiczenia, testy i słownictwo do lekcji -->
+  <script src="data/practice/adjectives-adverbs.js"></script>
+  <script src="data/practice/adverbs-frequency.js"></script>
+  <script src="data/practice/articles.js"></script>
+  <script src="data/practice/can-could.js"></script>
+  <script src="data/practice/causative.js"></script>
+  <script src="data/practice/comparatives-superlatives.js"></script>
+  <script src="data/practice/conditional-2.js"></script>
+  <script src="data/practice/conditional-3-mixed.js"></script>
+  <script src="data/practice/conditionals-0-1.js"></script>
+  <script src="data/practice/countable-uncountable.js"></script>
+  <script src="data/practice/future-arrangements.js"></script>
+  <script src="data/practice/future-continuous.js"></script>
+  <script src="data/practice/future-perfect.js"></script>
+  <script src="data/practice/future-time-clauses.js"></script>
+  <script src="data/practice/future-will.js"></script>
+  <script src="data/practice/gerund-infinitive.js"></script>
+  <script src="data/practice/going-to.js"></script>
+  <script src="data/practice/have-got.js"></script>
+  <script src="data/practice/imperatives-lets.js"></script>
+  <script src="data/practice/indefinite-pronouns.js"></script>
+  <script src="data/practice/irregular-verbs.js"></script>
+  <script src="data/practice/linking-words.js"></script>
+  <script src="data/practice/modals-deduction.js"></script>
+  <script src="data/practice/much-many.js"></script>
+  <script src="data/practice/must-have-to.js"></script>
+  <script src="data/practice/passive-voice.js"></script>
+  <script src="data/practice/past-continuous.js"></script>
+  <script src="data/practice/past-perfect-continuous.js"></script>
+  <script src="data/practice/past-perfect.js"></script>
+  <script src="data/practice/past-simple.js"></script>
+  <script src="data/practice/phrasal-verbs.js"></script>
+  <script src="data/practice/plural-nouns.js"></script>
+  <script src="data/practice/possessive-s.js"></script>
+  <script src="data/practice/prepositions-place.js"></script>
+  <script src="data/practice/prepositions-time.js"></script>
+  <script src="data/practice/present-continuous.js"></script>
+  <script src="data/practice/present-perfect-continuous.js"></script>
+  <script src="data/practice/present-perfect-vs-past-simple.js"></script>
+  <script src="data/practice/present-perfect.js"></script>
+  <script src="data/practice/present-simple-vs-continuous.js"></script>
+  <script src="data/practice/present-simple.js"></script>
+  <script src="data/practice/pronouns-possessives.js"></script>
+  <script src="data/practice/question-tags.js"></script>
+  <script src="data/practice/questions.js"></script>
+  <script src="data/practice/relative-clauses.js"></script>
+  <script src="data/practice/reported-speech.js"></script>
+  <script src="data/practice/should-advice.js"></script>
+  <script src="data/practice/tenses-overview.js"></script>
+  <script src="data/practice/there-is-are.js"></script>
+  <script src="data/practice/this-that.js"></script>
+  <script src="data/practice/to-be.js"></script>
+  <script src="data/practice/too-enough-so-such.js"></script>
+  <script src="data/practice/used-to-would.js"></script>
+  <script src="data/practice/wish-if-only.js"></script>
+  <script src="data/practice/word-order.js"></script>
+  <!-- Słownictwo tematyczne -->
+  <script src="data/vocab/a1-1.js"></script>
+  <script src="data/vocab/a1-2.js"></script>
+  <script src="data/vocab/a1-3.js"></script>
+  <script src="data/vocab/a2-1.js"></script>
+  <script src="data/vocab/a2-2.js"></script>
+  <script src="data/vocab/a2-3.js"></script>
+  <script src="data/vocab/b1-1.js"></script>
+  <script src="data/vocab/b1-2.js"></script>
+  <script src="data/vocab/b1-3.js"></script>
+  <script src="data/vocab/b2-1.js"></script>
+  <script src="data/vocab/b2-2.js"></script>
+  <script src="data/vocab/b2-3.js"></script>
+  <!-- DATA:END -->
+  <!-- Aplikacja -->
+  <script src="js/app.js"></script>
+</body>
+</html>
