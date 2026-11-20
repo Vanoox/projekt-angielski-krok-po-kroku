@@ -49,6 +49,25 @@
   const practiceCount = (l) => l.practice.reduce((s, p) => s + (p.items || []).length, 0);
   const allTasks = (l) => (l.exercises || []).length + practiceCount(l) + l.test.length;
 
+  // Rejestr zadań do „Moich błędów”. Zadania nie mają id, więc klucz = id lekcji ~ źródło
+  // (e = szybki sprawdzian, p0, p1… = zestawy ćwiczeń, t = test) ~ skrót treści (typ, pytanie, opcje, odpowiedzi).
+  // Zmiana treści zadania w data/ daje nowy klucz – stary wpis w eng-mistakes jest wtedy po prostu pomijany.
+  const hashStr = (s) => { let x = 0x811c9dc5; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193); } return (x >>> 0).toString(36); };
+  const TASKS = new Map(); // klucz → { ex, lesson, src, instr }
+  const KEY_OF = new WeakMap(); // obiekt zadania → klucz
+  PATH.forEach((l) => {
+    const srcs = [["e", l.exercises || [], ""], ...l.practice.map((p, i) => ["p" + i, p.items || [], p.instruction || ""]), ["t", l.test, ""]];
+    for (const [src, items, instr] of srcs) items.forEach((ex) => {
+      const base = `${l.id}~${src}~${hashStr([ex.type, ex.q || "", (ex.options || []).join("|"), JSON.stringify(ex.answers ?? ex.answer ?? "")].join("#"))}`;
+      let k = base, n = 2;
+      while (TASKS.has(k)) k = `${base}~${n++}`; // identyczne zadanie w tym samym zestawie
+      TASKS.set(k, { ex, lesson: l, src, instr });
+      KEY_OF.set(ex, k);
+    });
+  });
+  // Kopia zadania z poleceniem (zestawy ćwiczeń, trening, sprawdziany) – zachowuje klucz oryginału.
+  const withTask = (ex, task) => { const c = { ...ex, task }; if (KEY_OF.has(ex)) KEY_OF.set(c, KEY_OF.get(ex)); return c; };
+
   // ---------- Stan (localStorage) ----------
   const store = {
     get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -61,6 +80,7 @@
     levels: store.get("levels", LEVELS.slice()),
     showPl: store.get("showPl", true),
     known: store.get("known", {}),
+    mistakes: store.get("mistakes", {}),
   });
   const state = loadState();
   const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
@@ -69,6 +89,27 @@
     if (!prev || correct / total >= prev.correct / prev.total) state.scores[key] = { correct, total };
     save();
   };
+
+  // ---------- Moje błędy: system pudełek (eng-mistakes) ----------
+  // Wpis: { box: 1–4, due: "RRRR-MM-DD", wrong: liczba błędów, lastSeen: ISO }.
+  // Błąd (gdziekolwiek) → pudełko 1, powtórka jutro. Dobra odpowiedź, gdy zadanie jest „na dziś”:
+  // pudełko 1 → 2 (za 3 dni) → 3 (za 7 dni) → 4 (za 14 dni) → zadanie opanowane, znika z listy.
+  // Dobra odpowiedź przed terminem niczego nie zmienia (żeby nie przeskakiwać pudełek tego samego dnia).
+  const BOX_DAYS = [1, 3, 7, 14];
+  const dayStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  const today = () => dayStr(new Date());
+  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); };
+  const isDue = (m) => m.due <= today();
+  const mistakeList = () => Object.entries(state.mistakes).filter(([k]) => TASKS.has(k)).map(([key, m]) => ({ key, m, ...TASKS.get(key) }));
+  const mistakesDue = () => mistakeList().filter((x) => isDue(x.m)).length;
+  function recordResult(key, ok) {
+    const prev = state.mistakes[key];
+    if (!ok) state.mistakes[key] = { box: 1, due: addDays(BOX_DAYS[0]), wrong: ((prev && prev.wrong) || 0) + 1, lastSeen: new Date().toISOString() };
+    else if (!prev || !isDue(prev)) return;
+    else if (prev.box >= BOX_DAYS.length) delete state.mistakes[key];
+    else state.mistakes[key] = { ...prev, box: prev.box + 1, due: addDays(BOX_DAYS[prev.box]), lastSeen: new Date().toISOString() };
+    store.set("mistakes", state.mistakes);
+  }
   const cpKey = (c) => "checkpoint:" + c.id;
   const cpPassed = (c) => { const s = state.scores[cpKey(c)]; return !!s && s.correct / s.total >= 0.8; };
   const cpRange = (c) => `${lessonNo(c.lessons[0])}–${lessonNo(c.lessons[c.lessons.length - 1])}`;
@@ -225,6 +266,7 @@
       <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">📚</span><span class="nav-title">Słownictwo</span></a>
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">📝</span><span class="nav-title">Testy – pisanie zdań</span></a>
       <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">🎯</span><span class="nav-title">Trening mieszany</span></a>
+      <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">🔁</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
     </div>`;
     const groups = CATEGORIES.map((c) => {
       const items = PATH.filter((l) => l.category === c && state.levels.includes(l.level))
@@ -238,6 +280,7 @@
     $("#nav").innerHTML = quick + (groups || `<div class="nav-empty">Brak lekcji dla wybranych poziomów.</div>`);
     const active = $("#nav .nav-item.active");
     if (active) active.scrollIntoView({ block: "nearest" });
+    syncMistakeCount();
   }
 
   // ---------- Kolejność nauki (#/kolejnosc) ----------
@@ -335,6 +378,7 @@
     "eng-known": (v) => isObj(v) && Object.values(v).every(isObj),
     "eng-levels": (v) => Array.isArray(v) && v.length > 0 && v.every((x) => LEVELS.includes(x)),
     "eng-showPl": (v) => typeof v === "boolean",
+    "eng-mistakes": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
     "eng-theme": (v) => v === "light" || v === "dark",
   };
   // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
@@ -355,10 +399,12 @@
   // Ustawienia (poziomy w menu, tłumaczenia, motyw) przy łączeniu zostają takie, jak na tym urządzeniu –
   // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
   const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme"];
-  // Klucze bez własnej reguły (np. przyszłe eng-mistakes / eng-srs w postaci { klucz: { box, due, lastSeen, … } }):
+  // Klucze bez własnej reguły (eng-mistakes, przyszłe eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
   // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
   // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
   // Nowa funkcja z własnymi danymi powinna dopisać do MERGE (i BACKUP_CHECK) regułę dla swojego klucza.
+  // eng-mistakes celowo bez reguły: przy tym samym zadaniu wygrywa świeższy stan pudełka. (Zadanie opanowane
+  // na jednym urządzeniu, a wciąż obecne w kopii z drugiego, wraca na listę – lepiej powtórzyć raz za dużo.)
   const lastSeen = (e) => (isObj(e) && Date.parse(e.lastSeen)) || 0;
   function mergeDefault(a, b) {
     if (!isObj(a) || !isObj(b)) return a;
@@ -416,6 +462,7 @@
       done: Object.keys(done).filter((id) => done[id] && BY_ID[id]).length,
       scores: Object.keys(data["eng-scores"] || {}).length,
       words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
+      mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => TASKS.has(k)).length,
     };
   }
   const fmtDate = (iso, time) => {
@@ -496,13 +543,13 @@
       const cur = readAll(), merged = mergeData(cur, data);
       const [sF, sC, sM] = [data, cur, merged].map(backupStats);
       const row = (label, k) => `<tr><td>${label}</td><td>${sF[k]}</td><td>${sC[k]}</td><td>${sM[k]}</td></tr>`;
-      const empty = !sF.done && !sF.scores && !sF.words;
+      const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes;
       panel.innerHTML = `<div class="backup-preview">
         <h3>Kopia${date && fmtDate(date) ? ` z ${fmtDate(date, true)}` : ""}</h3>
         ${empty ? `<p class="backup-msg warn">Ta kopia nie zawiera żadnego postępu (same ustawienia albo nic).</p>` : ""}
         <div class="backup-table"><table>
           <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
-          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}</tbody>
+          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Zadania w „Moich błędach”", "mistakes")}</tbody>
         </table></div>
         <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
         <b>Zastąp</b> – postęp z tego urządzenia zostanie <b>usunięty</b> i zastąpiony kopią.</p>
@@ -552,6 +599,7 @@
           ${overview ? `<a class="btn" href="#/lesson/tenses-overview">🗺️ Przegląd wszystkich czasów</a>` : ""}
         </div>
       </section>
+      ${todayWidget()}
       ${backupReminder()}
       <div class="stats">
         <div class="stat"><b>${PATH.length}</b><span>lekcji</span></div>
@@ -862,8 +910,25 @@
       scoreEl.innerHTML = `Wynik: <b>${correct}</b> / ${total}` + (answered < total ? ` <span class="muted">(odpowiedziano ${answered})</span>` : "");
     };
     let finished = false;
+    // „Moje błędy”: zapis każdej odpowiedzi. Pominięte pytanie w teście (sprawdzanie na końcu) się nie liczy,
+    // „Pokaż odpowiedź” – tak. Samoocena „Moja odpowiedź też jest poprawna” cofa zapisany błąd.
+    const track = (ctl, upgrade) => {
+      const key = KEY_OF.get(ctl.ex);
+      if (!key) return; // np. quiz ze słówek
+      if (upgrade) {
+        if (!("mPrev" in ctl)) return;
+        if (ctl.mPrev) state.mistakes[key] = ctl.mPrev; else delete state.mistakes[key];
+        recordResult(key, true);
+      } else {
+        if (deferred && ctl.result.given == null) return;
+        ctl.mPrev = state.mistakes[key];
+        recordResult(key, ctl.result.ok);
+      }
+      syncMistakeCount();
+    };
     const report = (ctl, upgrade, onlyProgress) => {
       if (onlyProgress) { updateScore(); return; }
+      track(ctl, upgrade);
       if (upgrade) { correct++; updateScore(); if (finished) { finishAll(); } return; }
       answered++; if (ctl.result.ok) correct++;
       updateScore();
@@ -1206,7 +1271,7 @@
           const host = d.querySelector(".set-ex");
           host.innerHTML = exercisesShell("", { h3: true });
           const box = host.firstElementChild;
-          const run = () => renderExercises(box, s.items.map((ex) => ({ ex: { ...ex, task: ex.task || "" } })), {
+          const run = () => renderExercises(box, s.items.map((ex) => ({ ex: withTask(ex, ex.task || "") })), {
             key: s.key,
             onDone: (c, t) => {
               d.querySelector(".set-meta").innerHTML = `${s.items.length} zad. ${scorePill(state.scores[s.key])}`;
@@ -1334,7 +1399,7 @@
   function bindPractice() {
     const pool = () => lessonPool(practiceCfg).flatMap((l) => [
       ...(l.exercises || []).map((ex) => ({ ex, lesson: l })),
-      ...l.practice.flatMap((p) => (p.items || []).map((ex) => ({ ex: { ...ex, task: ex.task || p.instruction }, lesson: l }))),
+      ...l.practice.flatMap((p) => (p.items || []).map((ex) => ({ ex: withTask(ex, ex.task || p.instruction), lesson: l }))),
     ]).filter(({ ex }) => practiceCfg.src === "all" || (practiceCfg.src === "choice" ? ["choice", "gap"].includes(ex.type) : ex.type === practiceCfg.src));
     const start = () => {
       const items = shuffle(pool()).slice(0, practiceCfg.count);
@@ -1398,7 +1463,7 @@
   function cpTasks(l) {
     return [
       ...l.test.filter((ex) => ex.type === "write" || ex.type === "order"),
-      ...l.practice.flatMap((p) => (p.items || []).filter((ex) => ex.type === "write").map((ex) => ({ ...ex, task: ex.task || p.instruction }))),
+      ...l.practice.flatMap((p) => (p.items || []).filter((ex) => ex.type === "write").map((ex) => withTask(ex, ex.task || p.instruction))),
     ];
   }
   // Po kolei z każdej lekcji z listy (równy udział; lekcja może wystąpić kilka razy).
@@ -1503,6 +1568,100 @@
     box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
   }
 
+  // ---------- Moje błędy (#/bledy) ----------
+  const SESSION_MAX = 20;
+  const zadan = (n) => `${n} ${n === 1 ? "zadanie" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "zadania" : "zadań"}`;
+  let mistakesCfg = { level: "", lesson: "" };
+  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
+  const dueLabel = (m) => {
+    const d = Math.round((Date.parse(m.due) - Date.parse(today())) / DAY);
+    return d <= 0 ? "<b>na dziś</b>" : d === 1 ? "jutro" : `za ${d} dni`;
+  };
+  const filteredMistakes = () => mistakeList().filter((x) => (!mistakesCfg.level || x.lesson.level === mistakesCfg.level) && (!mistakesCfg.lesson || x.lesson.id === mistakesCfg.lesson));
+  const sessionItems = (list) => shuffle(list).slice(0, SESSION_MAX).map((x) => ({ ex: x.src[0] === "p" ? withTask(x.ex, x.ex.task || x.instr) : x.ex, lesson: x.lesson }));
+
+  // Licznik „na dziś” w górnym pasku i w menu (link w pasku widać tylko, gdy są jakieś błędy).
+  function syncMistakeCount() {
+    const n = mistakesDue(), any = mistakeList().length > 0;
+    const link = $("#mistakesLink");
+    if (link) { link.hidden = !any; link.title = n ? `Moje błędy – ${n} na dziś` : "Moje błędy"; }
+    document.querySelectorAll(".m-count").forEach((el) => { el.textContent = n; el.hidden = !n; });
+    const tEl = $("#mToday"), lEl = $("#mList"); // na stronie „Moje błędy” – stan na bieżąco w trakcie powtórki
+    if (tEl && lEl) { const xs = filteredMistakes(); tEl.innerHTML = mTodayHtml(xs); lEl.innerHTML = mListHtml(xs); }
+  }
+
+  function mTodayHtml(list) {
+    const due = list.filter((x) => isDue(x.m));
+    if (due.length) return `<div class="card m-today"><div><b>Na dziś: ${zadan(due.length)}</b><span>${due.length > SESSION_MAX ? `Po ${SESSION_MAX} w jednej rundzie.` : "Zadania sprawdzają się od razu."}</span></div><button class="btn primary" data-mrun="due">Powtórz →</button></div>`;
+    const next = list.map((x) => x.m.due).sort()[0];
+    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ✓</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })}. Możesz też poćwiczyć wcześniej (przyciski „Ćwicz teraz” poniżej) – wtedy dobra odpowiedź nie przesuwa zadania dalej.` : ""}</span></div></div>`;
+  }
+  function mListHtml(list) {
+    const by = new Map();
+    list.forEach((x) => { if (!by.has(x.lesson)) by.set(x.lesson, []); by.get(x.lesson).push(x); });
+    if (!list.length) return "";
+    return `<h2 class="section-title">Wszystkie zadania z błędami (${list.length})</h2>` + [...by].sort((a, b) => PATH.indexOf(a[0]) - PATH.indexOf(b[0])).map(([l, xs]) => {
+      const nDue = xs.filter((x) => isDue(x.m)).length;
+      xs.sort((a, b) => a.m.due.localeCompare(b.m.due) || b.m.wrong - a.m.wrong);
+      return `<div class="card m-group">
+        <div class="m-head"><div class="m-title"><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}<span class="muted">${xs.length} zad.${nDue ? ` · ${nDue} na dziś` : ""}</span></div>
+          <div class="m-actions"><button class="btn small" data-mrun="${l.id}">Ćwicz teraz</button><a class="btn small" href="#/lesson/${l.id}" title="Teoria i ćwiczenia z tej lekcji">Powtórz lekcję →</a></div></div>
+        <ul class="m-list">${xs.map((x) => { const q = stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
+          <span class="m-meta">${srcLabel(x)} · ${TYPE_LABEL[x.ex.type]} · pudełko ${x.m.box}/${BOX_DAYS.length} · powtórka ${dueLabel(x.m)}${x.m.wrong > 1 ? ` · błędy: ${x.m.wrong}` : ""}</span></li>`; }).join("")}</ul>
+      </div>`;
+    }).join("");
+  }
+  function renderMistakes() {
+    const all = mistakeList();
+    const head = `<div class="hero"><h1>🔁 Moje błędy</h1><p>Tu wracają zadania, w których się pomylisz – w lekcjach, ćwiczeniach, testach, treningu i sprawdzianach. Zadanie z błędem wraca następnego dnia, a po każdej dobrej odpowiedzi coraz rzadziej: po 3, 7 i 14 dniach. Czwarta dobra odpowiedź z rzędu – zadanie znika z listy. Nowy błąd – zadanie wraca na początek.</p></div>`;
+    if (!all.length) return `<div class="page">${head}<div class="card empty m-empty"><b>Nie masz żadnych zadań do powtórki.</b><p>Rozwiązuj ćwiczenia i testy – zadania z błędami same się tu pojawią.</p><p><a class="btn primary" href="#/kolejnosc">🧭 Kolejność nauki</a></p></div></div>`;
+    const levels = LEVELS.filter((lv) => all.some((x) => x.lesson.level === lv));
+    if (mistakesCfg.level && !levels.includes(mistakesCfg.level)) mistakesCfg.level = "";
+    const lessons = PATH.filter((l) => all.some((x) => x.lesson === l) && (!mistakesCfg.level || l.level === mistakesCfg.level));
+    if (mistakesCfg.lesson && !lessons.some((l) => l.id === mistakesCfg.lesson)) mistakesCfg.lesson = "";
+    const list = filteredMistakes();
+    return `<div class="page mistakes">${head}
+      <div class="card m-filter">
+        <div class="chips" data-mf="level"><button class="chip ${!mistakesCfg.level ? "active" : ""}" data-v="">Wszystkie poziomy</button>${levels.map((lv) => `<button class="chip ${mistakesCfg.level === lv ? "active" : ""}" data-v="${lv}">${lv}</button>`).join("")}</div>
+        <label class="m-select"><span>Lekcja:</span><select id="mLesson"><option value="">wszystkie (${lessons.length})</option>${lessons.map((l) => `<option value="${l.id}" ${mistakesCfg.lesson === l.id ? "selected" : ""}>${lessonNo(l)}. ${esc(l.title)}</option>`).join("")}</select></label>
+      </div>
+      <div id="mToday">${mTodayHtml(list)}</div>
+      <div id="mBox"></div>
+      <div id="mList">${mListHtml(list)}</div>
+    </div>`;
+  }
+  function bindMistakes() {
+    const page = $(".page.mistakes"); if (!page) return;
+    const refresh = () => { const list = filteredMistakes(); $("#mToday").innerHTML = mTodayHtml(list); $("#mList").innerHTML = mListHtml(list); };
+    page.querySelector(".m-filter .chips").addEventListener("click", (e) => {
+      const b = e.target.closest(".chip"); if (!b) return;
+      mistakesCfg.level = b.dataset.v; route();
+    });
+    $("#mLesson").addEventListener("change", (e) => { mistakesCfg.lesson = e.target.value; route(); });
+    // „due” = zadania na dziś (z filtrem), id lekcji = wszystkie błędy z tej lekcji (także przed terminem).
+    const start = (what) => {
+      const pick = () => filteredMistakes().filter((x) => what === "due" ? isDue(x.m) : x.lesson.id === what);
+      const box = $("#mBox");
+      const run = () => {
+        const items = sessionItems(pick());
+        if (!items.length) { box.innerHTML = `<div class="card m-done">✓ Wszystko powtórzone.</div>`; refresh(); return; }
+        box.innerHTML = exercisesShell(what === "due" ? "Powtórka na dziś" : `Ćwiczenie: ${esc(BY_ID[what].title)}`, { retryLabel: what === "due" ? "Następna runda" : "Jeszcze raz" });
+        renderExercises(box.firstElementChild, items, { showSource: true, onDone: refresh });
+        box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
+      };
+      run();
+      box.scrollIntoView();
+    };
+    page.addEventListener("click", (e) => { const b = e.target.closest("[data-mrun]"); if (b) start(b.dataset.mrun); });
+  }
+  // Kafelek na stronie głównej (punkt 2 dopisze tu słówka na dziś).
+  function todayWidget() {
+    const all = mistakeList();
+    if (!all.length) return "";
+    const n = all.filter((x) => isDue(x.m)).length;
+    return `<a class="card today-widget" href="#/bledy"><span class="f-ico">🔁</span><span class="anki-txt"><b>Dziś do powtórki</b><span>Moje błędy: ${n ? `<b>${zadan(n)}</b> na dziś` : "na dziś wszystko powtórzone ✓"} (razem na liście: ${all.length})</span></span><span class="btn ${n ? "primary" : ""}">${n ? "Powtórz" : "Zobacz"} →</span></a>`;
+  }
+
   // ---------- Wyszukiwanie ----------
   function renderSearch(q) {
     const terms = q.toLowerCase().split(/\s+/).filter(Boolean);
@@ -1545,6 +1704,8 @@
       const id = h.slice(13);
       content.innerHTML = renderCheckpoint(id); bindCheckpoint(id);
       if (CP_BY_ID[id]) title = `Sprawdzian ${CP_BY_ID[id].n}: ${CP_BY_ID[id].title} – ${title}`;
+    } else if (h.startsWith("#/bledy")) {
+      content.innerHTML = renderMistakes(); bindMistakes(); title = `Moje błędy – ${title}`;
     } else if (h.startsWith("#/practice")) {
       content.innerHTML = renderPractice(); bindPractice(); title = `Trening – ${title}`;
     } else if (h.startsWith("#/tests")) {

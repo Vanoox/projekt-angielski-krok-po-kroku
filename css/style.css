@@ -644,3 +644,47 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
   .br-actions .btn { flex: 1; justify-content: center; }
 }
 @media print { .backup, .backup-reminder, .order-backup-link { display: none; } }
+
+/* ---------- Moje błędy (#/bledy) ---------- */
+.m-count { display: inline-block; min-width: 20px; padding: 0 6px; border-radius: 99px; background: var(--bad); color: #fff; font-size: 12px; font-weight: 700; line-height: 20px; text-align: center; }
+.m-count[hidden], .top-link[hidden] { display: none; }
+.top-count { margin-left: 4px; vertical-align: 1px; }
+.nav-count { margin-left: auto; }
+.menu-btn { position: relative; }
+.menu-count { position: absolute; top: -2px; right: -4px; min-width: 18px; padding: 0 5px; font-size: 11px; line-height: 18px; display: none; }
+/* Na telefonie w pasku brak miejsca – licznik błędów pokazuje się na przycisku menu (a w menu „Moje błędy”). */
+@media (max-width: 640px) {
+  #mistakesLink { display: none; }
+  .menu-count:not([hidden]) { display: inline-block; }
+}
+.today-widget { display: flex; align-items: center; gap: 16px; padding: 16px 18px; margin: 0 0 24px; border-left: 4px solid var(--bad); color: var(--text); }
+.today-widget:hover { border-color: var(--bad); text-decoration: none; }
+.today-widget .f-ico { font-size: 28px; }
+.today-widget .btn { white-space: nowrap; }
+.m-filter { display: flex; flex-wrap: wrap; align-items: center; gap: 12px 20px; padding: 14px 16px; margin: 0 0 16px; }
+.m-select { display: flex; align-items: center; gap: 8px; min-width: 0; flex: 1 1 260px; }
+.m-select span { color: var(--text-2); font-size: 14px; }
+.m-select select { flex: 1; min-width: 0; height: 36px; padding: 0 10px; border-radius: 9px; border: 1px solid var(--border); background: var(--surface-2); color: var(--text); font: inherit; font-size: 14px; }
+.m-today { display: flex; align-items: center; gap: 16px; padding: 16px 18px; margin: 0 0 16px; border-left: 4px solid var(--accent); }
+.m-today > div { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.m-today b { font-size: 17px; }
+.m-today span { color: var(--text-2); font-size: 14px; }
+.m-done { padding: 14px 16px; margin: 0 0 16px; color: var(--ok); font-weight: 600; }
+.m-empty { text-align: left; padding: 20px; }
+.m-group { padding: 14px 16px; margin: 0 0 12px; }
+.m-head { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px 12px; }
+.m-title { font-weight: 600; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.m-title .muted { font-weight: 400; font-size: 14px; }
+.m-actions { display: flex; gap: 6px; flex-wrap: wrap; }
+.m-list { list-style: none; margin: 10px 0 0; padding: 0; border-top: 1px solid var(--border); }
+.m-list li { display: flex; flex-direction: column; gap: 2px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.m-list li:last-child { border-bottom: 0; padding-bottom: 0; }
+.m-q { font-size: 15px; }
+.m-meta { color: var(--text-3); font-size: 13px; }
+@media (max-width: 640px) {
+  .today-widget, .m-today { flex-wrap: wrap; }
+  .today-widget .f-ico { display: none; }
+  .today-widget .btn, .m-today .btn { width: 100%; text-align: center; justify-content: center; }
+  .m-actions { width: 100%; }
+  .m-actions .btn { flex: 1; text-align: center; justify-content: center; }
+}
