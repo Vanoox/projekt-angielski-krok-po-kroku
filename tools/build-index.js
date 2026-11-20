@@ -13,6 +13,10 @@
 //  3. W index.html wstawia <script src="data/bundle.js?v=<hash>"> między <!-- DATA:START --> i <!-- DATA:END -->
 //     oraz dopisuje ?v=<hash> do css/style.css i js/app.js – po każdej zmianie adres się zmienia,
 //     więc przeglądarka nie użyje starej wersji z pamięci podręcznej.
+//  4. W sw.js (service worker – działanie offline, PWA) między // BUILD:START i // BUILD:END wpisuje
+//     listę plików „app shell” (adresy z index.html + manifest + ikony z icons/), adres arkusza fontów
+//     i VERSION = skrót ich treści. Zmiana VERSION = telefony pobiorą nową wersję i pokażą „Jest nowa wersja”.
+//     Bez przebudowania zainstalowana strona zostaje na starej wersji.
 //
 // Pliki źródłowe w data/ zostają do edycji; narzędzia z tools/ i tools/audit/ czytają katalogi, nie bundle.
 // Kolejność lekcji = kolejność w data/lessons/order.json = ścieżka nauki (lekcja może używać tylko
@@ -24,6 +28,7 @@ const crypto = require("crypto");
 const root = path.join(__dirname, "..");
 const rel = (...p) => path.join(root, ...p);
 const BUNDLE = "data/bundle.js";
+const SW = "sw.js";
 const GLOBALS = ["LESSONS", "PRACTICE", "VOCAB", "CHECKPOINTS"];
 
 const hash = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 10);
@@ -95,16 +100,47 @@ function buildIndex(bundleContent) {
   return html;
 }
 
-module.exports = { buildBundle, buildIndex, hash, BUNDLE };
+// Zwraca treść sw.js z aktualną listą plików i wersją. html = gotowy index.html (po buildIndex).
+function buildSw(html) {
+  const attr = (re, what) => { const m = html.match(re); if (!m) throw new Error(`Brak ${what} w index.html`); return m[1].replace(/&amp;/g, "&"); };
+  const assets = [
+    attr(/href="(css\/style\.css[^"]*)"/, "css/style.css"),
+    attr(/src="(js\/app\.js[^"]*)"/, "js/app.js"),
+    attr(/src="(data\/bundle\.js[^"]*)"/, BUNDLE),
+    attr(/rel="manifest" href="([^"]+)"/, "<link rel=\"manifest\">"),
+  ];
+  const icons = fs.readdirSync(rel("icons")).filter((f) => f.endsWith(".png")).sort().map((f) => `icons/${f}`);
+  const shell = ["./", ...assets, ...icons];
+  const fontCss = attr(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]+)"/, "arkusza fontów Google");
+  // Wersja = skrót index.html i treści wszystkich plików (adres bez ?v=).
+  const version = hash(html + shell.slice(1).map((u) => hash(fs.readFileSync(rel(u.split("?")[0])))).join(""));
+  const block = [
+    "// BUILD:START",
+    `const VERSION = ${JSON.stringify(version)};`,
+    `const SHELL = [\n${shell.map((u) => "  " + JSON.stringify(u)).join(",\n")},\n];`,
+    `const FONT_CSS = ${JSON.stringify(fontCss)};`,
+    "// BUILD:END",
+  ].join("\n");
+  const sw = fs.readFileSync(rel(SW), "utf8");
+  const re = /\/\/ BUILD:START[\s\S]*\/\/ BUILD:END/;
+  if (!re.test(sw)) throw new Error("Brak znaczników // BUILD:START / // BUILD:END w sw.js");
+  return { content: sw.replace(re, () => block), version };
+}
+
+module.exports = { buildBundle, buildIndex, buildSw, hash, BUNDLE, SW };
 
 if (require.main === module) {
   try {
     const { content, files } = buildBundle();
     fs.writeFileSync(rel(BUNDLE), content);
-    fs.writeFileSync(rel("index.html"), buildIndex(content));
+    const html = buildIndex(content);
+    fs.writeFileSync(rel("index.html"), html);
+    const sw = buildSw(html);
+    fs.writeFileSync(rel(SW), sw.content);
     const n = Object.values(files).flat().length;
     console.log(`${BUNDLE}: ${(Buffer.byteLength(content) / 1024).toFixed(0)} KB z ${n} plików (${files.lessons.length} lekcji, ${files.practice.length} plików ćwiczeń, ${files.vocab.length} plików słownictwa, ${files.checkpoints.length ? "sprawdziany" : "bez sprawdzianów"}).`);
     console.log(`index.html: bundle.js?v=${hash(content)}`);
+    console.log(`${SW}: wersja ${sw.version}`);
   } catch (e) {
     console.error("Błąd budowania: " + e.message);
     process.exit(1);

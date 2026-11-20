@@ -593,3 +593,15 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
   .cp-table th, .cp-table td { padding: 8px 6px; }
   .cp-table td:nth-child(3) .btn { padding: 6px 10px; }
 }
+
+/* Pasek „Jest nowa wersja” (service worker, initOffline w app.js) */
+.update-bar {
+  position: fixed; left: 50%; bottom: 16px; transform: translateX(-50%); z-index: 50;
+  display: flex; align-items: center; gap: 10px; width: max-content; max-width: calc(100vw - 32px);
+  padding: 10px 10px 10px 16px; border-radius: var(--radius);
+  background: var(--surface); border: 1px solid var(--border); box-shadow: var(--shadow); color: var(--text);
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+}
+.update-bar span { font-weight: 500; min-width: 0; }
+.update-bar .btn { white-space: nowrap; }
+@media print { .update-bar { display: none; } }

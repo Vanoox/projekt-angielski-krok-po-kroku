@@ -218,7 +218,7 @@ for (const t of V) {
   words += all.length;
 }
 
-// ---------- aktualność data/bundle.js (strona ładuje tylko bundle) ----------
+// ---------- aktualność data/bundle.js, index.html i sw.js (strona ładuje tylko bundle) ----------
 // Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
 try {
   const build = require("./build-index.js");
@@ -226,8 +226,11 @@ try {
   const bundlePath = path.join(ROOT, build.BUNDLE);
   const current = fs.existsSync(bundlePath) ? fs.readFileSync(bundlePath, "utf8") : "";
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
-  if (current !== content || html !== build.buildIndex(content))
+  const newHtml = build.buildIndex(content);
+  if (current !== content || html !== newHtml)
     console.log("UWAGA: data/bundle.js albo index.html są nieaktualne – strona pokaże stare dane. Uruchom: node tools/build-index.js");
+  else if (fs.readFileSync(path.join(ROOT, build.SW), "utf8") !== build.buildSw(newHtml).content)
+    console.log("UWAGA: sw.js jest nieaktualny – zainstalowana strona (offline) nie dostanie nowej wersji. Uruchom: node tools/build-index.js");
 } catch (e) {
   console.log("UWAGA: nie udało się sprawdzić data/bundle.js: " + e.message);
 }
