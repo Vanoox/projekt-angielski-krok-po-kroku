@@ -35,6 +35,7 @@
     archive: '<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>',
     flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    mic: '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>',
     headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
   };
   const icon = (name, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
@@ -561,6 +562,154 @@
   // Uwaga: przekazuj tu wyłącznie tekst ANGIELSKI (tłumaczenia trzymamy w osobnych polach).
   const speakBtn = (text) => `<button class="speak" data-say="${esc(stripTags(text))}" title="Posłuchaj wymowy" aria-label="Posłuchaj">${icon("volume")}</button>`;
 
+  // ---------- Wymowa z mikrofonem (rozpoznawanie mowy, Web Speech API) ----------
+  // Chrome/Edge (także Android) i Safari; Firefox nie ma SpeechRecognition – wtedy przycisków mikrofonu nie ma.
+  // Chrome rozpoznaje mowę na serwerze: potrzebny internet i strona z https (albo localhost) – z pliku (file://) nie działa.
+  // Wynik NIE trafia do „Moich błędów” ani do wyników lekcji: rozpoznawanie bywa zawodne (akcent, szum, homofony),
+  // więc to tylko podpowiedź dla ucznia. Do dziennika i celu dziennego liczy się pierwsza próba każdego zdania.
+  const SR = window.SpeechRecognition || window.webkitSpeechRecognition || null;
+  const PR_SKIP = /[\/=→←[\]()…_;"“”„&<>+*#@]|\.\.|\s-\s/;
+  // Zdanie do czytania na głos (przykład z teorii): bez wariantów „A / B”, strzałek, nawiasów; 2–20 słów. Liczby wolno.
+  function prText(html) {
+    const t = String(html || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ").replace(/\s+([,.!?])/g, "$1").replace(/^[–—]\s*/, "").trim();
+    if (!t || PR_SKIP.test(t) || !/[a-z]/i.test(t)) return "";
+    const n = t.split(" ").length;
+    return n >= 2 && n <= 20 ? t : "";
+  }
+  const NUM1 = "zero one two three four five six seven eight nine ten eleven twelve thirteen fourteen fifteen sixteen seventeen eighteen nineteen".split(" ");
+  const NUM10 = "  twenty thirty forty fifty sixty seventy eighty ninety".split(" ");
+  function numWords(n) {
+    if (n < 20) return NUM1[n];
+    if (n < 100) return NUM10[Math.floor(n / 10)] + (n % 10 ? " " + NUM1[n % 10] : "");
+    if (n < 1000) return NUM1[Math.floor(n / 100)] + " hundred" + (n % 100 ? " and " + numWords(n % 100) : "");
+    return String(n); // lata i duże liczby zostają cyframi (rozpoznawanie też zwykle zwraca je cyframi)
+  }
+  const ORD = { one: "first", two: "second", three: "third", five: "fifth", eight: "eighth", nine: "ninth", twelve: "twelfth" };
+  const ordWords = (n) => numWords(n).replace(/(\w+)$/, (w) => ORD[w] || (/y$/.test(w) ? w.slice(0, -1) + "ieth" : w + "th"));
+  // Słowa, które brzmią tak samo – rozpoznawanie wybiera jedno z nich, więc nie liczymy tego jako błędu wymowy.
+  const HOMO = {};
+  ["to too two", "for four", "there their", "right write", "know no", "hear here", "by buy bye", "see sea", "one won",
+    "eight ate", "son sun", "wear where", "weather whether", "new knew", "hour our", "meet meat", "week weak", "its it's",
+    "mum mom", "grey gray", "programme program", "tyre tire", "cheque check", "practise practice", "licence license"]
+    .forEach((g) => { const w = g.split(" "); w.forEach((x) => { HOMO[x] = w[0]; }); });
+  // Pisownia brytyjska i amerykańska (colour/color, realise/realize, centre/center) – też bez znaczenia.
+  const fold = (w) => HOMO[w] || w.replace(/our/g, "or").replace(/is(e|ed|es|ing|ation)$/, "iz$1").replace(/([^aeiou])re$/, "$1er");
+  const PR_S_IS = new Set(["he", "she", "it", "that", "there", "what", "who", "where", "how", "here", "this"]);
+  // Jedno słowo → tokeny do porównania: skróty = pełne formy (I'm = I am, can't = can not), liczby słownie (2 = two).
+  function prTokens(word) {
+    const out = [];
+    normalize(word).replace(/%/g, " percent").replace(/-/g, " ").split(" ").filter(Boolean).forEach((t) => {
+      let m;
+      if (t === "can't" || t === "cannot") out.push("can", "not");
+      else if (t === "won't") out.push("will", "not");
+      else if (t === "shan't") out.push("shall", "not");
+      else if (t === "let's") out.push("let", "us");
+      else if ((m = t.match(/^(\w+)n't$/))) out.push(m[1], "not");
+      else if ((m = t.match(/^(\w+)'(m|re|ve|ll|d)$/))) out.push(m[1], { m: "am", re: "are", ve: "have", ll: "will", d: "would" }[m[2]]);
+      else if ((m = t.match(/^(\w+)'s$/)) && PR_S_IS.has(m[1])) out.push(m[1], "is");
+      else if ((m = t.match(/^(\d+)(st|nd|rd|th)$/))) out.push(...ordWords(+m[1]).split(" "));
+      else if ((m = t.match(/^(\d+):(\d\d)$/))) out.push(...numWords(+m[1]).split(" "), ...(m[2] === "00" ? ["o'clock"] : +m[2] < 10 ? ["oh", NUM1[+m[2]]] : numWords(+m[2]).split(" ")));
+      else if ((m = t.match(/^(\d+)([ap]m)$/))) out.push(...numWords(+m[1]).split(" "), m[2]);
+      else if (/^\d+$/.test(t)) out.push(...numWords(+t).split(" "));
+      else out.push(t);
+    });
+    return out.map(fold);
+  }
+  // Porównanie słowo po słowie (LCS jak w diffHtml). Spośród kilku wersji rozpoznania (maxAlternatives) bierzemy najbliższą.
+  function prCompare(target, alts) {
+    const words = target.split(/\s+/), tw = [], tt = [];
+    words.forEach((w, i) => prTokens(w).forEach((t) => { tt.push(t); tw.push(i); }));
+    let best = null;
+    for (const a of alts) {
+      const at = String(a).split(/\s+/).flatMap(prTokens), r = lcs(tt, at);
+      if (!best || r.n > best.r.n || (r.n === best.r.n && at.length < best.len)) best = { r, len: at.length, heard: a };
+    }
+    const okW = words.map((_, i) => tw.every((w, j) => w !== i || best.r.inA.has(j)));
+    return { words, okW, good: okW.filter(Boolean).length, heard: best.heard };
+  }
+  function prError(code) {
+    if (code === "not-allowed" || code === "service-not-allowed")
+      return location.protocol === "file:" ? "Rozpoznawanie mowy nie działa w pliku otwartym z dysku. Otwórz stronę z internetu (adres https://…)."
+        : "Brak zgody na użycie mikrofonu. Kliknij ikonę kłódki albo mikrofonu przy adresie strony, zezwól na mikrofon i spróbuj jeszcze raz.";
+    if (code === "no-speech") return "Nic nie słychać. Kliknij mikrofon, chwilę poczekaj i przeczytaj zdanie wyraźnie, blisko mikrofonu.";
+    if (code === "audio-capture") return "Nie znaleziono mikrofonu. Sprawdź, czy jest podłączony i włączony w ustawieniach systemu.";
+    if (code === "network" || code === "offline") return "Brak połączenia z internetem. Chrome i Edge rozpoznają mowę na swoich serwerach, więc bez internetu ta funkcja nie działa.";
+    if (code === "language-not-supported") return "Ta przeglądarka nie rozpoznaje mowy po angielsku. Spróbuj w Chrome albo Edge.";
+    return `Nie udało się rozpoznać mowy (${esc(code)}). Spróbuj jeszcze raz.`;
+  }
+  const PR_UNSUPPORTED = "Twoja przeglądarka nie rozpoznaje mowy (działa w Chrome i Edge).";
+  const micBtn = (text) => SR ? `<button class="speak mic" data-pr="${esc(text)}" aria-pressed="false" title="Powiedz to zdanie – sprawdź wymowę" aria-label="Sprawdź wymowę">${icon("mic")}</button>` : "";
+  let prNow = null; // { rec, btn, aborted, done } – trwające słuchanie (naraz tylko jedno)
+  const prStop = () => { if (prNow) { prNow.aborted = true; prNow.rec.abort(); } };
+  // Miejsce na wynik: w zakładce „Wymowa” – karta zdania, w teorii – panel pod przykładem (tworzony przy pierwszej próbie).
+  function prOut(btn) {
+    const card = btn.closest(".pr-card");
+    if (card) return card.querySelector(".pr-out");
+    const ex = btn.closest(".ex");
+    let o = ex.querySelector(".pr-out");
+    if (!o) { ex.insertAdjacentHTML("beforeend", `<div class="pr-out" aria-live="polite"></div>`); o = ex.querySelector(".pr-out"); }
+    return o;
+  }
+  function prSetListening(btn, on) {
+    btn.classList.toggle("listening", on);
+    btn.setAttribute("aria-pressed", on);
+    const lbl = btn.querySelector(".pr-lbl");
+    if (lbl) lbl.textContent = on ? "Słucham… (kliknij, by skończyć)" : "Powiedz";
+    if (on) prOut(btn).innerHTML = `<div class="pr-msg pr-live">${icon("mic")} Mów teraz – przeczytaj zdanie na głos.</div>`;
+  }
+  function prResult(btn, text, alts) {
+    const r = prCompare(text, alts), n = r.words.length, all = r.good === n;
+    const verdict = all ? `${icon("check")} Świetnie! Rozpoznane wszystkie słowa.`
+      : r.good / n >= 0.7 ? `Prawie dobrze – rozpoznane słowa: ${r.good} z ${n}. Czerwone powiedz jeszcze raz wyraźniej.`
+      : `Rozpoznane słowa: ${r.good} z ${n}. Posłuchaj i spróbuj jeszcze raz.`;
+    prOut(btn).innerHTML = `<div class="pr-res ${all ? "ok" : "bad"}">
+      <div class="pr-words">${r.words.map((w, i) => `<span class="${r.okW[i] ? "pr-ok" : "pr-bad"}">${esc(w)}</span>`).join(" ")}</div>
+      <div class="pr-verdict">${verdict}</div>
+      <div class="pr-heard">Rozpoznano: „${esc(r.heard)}”</div>
+      ${all ? "" : `<div class="pr-actions"><button class="btn pr-say" data-say="${esc(text)}">${icon("volume")} Posłuchaj</button><button class="btn" data-pr-again>${icon("rotate")} Spróbuj jeszcze raz</button></div>`}
+    </div>`;
+    const card = btn.closest(".pr-card, .ex");
+    if (!card.dataset.prLogged) { card.dataset.prLogged = 1; logActivity({ t: 1, ok: all ? 1 : 0 }); }
+    if (all) card.dataset.prOk = 1;
+    const box = btn.closest(".pr-box");
+    if (box) box.querySelector(".pr-score").textContent = `Dobrze wymówione: ${box.querySelectorAll(".pr-card[data-pr-ok]").length} z ${box.querySelectorAll(".pr-card").length}`;
+  }
+  function prMsg(btn, html) { prOut(btn).innerHTML = `<div class="pr-msg pr-err">${icon("alert")} <span>${html}</span></div>`; }
+  function prListen(btn) {
+    if (prNow) {
+      if (prNow.btn === btn) { prNow.rec.stop(); return; } // drugi klik = koniec mówienia, wynik przyjdzie w onresult
+      prStop();
+    }
+    if (navigator.onLine === false) { prMsg(btn, prError("offline")); return; }
+    if ("speechSynthesis" in window) speechSynthesis.cancel(); // żeby mikrofon nie słyszał lektora
+    const text = btn.dataset.pr, rec = new SR(), cur = { rec, btn, aborted: false, done: false };
+    rec.lang = "en-GB"; rec.interimResults = false; rec.maxAlternatives = 3; rec.continuous = false;
+    rec.onresult = (e) => {
+      const res = e.results[e.results.length - 1]; if (!res || cur.aborted) return;
+      cur.done = true;
+      prResult(btn, text, Array.from(res, (a) => a.transcript).filter(Boolean));
+    };
+    rec.onerror = (e) => { if (cur.aborted || e.error === "aborted") return; cur.done = true; prMsg(btn, prError(e.error)); };
+    rec.onend = () => {
+      if (prNow === cur) prNow = null;
+      prSetListening(btn, false);
+      if (cur.aborted) { const o = prOut(btn); if (o.querySelector(".pr-live")) o.innerHTML = ""; return; }
+      if (!cur.done) prMsg(btn, prError("no-speech"));
+    };
+    prNow = cur;
+    prSetListening(btn, true);
+    try { rec.start(); } catch (err) { prNow = null; prSetListening(btn, false); prMsg(btn, prError((err && err.name) || "start")); }
+  }
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-pr]");
+    if (b) { e.preventDefault(); prListen(b); return; }
+    const again = e.target.closest("[data-pr-again]");
+    if (again) { const m = again.closest(".pr-card, .ex").querySelector("[data-pr]"); if (m) prListen(m); return; }
+    const say = e.target.closest(".pr-say");
+    if (say) speak(say.dataset.say, say);
+  });
+
   // ---------- Sidebar ----------
   function renderLevelFilter() {
     $("#levelFilter").innerHTML =
@@ -1084,7 +1233,7 @@
           </div></div>`).join("")}</div></section>`;
       case "examples":
         return `<section class="block">${h(sectionTitle(s, "Przykłady"))}<div class="card examples">${(s.items || []).map((e) => `
-          <div class="ex">${speakBtn(e.en)}<div class="ex-en">${e.en}</div>
+          <div class="ex">${(() => { const t = prText(e.en), m = t && micBtn(t); return m ? `<div class="ex-btns">${speakBtn(e.en)}${m}</div>` : speakBtn(e.en); })()}<div class="ex-en">${e.en}</div>
             <div class="ex-pl" title="Kliknij, aby pokazać">${e.pl}</div>
             ${e.note ? `<div class="ex-note">${e.note}</div>` : ""}</div>`).join("")}</div></section>`;
       case "table":
@@ -1649,6 +1798,7 @@
     { id: "practice", label: icon("pen") + " Ćwiczenia", count: (l) => (l.exercises || []).length + practiceCount(l) },
     { id: "test", label: icon("test") + " Test", count: (l) => l.test.length },
     { id: "dictation", label: icon("headphones") + " Dyktando", count: (l) => l.dict.length },
+    { id: "speaking", label: icon("mic") + " Wymowa", count: (l) => l.dict.length },
   ];
   function lessonTab() { const m = location.hash.match(/^#\/lesson\/[\w-]+\/(\w+)/); return m ? m[1] : ""; }
 
@@ -1665,6 +1815,7 @@
     else if (tab === "practice") body = renderLessonPractice(l);
     else if (tab === "test" && l.test.length) body = renderLessonTest(l);
     else if (tab === "dictation" && l.dict.length) body = renderLessonDictation(l);
+    else if (tab === "speaking" && l.dict.length) body = renderLessonSpeaking(l);
     else body = renderLessonTheory(l);
     return `<article class="page lesson ${state.showPl ? "" : "hide-pl"}" id="lesson">
       <div class="lesson-head">
@@ -1799,6 +1950,30 @@
     </section>`;
   }
 
+  // ---------- Wymowa (zakładka lekcji) ----------
+  // Te same zdania co w dyktandzie (przykłady z teorii tej lekcji), za każdym razem DICT_ROUND losowych.
+  function prRoundHtml(l) {
+    const xs = shuffle(l.dict).slice(0, DICT_ROUND);
+    return `<p class="pr-score muted-p" aria-live="polite">Dobrze wymówione: 0 z ${xs.length}</p>
+      <ol class="pr-list">${xs.map((x) => `<li class="card pr-card">
+        <div class="pr-sent">${speakBtn(x.say)}<div><div class="pr-en">${esc(x.say)}</div>${x.pl ? `<div class="ex-pl" title="Kliknij, aby pokazać">${x.pl}</div>` : ""}</div></div>
+        ${SR ? `<button class="btn pr-mic" data-pr="${esc(x.say)}" aria-pressed="false">${icon("mic")} <span class="pr-lbl">Powiedz</span></button>` : ""}
+        <div class="pr-out" aria-live="polite"></div></li>`).join("")}</ol>`;
+  }
+  function renderLessonSpeaking(l) {
+    const intro = SR
+      ? `Kliknij <b>${icon("mic")} Powiedz</b> i przeczytaj zdanie na głos po angielsku. Strona rozpozna, co mówisz, i pokaże słowa: <span class="pr-ok">zielone</span> – rozpoznane, <span class="pr-bad">czerwone</span> – nie. Wzoru możesz najpierw posłuchać (${icon("volume")}). Mów spokojnie, w cichym miejscu; przeglądarka zapyta o zgodę na mikrofon. Rozpoznawanie mowy potrzebuje internetu i czasem się myli, więc wynik to tylko wskazówka – nie trafia do „Moich błędów”.`
+      : `Tutaj możesz posłuchać zdań (${icon("volume")}) i powtarzać je na głos – sprawdzanie wymowy zadziała po otwarciu strony w Chrome albo Edge.`;
+    return `<section class="block pr-box">
+      <h2>${icon("mic")} Wymowa</h2>
+      ${SR ? "" : `<div class="callout warning"><h3>${icon("alert")} Brak rozpoznawania mowy</h3><div class="prose">${PR_UNSUPPORTED}</div></div>`}
+      <div class="ex-intro">${intro}</div>
+      <p class="muted-p">Zdania z przykładów w tej lekcji (${l.dict.length}) – za każdym razem ${Math.min(DICT_ROUND, l.dict.length)} losowych.</p>
+      <div id="prBox"></div>
+      <div class="pr-new"><button class="btn" id="prNew">${icon("rotate")} Nowe zdania</button></div>
+    </section>`;
+  }
+
   function bindLesson(id) {
     const l = BY_ID[id]; if (!l) return;
     const tab = lessonTab();
@@ -1832,6 +2007,12 @@
         if (d.open) mount();
         d.addEventListener("toggle", () => { if (d.open) mount(); });
       });
+      return;
+    }
+    if (tab === "speaking" && l.dict.length) {
+      const box = $("#prBox"), run = () => { box.innerHTML = prRoundHtml(l); };
+      run();
+      $("#prNew").addEventListener("click", () => { prStop(); run(); box.scrollIntoView({ behavior: "smooth" }); });
       return;
     }
     if (tab === "dictation" && l.dict.length) {
@@ -2388,6 +2569,7 @@
     document.body.classList.remove("nav-open");
     if (!h.startsWith("#/")) return; // kotwice wewnątrz strony
     if (tocCleanup) { tocCleanup(); tocCleanup = null; }
+    prStop();
     let title = "Gramatyka angielska A1–B2";
     const sameLesson = currentLessonId() && lastRoute === currentLessonId();
     if (h.startsWith("#/lesson/")) {
@@ -2448,7 +2630,7 @@
     if (nb) nb.focus();
   });
   document.addEventListener("click", (e) => {
-    const sb = e.target.closest(".speak");
+    const sb = e.target.closest(".speak[data-say]"); // .speak.mic (mikrofon) ma własną obsługę – data-pr
     if (sb) { e.preventDefault(); e.stopPropagation(); speak(sb.dataset.say, sb); return; }
     const pl = e.target.closest(".hide-pl .ex-pl");
     if (pl) { pl.classList.toggle("revealed"); return; }

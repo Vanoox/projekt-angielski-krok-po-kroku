@@ -491,6 +491,35 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
 .w-input:focus { outline: none; background: var(--surface-2); }
 .w-input.ok { border-color: var(--ok); background: var(--ok-soft); }
 .w-input.bad { border-color: var(--bad); background: var(--bad-soft); }
+/* wymowa z mikrofonem */
+.ex-btns { display: flex; flex-direction: column; gap: 2px; grid-row: span 2; }
+.ex > .pr-out { grid-column: 2; }
+.speak.mic.listening, .pr-mic.listening { color: var(--bad); background: var(--bad-soft); border-color: var(--bad); animation: pr-pulse 1.2s ease-in-out infinite; }
+@keyframes pr-pulse { 50% { box-shadow: 0 0 0 5px var(--bad-soft); } }
+@media (prefers-reduced-motion: reduce) { .speak.mic.listening, .pr-mic.listening { animation: none; } }
+.pr-list { list-style: none; padding: 0; margin: 0; display: grid; gap: 10px; }
+.pr-card { padding: 12px 16px 12px 10px; display: grid; gap: 8px; }
+.pr-sent { display: grid; grid-template-columns: 36px 1fr; gap: 4px 8px; align-items: start; }
+.pr-en { font-size: 16.5px; font-weight: 500; }
+.pr-mic { justify-self: start; margin-left: 44px; }
+.pr-out:empty { display: none; }
+.pr-card .pr-out { margin-left: 44px; }
+.pr-msg { display: flex; gap: 6px; align-items: flex-start; font-size: 14.5px; color: var(--text-2); }
+.pr-msg .ic { flex-shrink: 0; margin-top: 2px; }
+.pr-live { color: var(--bad); }
+.pr-err { color: var(--warn); }
+.pr-res { border-left: 3px solid var(--bad); padding: 4px 0 4px 10px; display: grid; gap: 4px; }
+.pr-res.ok { border-color: var(--ok); }
+.pr-words { font-size: 16.5px; font-weight: 500; }
+.pr-ok { color: var(--ok); }
+.pr-bad { color: var(--bad); text-decoration: underline wavy; text-underline-offset: 3px; }
+.pr-verdict { font-size: 14.5px; }
+.pr-res.ok .pr-verdict { color: var(--ok); font-weight: 600; }
+.pr-heard { font-size: 13px; color: var(--text-3); }
+.pr-actions { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 2px; }
+.pr-actions .btn { padding: 6px 12px; font-size: 13.5px; }
+.pr-score { margin: 0 0 10px; }
+.pr-new { margin-top: 14px; }
 /* dyktando */
 .d-controls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
 .d-btn.playing { border-color: var(--accent); color: var(--accent); background: var(--accent-soft); }
