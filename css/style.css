@@ -459,6 +459,9 @@ kbd { font: 600 12px/1 Inter, system-ui, sans-serif; padding: 2px 5px; border: 1
 .level-test:hover { border-color: var(--lvl); }
 .level-test span:not(.badge):not(.pill) { color: var(--text-2); font-size: 13.5px; }
 .level-test .badge { align-self: flex-start; }
+a.level-test { color: var(--text); }
+a.level-test:hover { text-decoration: none; }
+.level-test .lt-score:empty { display: none; }
 
 /* home – kafelki funkcji */
 .feature-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 32px; }
@@ -584,6 +587,9 @@ kbd { font: 600 12px/1 Inter, system-ui, sans-serif; padding: 2px 5px; border: 1
 .order-cp .order-num { background: transparent; font-size: 17px; }
 .order-cp.is-done .order-num { background: var(--ok-soft); }
 .order-cp .pill { flex-shrink: 0; }
+.order-lt a { border-style: solid; border-left: 4px solid var(--lvl); }
+.lt-badge { display: inline-flex; align-items: center; gap: 4px; padding: 2px 10px; border-radius: 999px; background: var(--ok-soft); color: var(--ok); font-family: Inter, sans-serif; font-size: 13px; font-weight: 600; white-space: nowrap; vertical-align: middle; }
+.order-group-title .lt-badge { margin-left: auto; }
 .cp-next { border-style: dashed; }
 .checkpoint h1 { font-size: clamp(28px, 4.2vw, 40px); margin: 0 0 8px; }
 .checkpoint .test-intro p { margin: 0 0 10px; }

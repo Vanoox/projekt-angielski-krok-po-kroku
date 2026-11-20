@@ -212,6 +212,10 @@
   const cpKey = (c) => "checkpoint:" + c.id;
   const cpPassed = (c) => { const s = state.scores[cpKey(c)]; return !!s && s.correct / s.total >= 0.8; };
   const cpRange = (c) => `${lessonNo(c.lessons[0])}–${lessonNo(c.lessons[c.lessons.length - 1])}`;
+  // Test poziomu (#/test-poziomu/A1): wynik w scores pod „test-level:A1”, zaliczenie od 80% = odznaka przy poziomie.
+  const ltKey = (lv) => "test-level:" + lv;
+  const ltPassed = (lv) => { const s = state.scores[ltKey(lv)]; return !!s && s.correct / s.total >= 0.8; };
+  const ltBadge = (lv) => ltPassed(lv) ? `<span class="lt-badge" title="Test poziomu ${lv} zaliczony">🏅 ${lv} zaliczony</span>` : "";
   // Następny krok na ścieżce: pierwsza nieprzerobiona lekcja – chyba że tuż przed nią jest sprawdzian,
   // którego blok jest już przerobiony, a sam sprawdzian niezaliczony (pominięte starsze sprawdziany nie blokują).
   function nextStep() {
@@ -414,12 +418,26 @@
             </a>
           </li>`;
     };
+    // Kafelek na końcu poziomu: test całego poziomu (zaliczenie = odznaka przy nagłówku poziomu).
+    const ltRow = (lv, ls) => {
+      const passed = ltPassed(lv), s = state.scores[ltKey(lv)];
+      const ready = ls.every((l) => state.done[l.id]);
+      return `<li class="order-item order-cp order-lt${passed ? " is-done" : ""}" data-level="${lv}">
+            <a href="#/test-poziomu/${lv}">
+              <span class="order-num" aria-hidden="true">📝</span>
+              <span class="order-titles"><span class="order-title">Test poziomu ${lv}</span><span class="order-pl">${LT_SIZE} zadań ze wszystkich lekcji ${lv}${passed ? "" : ready ? " – poziom przerobiony, sprawdź się!" : " – zalicz (80%), a dostaniesz odznakę 🏅"}</span></span>
+              ${s ? scorePill(s) : ""}
+              <span class="order-check" aria-label="${passed ? "Zaliczony" : "Niezaliczony"}">${passed ? "✓" : ""}</span>
+            </a>
+          </li>`;
+    };
+    const nLt = LEVELS.filter((lv) => levelLessons(lv).length && ltPassed(lv)).length;
     const levelBars = LEVELS.map((lv) => {
       const ls = PATH.filter((l) => l.level === lv);
       if (!ls.length) return "";
       const d = ls.filter((l) => state.done[l.id]).length;
       return `<a class="order-level" href="#/kolejnosc" data-jump="lvl-${lv}" data-level="${lv}">
-        <div class="order-level-head">${badge(lv)} <b>${LEVEL_INFO[lv].name}</b><span class="muted">${d}/${ls.length}</span></div>
+        <div class="order-level-head">${badge(lv)} <b>${LEVEL_INFO[lv].name}</b>${ltPassed(lv) ? '<span title="Test poziomu zaliczony">🏅</span>' : ""}<span class="muted">${d}/${ls.length}</span></div>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${ls.length}" aria-valuenow="${d}" aria-label="Postęp ${lv}"><i style="width:${percent(d, ls.length)}%"></i></div>
       </a>`;
     }).join("");
@@ -427,7 +445,7 @@
       const ls = PATH.filter((l) => l.level === lv);
       if (!ls.length) return "";
       return `<section class="order-group" id="lvl-${lv}" data-level="${lv}">
-        <h2 class="order-group-title">${badge(lv)} ${LEVEL_INFO[lv].name}</h2>
+        <h2 class="order-group-title">${badge(lv)} ${LEVEL_INFO[lv].name}${ltBadge(lv)}</h2>
         <ol class="order-list">${ls.map((l) => {
           const n = PATH.indexOf(l) + 1;
           const done = !!state.done[l.id];
@@ -441,16 +459,16 @@
               <span class="order-check" aria-label="${done ? "Przerobione" : "Nieprzerobione"}">${done ? "✓" : ""}</span>
             </a>
           </li>${CP_AFTER[l.id] ? cpRow(CP_AFTER[l.id]) : ""}`;
-        }).join("")}</ol>
+        }).join("")}${ltRow(lv, ls)}</ol>
       </section>`;
     }).join("");
     return `<div class="page order-page">
       <div class="crumbs"><a href="#/">Strona główna</a> · <span>Kolejność nauki</span></div>
       <h1>Kolejność nauki</h1>
-      <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).${CHECKPOINTS.length ? " Co kilka lekcji czeka 🏁 <b>sprawdzian powtórkowy</b>: zadania z ostatnich lekcji i trochę z wcześniejszych, głównie pisanie całych zdań." : ""}</p>
+      <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).${CHECKPOINTS.length ? " Co kilka lekcji czeka 🏁 <b>sprawdzian powtórkowy</b>: zadania z ostatnich lekcji i trochę z wcześniejszych, głównie pisanie całych zdań." : ""} Na końcu każdego poziomu jest 📝 <b>test poziomu</b> – za zaliczenie (80%) dostajesz odznakę 🏅.</p>
       <div class="card order-summary">
         <div class="order-total">
-          <div><b>${nDone} z ${PATH.length} lekcji</b> <span class="muted">(${percent(nDone, PATH.length)}%)${CHECKPOINTS.length ? ` · sprawdziany: ${nCp}/${CHECKPOINTS.length}` : ""}</span></div>
+          <div><b>${nDone} z ${PATH.length} lekcji</b> <span class="muted">(${percent(nDone, PATH.length)}%)${CHECKPOINTS.length ? ` · sprawdziany: ${nCp}/${CHECKPOINTS.length}` : ""} · testy poziomów: ${nLt}/${LEVELS.filter((lv) => levelLessons(lv).length).length}</span></div>
           ${step ? `<a class="btn primary" href="${step.href}">${nDone ? "Kontynuuj naukę" : "Zacznij naukę"}: ${esc(step.title)} →</a>` : `<span class="pill good">Wszystkie lekcje przerobione!</span>`}
         </div>
         <div class="progress big" role="progressbar" aria-valuemin="0" aria-valuemax="${PATH.length}" aria-valuenow="${nDone}" aria-label="Postęp całego kursu"><i style="width:${percent(nDone, PATH.length)}%"></i></div>
@@ -1621,10 +1639,10 @@
   // ---------- Testy (pisanie zdań, sprawdzanie na końcu) ----------
   let testCfg = { levels: LEVELS.slice(), cats: [], count: 20 };
   function renderTests() {
-    const perLevel = LEVELS.map((lv) => ({ lv, n: PATH.filter((l) => l.level === lv).reduce((s, l) => s + l.test.length, 0) }));
+    const perLevel = LEVELS.map((lv) => ({ lv, n: levelLessons(lv).length }));
     return `<div class="page">
       <div class="hero"><h1>📝 Testy</h1><p>Test składa się głównie z zadań, w których <b>samodzielnie piszesz całe zdania</b>: tłumaczenie z polskiego, przekształcanie (np. na stronę bierną, mowę zależną), poprawianie błędów i układanie zdań. Wynik zobaczysz dopiero na końcu – jak na prawdziwym sprawdzianie.</p></div>
-      <div class="level-test-row">${perLevel.filter((x) => x.n).map((x) => `<button class="card level-test" data-level="${x.lv}" data-lv="${x.lv}">${badge(x.lv)} <b>Test poziomu ${x.lv}</b><span>20 losowych zadań z ${x.n}</span>${scorePill(state.scores["test-level:" + x.lv])}</button>`).join("")}</div>
+      <div class="level-test-row">${perLevel.filter((x) => x.n).map((x) => `<a class="card level-test" data-level="${x.lv}" href="#/test-poziomu/${x.lv}">${badge(x.lv)} <b>Test poziomu ${x.lv}</b><span>${LT_SIZE} zadań ze wszystkich ${x.n} lekcji, z raportem tematów</span><span class="lt-score">${scorePill(state.scores[ltKey(x.lv)])}${ltPassed(x.lv) ? " 🏅" : ""}</span></a>`).join("")}</div>
       ${CHECKPOINTS.length ? `<h2 class="section-title">🏁 Sprawdziany powtórkowe</h2>
       <p class="muted-p">Co kilka lekcji: zadania z ostatniego bloku lekcji i trochę z wcześniejszych, głównie pisanie całych zdań. Stoją też w <a href="#/kolejnosc">kolejności nauki</a>.</p>
       <div class="results-list">${CHECKPOINTS.map((c) => { const { cur, rev } = cpSize(c); return `<a class="card result-item test-link" href="#/sprawdzian/${c.id}"><h3>${badge(c.level)} Sprawdzian ${c.n}: ${esc(c.title)} <span class="muted" style="font-family:Inter;font-size:14px;font-weight:400">lekcje ${cpRange(c)} · ${cur + rev} zadań</span> ${scorePill(state.scores[cpKey(c)])}${cpPassed(c) ? " ✓" : ""}</h3></a>`; }).join("")}</div>` : ""}
@@ -1637,30 +1655,16 @@
   }
   function bindTests() {
     const poolFor = (cfg) => lessonPool(cfg).flatMap((l) => l.test.map((ex) => ({ ex, lesson: l })));
-    const run = (items, key, title) => {
+    const start = () => {
+      const items = shuffle(poolFor(testCfg)).slice(0, testCfg.count);
       const box = $("#pBox");
       if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.</div>`; return; }
-      box.innerHTML = exercisesShell(title, { retryLabel: "Nowy test" });
-      renderExercises(box.firstElementChild, items, { showSource: true, mode: "deferred", key });
-      return box;
-    };
-    const start = () => {
-      const box = run(shuffle(poolFor(testCfg)).slice(0, testCfg.count), null, "Test");
-      if (!box) return;
+      box.innerHTML = exercisesShell("Test", { retryLabel: "Nowy test" });
+      renderExercises(box.firstElementChild, items, { showSource: true, mode: "deferred" });
       box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
       box.scrollIntoView();
     };
     bindSetup(testCfg, () => poolFor(testCfg), start);
-    document.querySelectorAll(".level-test").forEach((b) => b.addEventListener("click", () => {
-      const lv = b.dataset.lv;
-      const go = () => {
-        const box = run(shuffle(poolFor({ levels: [lv], cats: [] })).slice(0, 20), "test-level:" + lv, `Test poziomu ${lv}`);
-        if (!box) return;
-        box.querySelector(".retry").addEventListener("click", () => { go(); box.scrollIntoView(); });
-        box.scrollIntoView();
-      };
-      go();
-    }));
   }
 
   // ---------- Sprawdziany powtórkowe (#/sprawdzian/<id>) ----------
@@ -1731,7 +1735,10 @@
     </div>`;
   }
 
-  function cpReportHtml(c, items, ctls, correct, total) {
+  // Raport po sprawdzianie / teście poziomu: wynik z podziałem na lekcje, najsłabsze na górze.
+  // opts: noun („Sprawdzian” / „Test poziomu A1”), isReview(l) – lekcja spoza bloku (dopisek „powtórka”),
+  // after – { href, label } przycisku „Dalej” po zaliczeniu.
+  function reportHtml(items, ctls, correct, total, opts) {
     const by = new Map();
     ctls.forEach((ctl) => {
       const l = items[+ctl.card.dataset.i].lesson;
@@ -1742,20 +1749,28 @@
     const rows = [...by].sort((a, b) => a[1].ok / a[1].n - b[1].ok / b[1].n || PATH.indexOf(a[0]) - PATH.indexOf(b[0]));
     const weak = rows.filter(([, r]) => r.ok < r.n);
     const passed = correct / total >= 0.8;
-    const last = c.lessons[c.lessons.length - 1], after = PATH[PATH.indexOf(last) + 1];
     const need = Math.ceil(total * 0.8) - correct;
+    const isReview = opts.isReview || (() => false);
     return `<div class="card cp-report">
-      <h3>${passed ? "✓ Sprawdzian zaliczony" : `Do zaliczenia zabrakło ${need} ${need === 1 ? "punktu" : "punktów"}`}</h3>
+      <h3>${passed ? `✓ ${opts.noun} zaliczony` : `Do zaliczenia zabrakło ${need} ${need === 1 ? "punktu" : "punktów"}`}</h3>
       <p>${passed
         ? (weak.length ? "Brawo! Zerknij jeszcze na lekcje z błędami poniżej, zanim pójdziesz dalej." : "Bezbłędnie we wszystkich lekcjach – można iść dalej.")
         : "Przejrzyj poprawki przy zadaniach, powtórz lekcje z błędami (teoria i ćwiczenia), a potem wylosuj nowy zestaw."}</p>
+      ${weak.length ? `<p><b>Do powtórki:</b> ${weak.slice(0, 5).map(([l]) => esc(l.title)).join(", ")}${weak.length > 5 ? ` i ${weak.length - 5} więcej` : ""}. Zadania z błędami trafiły do <a href="#/bledy">Moich błędów</a> – wrócą jutro do powtórki.</p>` : ""}
       <table class="cp-table"><thead><tr><th>Lekcja</th><th>Wynik</th><th></th></tr></thead><tbody>
-        ${rows.map(([l, r]) => `<tr class="${r.ok < r.n ? "cp-weak" : ""}"><td><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}${c.lessons.includes(l) ? "" : ' <span class="muted">(powtórka)</span>'}</td>
+        ${rows.map(([l, r]) => `<tr class="${r.ok < r.n ? "cp-weak" : ""}"><td><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}${isReview(l) ? ' <span class="muted">(powtórka)</span>' : ""}</td>
           <td>${scorePill({ correct: r.ok, total: r.n })}</td>
           <td>${r.ok < r.n ? `<a class="btn small" href="#/lesson/${l.id}/practice" title="Ćwiczenia z tej lekcji">Powtórz →</a>` : "✓"}</td></tr>`).join("")}
       </tbody></table>
-      ${passed && after ? `<p><a class="btn primary" href="#/lesson/${after.id}">Dalej: ${esc(after.title)} →</a></p>` : ""}
+      ${passed && opts.after ? `<p><a class="btn primary" href="${opts.after.href}">${esc(opts.after.label)} →</a></p>` : ""}
     </div>`;
+  }
+  function cpReportHtml(c, items, ctls, correct, total) {
+    const last = c.lessons[c.lessons.length - 1], after = PATH[PATH.indexOf(last) + 1];
+    return reportHtml(items, ctls, correct, total, {
+      noun: "Sprawdzian", isReview: (l) => !c.lessons.includes(l),
+      after: after && { href: `#/lesson/${after.id}`, label: `Dalej: ${after.title}` },
+    });
   }
 
   function bindCheckpoint(id) {
@@ -1767,6 +1782,54 @@
       renderExercises(box, items, {
         key: cpKey(c), mode: "deferred", showSource: true,
         onDone: (correct, total, ctls) => { $("#cpReport").innerHTML = cpReportHtml(c, items, ctls, correct, total); },
+      });
+    };
+    run();
+    box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+  }
+
+  // ---------- Test poziomu (#/test-poziomu/<poziom>) ----------
+  // 30 zadań ze wszystkich lekcji poziomu, po równo z każdej (pickTasks: głównie pisanie zdań, co szóste – układanie).
+  const LT_SIZE = 30;
+  const levelLessons = (lv) => PATH.filter((l) => l.level === lv);
+  function renderLevelTest(lv) {
+    const ls = levelLessons(lv);
+    if (!ls.length) return `<div class="page empty"><h1>Nie znaleziono testu</h1><p><a href="#/tests">Wróć do testów</a></p></div>`;
+    const s = state.scores[ltKey(lv)];
+    const nDone = ls.filter((l) => state.done[l.id]).length;
+    const last = ls[ls.length - 1], after = PATH[PATH.indexOf(last) + 1];
+    return `<div class="page checkpoint" data-level="${lv}">
+      <div class="crumbs" data-level="${lv}"><a href="#/kolejnosc">🧭 Kolejność nauki</a> · ${badge(lv)} <span>${LEVEL_INFO[lv].name}</span></div>
+      <h1>📝 Test poziomu ${lv}</h1>
+      <p class="summary">Sprawdza cały poziom ${lv} (${LEVEL_INFO[lv].name}): lekcje ${lessonNo(ls[0])}–${lessonNo(last)}. Zadania są wymieszane i nie widać, z której lekcji pochodzą. Po teście zobaczysz raport: które tematy idą dobrze, a które trzeba powtórzyć.</p>
+      <div class="card test-intro">
+        <p><b>${LT_SIZE} zadań</b>, po równo z każdej z ${ls.length} lekcji poziomu. Prawie wszystkie to <b>pisanie całych zdań</b> (tłumaczenie, przekształcanie, poprawianie błędów), kilka to układanie zdań z wyrazów. Wynik i poprawki zobaczysz po kliknięciu „Zakończ i sprawdź”. Zaliczenie od <b>80%</b> – dostajesz wtedy odznakę 🏅 przy poziomie w <a href="#/kolejnosc">kolejności nauki</a>. Każde podejście losuje nowe zadania.</p>
+        ${nDone < ls.length ? `<p class="callout warning">Przerobione lekcje tego poziomu: ${nDone} z ${ls.length}. Test obejmuje wszystkie – możesz pisać od razu (np. żeby sprawdzić, co już umiesz), ale najlepiej po przerobieniu całego poziomu.</p>` : ""}
+        ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${ltPassed(lv) ? ` – <b>zaliczone ✓</b> ${ltBadge(lv)}` : ""}</p>` : ""}
+      </div>
+      <div id="cpBox" class="cp-run">${exercisesShell("Zadania", { h3: true, retryLabel: "Nowe losowanie" })}</div>
+      <div id="cpReport"></div>
+      <div class="pager">
+        <a class="card prev" href="#/lesson/${last.id}"><small>← Ostatnia lekcja poziomu</small>${esc(last.title)} ${badge(last.level)}</a>
+        ${after ? `<a class="card next" href="#/lesson/${after.id}"><small>Następny poziom →</small>${badge(after.level)} ${esc(after.title)}</a>` : `<a class="card next" href="#/tests"><small>Dalej →</small>📝 Testy</a>`}
+      </div>
+    </div>`;
+  }
+  function bindLevelTest(lv) {
+    const ls = levelLessons(lv); if (!ls.length) return;
+    const box = $("#cpBox").firstElementChild;
+    const after = PATH[PATH.indexOf(ls[ls.length - 1]) + 1];
+    const run = () => {
+      const items = shuffle(pickTasks(ls, LT_SIZE));
+      $("#cpReport").innerHTML = "";
+      renderExercises(box, items, {
+        key: ltKey(lv), mode: "deferred", showSource: true,
+        onDone: (correct, total, ctls) => {
+          $("#cpReport").innerHTML = reportHtml(items, ctls, correct, total, {
+            noun: `Test poziomu ${lv}`,
+            after: after && { href: `#/lesson/${after.id}`, label: `Dalej: poziom ${after.level} – ${after.title}` },
+          });
+        },
       });
     };
     run();
@@ -1993,6 +2056,10 @@
       const id = h.slice(13);
       content.innerHTML = renderCheckpoint(id); bindCheckpoint(id);
       if (CP_BY_ID[id]) title = `Sprawdzian ${CP_BY_ID[id].n}: ${CP_BY_ID[id].title} – ${title}`;
+    } else if (h.startsWith("#/test-poziomu/")) {
+      const lv = h.slice(15).toUpperCase();
+      content.innerHTML = renderLevelTest(lv); bindLevelTest(lv);
+      title = `Test poziomu ${lv} – ${title}`;
     } else if (h.startsWith("#/slowka")) {
       content.innerHTML = renderWords(); bindWords(); title = `Słówka na dziś – ${title}`;
     } else if (h.startsWith("#/bledy")) {
