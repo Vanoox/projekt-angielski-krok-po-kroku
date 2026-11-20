@@ -12,7 +12,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
-  <link rel="stylesheet" href="css/style.css?v=dac719d9c8">
+  <link rel="stylesheet" href="css/style.css?v=ba36bc92b6">
   <script>
     try { const t = localStorage.getItem("eng-theme"); if (t) document.documentElement.dataset.theme = t; } catch (e) {}
   </script>
@@ -20,10 +20,12 @@
 <body>
   <header class="topbar">
     <button class="icon-btn menu-btn" id="menuBtn" aria-label="Menu"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M3 6h18M3 12h18M3 18h18"/></svg><span class="menu-count" hidden></span></button>
-    <a href="#/" class="logo"><span class="logo-mark">En</span><span class="logo-text">Gramatyka <b>A1–B2</b></span></a>
+    <a href="#/" class="logo"><span class="logo-mark">EN</span><span class="logo-text">Gramatyka <b>A1–B2</b></span></a>
     <div class="search">
       <input id="search" type="search" placeholder="Szukaj tematu lub słówka, np. „present perfect”, „kitchen”…  ( / )" autocomplete="off">
+      <button class="icon-btn search-close" id="searchClose" aria-label="Zamknij wyszukiwanie"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M18 6 6 18M6 6l12 12"/></svg></button>
     </div>
+    <button class="icon-btn search-btn" id="searchBtn" aria-label="Szukaj" title="Szukaj"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/></svg></button>
     <nav class="top-links">
       <a href="#/kolejnosc" class="top-link" title="Kolejność nauki"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/></svg><span class="tl-txt"> Kolejność</span></a>
       <a href="#/vocab" class="top-link" title="Słownictwo"><svg class="ic" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg><span class="tl-txt"> Słownictwo</span><span class="wd-count top-count" title="Słówka na dziś" hidden></span></a>
@@ -50,6 +52,6 @@
   <script src="data/bundle.js?v=374964a8d6"></script>
   <!-- DATA:END -->
   <!-- Aplikacja -->
-  <script src="js/app.js?v=2d172edb54"></script>
+  <script src="js/app.js?v=ac9d2fac02"></script>
 </body>
 </html>

@@ -9,6 +9,7 @@
     x: '<path d="M18 6 6 18M6 6l12 12"/>',
     menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
     contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+    search: '<circle cx="11" cy="11" r="8"/><path d="m21 21-4.3-4.3"/>',
     compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/>',
     book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
     cards: '<rect x="3" y="7" width="13" height="14" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/>',
@@ -39,6 +40,8 @@
     headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
   };
   const icon = (name, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
+  // Ostatnie słowo tytułu + ✓ w jednym kawałku – znaczek nie przeskakuje sam do nowej linii.
+  const doneTick = (title, done) => (done ? title.replace(/\S+$/, (w) => `<span class="done-tick">${w}&nbsp;${icon("check")}</span>`) : title);
   const LEVEL_INFO = {
     A1: { name: "Początkujący", desc: "Podstawy: to be, proste czasy, liczba mnoga, zaimki, przyimki." },
     A2: { name: "Podstawowy", desc: "Codzienna komunikacja: przeszłość, przyszłość, stopniowanie, modalne." },
@@ -1027,7 +1030,7 @@
     }).join("");
     return `<div class="page order-page">
       <div class="crumbs"><a href="#/">Strona główna</a> · <span>Kolejność nauki</span></div>
-      <h1>Kolejność nauki</h1>
+      <h1>${icon("compass")} Kolejność nauki</h1>
       <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).${CHECKPOINTS.length ? ` Co kilka lekcji czeka ${icon("flag")} <b>sprawdzian powtórkowy</b>: zadania z ostatnich lekcji i trochę z wcześniejszych, głównie pisanie całych zdań.` : ""} Na końcu każdego poziomu jest ${icon("test")} <b>test poziomu</b> – za zaliczenie (80%) dostajesz odznakę ${icon("medal")}.</p>
       <div class="card order-summary">
         <div class="order-total">
@@ -1693,7 +1696,7 @@
     const ctls = [];
     const finishAll = () => {
       const p = Math.round((correct / total) * 100);
-      const msg = p === 100 ? "Perfekcyjnie! 🎉" : p >= 80 ? "Bardzo dobrze! 👏" : p >= 50 ? "Nieźle — przejrzyj błędy i spróbuj jeszcze raz." : "Warto wrócić do teorii i powtórzyć ćwiczenia.";
+      const msg = p === 100 ? "Perfekcyjnie! 🎉" : p >= 80 ? "Bardzo dobrze! 👏" : p >= 50 ? "Nieźle – przejrzyj błędy i spróbuj jeszcze raz." : "Warto wrócić do teorii i powtórzyć ćwiczenia.";
       resultEl.innerHTML = `<div class="card result-banner"><b>${correct} / ${total} (${p}%)</b><div>${msg}</div>${errSummaryHtml(ctls)}</div>`;
       if (opts.key) { saveScore(opts.key, correct, total); }
       if (opts.onDone) opts.onDone(correct, total, ctls);
@@ -2043,7 +2046,7 @@
     const v = l.vocab && l.vocab.items || [];
     const prep = req.length || v.length ? `<div class="card prep">
         <h3>${icon("briefcase")} Zanim zaczniesz</h3>
-        ${req.length ? `<p><b>Powinieneś znać:</b> ${req.map((r) => `<a href="#/lesson/${r.id}">${esc(r.title)}</a>${state.done[r.id] ? " " + icon("check") : ""}`).join(", ")}</p>` : ""}
+        ${req.length ? `<p><b>Powinieneś znać:</b> ${req.map((r) => `<a href="#/lesson/${r.id}">${doneTick(esc(r.title), state.done[r.id])}</a>`).join(", ")}</p>` : ""}
         ${v.length ? `<p><b>Słówka potrzebne w tej lekcji</b> (${v.length}): ${v.slice(0, 14).map((w) => `<span class="w-chip" title="${esc(stripTags(w.pl))}">${w.en}</span>`).join(" ")}${v.length > 14 ? " …" : ""}</p>
         <a class="btn small" href="#/lesson/${l.id}/vocab">${icon("type")} Przećwicz słówka →</a>` : ""}
       </div>` : "";
@@ -2335,7 +2338,7 @@
   const reachLabel = () => reachIdx() ? `lekcje 1–${reachIdx() + 1}` : "lekcja 1";
   function renderPractice() {
     return `<div class="page">
-      <div class="hero"><h1>${icon("target")} Trening mieszany</h1><p>Losowe zadania z wielu lekcji (sprawdzane od razu) — dobry sposób, żeby sprawdzić, czy umiesz rozpoznać właściwą konstrukcję, gdy nie wiesz, z jakiej lekcji jest zadanie.</p></div>
+      <div class="hero"><h1>${icon("target")} Trening mieszany</h1><p>Losowe zadania z wielu lekcji (sprawdzane od razu) – dobry sposób, żeby sprawdzić, czy umiesz rozpoznać właściwą konstrukcję, gdy nie wiesz, z jakiej lekcji jest zadanie.</p></div>
       ${setupHtml(practiceCfg, [10, 15, 25, 40], `<div><h3>Rodzaj zadań</h3><div class="chips" data-f="src">${Object.entries(SRC).map(([k, v]) => `<button class="chip ${practiceCfg.src === k ? "active" : ""}" data-v="${k}">${v}</button>`).join("")}</div></div>`)}
       <div id="pBox"></div>
     </div>`;
@@ -2446,7 +2449,7 @@
       <p class="summary">Powtórka po lekcjach ${cpRange(c)}${c.prior.length ? ` z dodatkiem zadań z lekcji 1–${lessonNo(c.lessons[0]) - 1}` : ""}. Zadania są wymieszane i nie widać, z której lekcji pochodzą – trzeba samemu rozpoznać, jakiej konstrukcji użyć.</p>
       <div class="card test-intro">
         <p><b>Co sprawdzamy:</b> ${esc(c.focus || "")}</p>
-        <p class="cp-lessons"><b>Lekcje:</b> ${c.lessons.map((l) => `<a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a>${state.done[l.id] ? " " + icon("check") : ""}`).join(" · ")}</p>
+        <p class="cp-lessons"><b>Lekcje:</b> ${c.lessons.map((l) => `<a href="#/lesson/${l.id}">${lessonNo(l)}. ${doneTick(esc(l.title), state.done[l.id])}</a>`).join(" · ")}</p>
         <p><b>${cur + rev} zadań</b>: ${cur} z tych lekcji${rev ? ` i ${rev} z wcześniejszych` : ""}. Prawie wszystkie to <b>pisanie całych zdań</b> (tłumaczenie, przekształcanie, poprawianie błędów), kilka to układanie zdań z wyrazów. Wynik i poprawki zobaczysz po kliknięciu „Zakończ i sprawdź”. Zaliczenie od <b>80%</b>. Każde podejście losuje nowe zadania.</p>
         ${todo.length ? `<p class="callout warning">Możesz pisać od razu, ale najlepiej najpierw przerobić: ${todo.map((l) => `<a href="#/lesson/${l.id}">${esc(l.title)}</a>`).join(", ")}</p>` : ""}
         ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${cpPassed(c) ? ` – <b>zaliczone ${icon("check")}</b>` : ""}</p>` : ""}
@@ -2755,7 +2758,7 @@
       if (words.length >= 30) break;
     }
     const hl = (s) => { let out = esc(s); terms.forEach((t) => { out = out.replace(new RegExp(t.replace(/[.*+?^${}()|[\]\\]/g, "\\$&"), "gi"), (m) => `<mark>${m}</mark>`); }); return out; };
-    return `<div class="page"><h1 style="font-size:30px">Wyniki dla „${esc(q)}”</h1>
+    return `<div class="page"><h1 class="search-h1">${icon("search")} Wyniki dla „${esc(q)}”</h1>
       ${hits.length ? `<div class="results-list">${hits.map(({ l }) => `<a class="card result-item" href="#/lesson/${l.id}">
         <h3>${badge(l.level)} ${hl(l.title)}</h3><p><b>${hl(l.titlePl)}</b> · ${esc(l.category)}</p><p>${hl(stripTags(l.summary))}</p></a>`).join("")}</div>`
         : words.length ? "" : `<div class="empty">Nic nie znaleziono. Spróbuj innego słowa, np. „past”, „modal”, „if”, „przedimki”.</div>`}
@@ -2870,7 +2873,15 @@
       else if (!q && location.hash.startsWith("#/search/")) location.hash = "#/";
     }, 200);
   });
-  $("#search").addEventListener("keydown", (e) => { if (e.key === "Escape") { e.target.value = ""; e.target.blur(); } });
+  // Telefon i tablet (do 960px): pole wyszukiwania schowane pod lupą, po otwarciu zakrywa pasek górny.
+  const closeSearch = () => { const el = $("#search"); el.value = ""; el.blur(); document.body.classList.remove("search-open"); if (location.hash.startsWith("#/search/")) location.hash = "#/"; };
+  $("#searchBtn").addEventListener("click", () => { document.body.classList.add("search-open"); $("#search").focus(); });
+  $("#searchClose").addEventListener("click", closeSearch);
+  const SEARCH_PH = $("#search").placeholder, PHONE = matchMedia("(max-width: 960px)");
+  const syncSearchPh = () => { $("#search").placeholder = PHONE.matches ? "Szukaj tematu lub słówka…" : SEARCH_PH; };
+  syncSearchPh(); PHONE.addEventListener("change", syncSearchPh);
+  $("#search").addEventListener("blur", (e) => { if (!e.target.value.trim()) document.body.classList.remove("search-open"); });
+  $("#search").addEventListener("keydown", (e) => { if (e.key === "Escape") closeSearch(); });
   document.addEventListener("keydown", (e) => {
     if (e.key === "/" && !/input|textarea/i.test(document.activeElement.tagName)) { e.preventDefault(); $("#search").focus(); }
   });
@@ -2927,7 +2938,7 @@
   initOffline();
   // Słowniki do opisu błędów (ok. 0,3 s) budujemy, gdy przeglądarka nic nie robi – nie przy pierwszym „Sprawdź”.
   if ("requestIdleCallback" in window) requestIdleCallback(() => errDicts(), { timeout: 8000 }); else setTimeout(errDicts, 3000);
-  window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) $("#search").value = ""; route(); });
+  window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) { $("#search").value = ""; document.body.classList.remove("search-open"); } route(); });
 
   // Udostępnione do testów automatycznych (tools/).
   window.__ENG = { matches, expandAnswer, vocabMatch, variants };
