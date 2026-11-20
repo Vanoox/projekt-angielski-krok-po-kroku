@@ -25,6 +25,14 @@ window.PRACTICE["future-arrangements"] = {
       { en: "move house", pl: "przeprowadzać się" },
       { en: "at the weekend (BrE) / on the weekend (AmE)", pl: "w weekend" },
       { en: "the day after tomorrow", pl: "pojutrze" },
+      // --- słowa z ćwiczeń ---
+      { en: "public holiday", pl: "święto państwowe, dzień wolny" },
+      { en: "on business", pl: "służbowo, w interesach" },
+      { en: "according to", pl: "według" },
+      { en: "forecast", pl: "prognoza (pogody)" },
+      { en: "collect (someone)", pl: "odebrać (kogoś)" },
+      { en: "term", pl: "semestr" },
+      { en: "local time", pl: "czasu lokalnego" },
     ],
   },
 

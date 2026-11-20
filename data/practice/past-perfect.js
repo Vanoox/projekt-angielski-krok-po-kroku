@@ -27,6 +27,15 @@ window.PRACTICE["past-perfect"] = {
       { en: "dye", pl: "farbować (włosy)", note: "dye – dyed – dyed (nie mylić z die – umierać)" },
       { en: "perform", pl: "występować (na scenie)" },
       { en: "it was the first time", pl: "to był pierwszy raz", note: "po tym wyrażeniu w opowieści o przeszłości: Past Perfect" },
+      // --- słowa z ćwiczeń ---
+      { en: "destroy", pl: "zniszczyć" },
+      { en: "pain", pl: "ból" },
+      { en: "kangaroo", pl: "kangur" },
+      { en: "lose weight", pl: "schudnąć" },
+      { en: "delete", pl: "usunąć, skasować" },
+      { en: "audience", pl: "publiczność" },
+      { en: "escape", pl: "uciec" },
+      { en: "conference", pl: "konferencja" },
     ],
   },
 

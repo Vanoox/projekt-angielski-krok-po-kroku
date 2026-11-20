@@ -3,7 +3,7 @@ window.LESSONS.push({
   "id": "tenses-overview",
   "title": "English tenses – overview",
   "titlePl": "Przegląd wszystkich czasów",
-  "level": "B1",
+  "level": "B2",
   "category": "Czasy",
   "summary": "Zestawienie 12 czasów angielskich w jednym miejscu: budowa, zastosowanie, przykłady i słowa-sygnały, porównanie najczęściej mylonych par oraz ćwiczenia na wybór właściwego czasu.",
   "sections": [

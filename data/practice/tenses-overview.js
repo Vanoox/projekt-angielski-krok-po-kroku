@@ -1,6 +1,6 @@
 window.PRACTICE = window.PRACTICE || {};
 window.PRACTICE["tenses-overview"] = {
-  requires: ["present-simple-vs-continuous", "present-perfect-vs-past-simple", "past-perfect"],
+  requires: ["present-simple-vs-continuous", "present-perfect-vs-past-simple", "past-perfect-continuous", "future-perfect"],
 
   vocab: {
     intro: "Słowa-sygnały, które pomagają rozpoznać czas. Pamiętaj jednak, że o wyborze czasu decyduje sens całego zdania – słowo-sygnał to tylko wskazówka.",
@@ -27,6 +27,16 @@ window.PRACTICE["tenses-overview"] = {
       { en: "as soon as", pl: "jak tylko, gdy tylko", note: "o przyszłości + Present Simple: as soon as I get home" },
       { en: "probably / I think", pl: "prawdopodobnie / myślę, że", note: "przewidywania-opinie: will" },
       { en: "in (two days)", pl: "za (dwa dni)", ex: "I'll be back in two days.", exPl: "Wrócę za dwa dni." },
+      // --- słowa z ćwiczeń ---
+      { en: "diary", pl: "kalendarz, terminarz; pamiętnik" },
+      { en: "set an alarm", pl: "nastawić budzik" },
+      { en: "metro", pl: "metro" },
+      { en: "several", pl: "kilka" },
+      { en: "application", pl: "podanie, zgłoszenie" },
+      { en: "childhood", pl: "dzieciństwo" },
+      { en: "celebrate", pl: "świętować" },
+      { en: "sunset", pl: "zachód słońca" },
+      { en: "disappear", pl: "zniknąć" },
     ],
   },
 

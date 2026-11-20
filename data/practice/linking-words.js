@@ -28,6 +28,18 @@ window.PRACTICE["linking-words"] = {
       { en: "as well as", pl: "a także, oprócz" },
       { en: "be cancelled (BrE) / be canceled (AmE)", pl: "zostać odwołanym" },
       { en: "be delayed", pl: "być opóźnionym, mieć opóźnienie" },
+      // --- słowa z ćwiczeń ---
+      { en: "reliable", pl: "niezawodny" },
+      { en: "map", pl: "mapa" },
+      { en: "stressful", pl: "stresujący" },
+      { en: "cosy", pl: "przytulny" },
+      { en: "technical", pl: "techniczny" },
+      { en: "fog", pl: "mgła" },
+      { en: "sporty", pl: "wysportowany, lubiący sport" },
+      { en: "snack", pl: "przekąska" },
+      { en: "strike", pl: "strajk" },
+      { en: "low", pl: "niski" },
+      { en: "well paid", pl: "dobrze płatny" },
     ],
   },
 

@@ -134,85 +134,85 @@ rd, nd
 
 
 
-## 34. present-perfect-vs-past-simple (B1) – 23 słów
+## 34. present-perfect-vs-past-simple (B1) – 6 słów
 
-motorway [A2], chopin, composed, octopus, episode [A2], factory [A1], resigned [B1], robbery [B1], picasso, john, primary [A2], scientists, discovered, powerful, telescope, army, hometown, split [B1], mango, leonardo, da, whale [A1], charles*
+chopin, picasso, john, leonardo, da, charles*
 
-## 35. present-perfect-continuous (B1) – 7 słów
+## 35. present-perfect-continuous (B1) – 1 słów
 
-sunburn [B1], chapters, covered [B1], onions, spotless, mess [A2], muddy
+sunburn [B1]
 
-## 36. past-perfect (B1) – 9 słów
+## 36. past-perfect (B1) – 1 słów
 
-conference [B1], escaped [B2], wish, destroyed [B1], pain [A2], kangaroo, weight [A2], deleted* [A2], audience* [A2]
+wish
 
-## 37. future-arrangements (B1) – 8 słów
+## 37. future-arrangements (B1) – 1 słów
 
-local, term [A2], st, public [A2], business [A2], according [B1], forecast [B1], collect [B2]
+st
 
-## 38. future-time-clauses (B1) – 11 słów
+## 38. future-time-clauses (B1) – 3 słów
 
-contract [B1], licence [A2], paweł, delighted [B1], pytanie, czas, lottery [B1], yacht, share [A2], tidy [A2], chapter
+paweł, pytanie, czas
 
-## 39. gerund-infinitive (B1) – 16 słów
+## 39. gerund-infinitive (B1) – 0 słów
 
-imagine, rather*, instead, necessary, rewrite, interrupting, desert [A2], helmet, complaining* [B1], salary [A2], rude [A2], inform, politician, jokes, solving, directions* [B1]
 
-## 40. used-to-would (B1) – 20 słów
 
-olives, porch, lenses, spinach, dolls, cherry, software [B1], coal [B2], instrument [A2], bookshop [A1], serious [A2], teenager [A2], farm [A1], smartphones [A2], neighbourhood [B1], jazz, war, scared [A2], clowns, attack
+## 40. used-to-would (B1) – 2 słów
 
-## 41. too-enough-so-such (B1) – 2 słów
+porch, lenses
 
-race [A2], stupid
+## 41. too-enough-so-such (B1) – 0 słów
 
-## 42. conditional-2 (B1) – 25 słów
 
-aliens, grateful [B1], details, scream, dollars, model, junk [B1], bonus [B1], celebrate [A2], tiny, dinosaurs, alive, video [A1], rubbish [A2], surfing, chance [B1], fit [A2], trouble [B1], tattoo [A2], air [A2], millionaire, humans [B2], breathe, marks* [A2], president*
 
-## 43. passive-voice (B1) – 31 słów
+## 42. conditional-2 (B1) – 5 słów
 
-included [A2], wood [A2], served [B2], romeo, examined [B1], solved*, interrupted, album [A2], generous [A2], detour, haunted, locally, completed, penicillin, successfully, dishwasher [A2], criticised, replaced, parent, fifteenth, bulb, documents* [A2], cleared [B2], site, promotion [B1], complaint [B1], deal [B1], credit [A2], pronounced, directed* [B1], photographed*
+aliens, details, scream, dollars, model
 
-## 44. reported-speech (B1) – 17 słów
+## 43. passive-voice (B1) – 5 słów
 
-instructor, true [B2], relacjonujesz, po, powrocie, domu, guide, attendant [B1], lady, guard, accused [B1], agent [A2], lifeguard, arguments [B1], siblings, mug*, interrupt*
+wood [A2], romeo, examined [B1], album [A2], generous [A2]
 
-## 45. relative-clauses (B1) – 25 słów
+## 44. reported-speech (B1) – 4 słów
 
-treats, inhabitants, helpful* [A2], certificate [A2], products [B2], stamps, oba, poprawne, metres, attracts, climbers, rented [A2], lungs, author, tak, można, pominąć, actress, annoyed [A2], demanding [B2], coast [A2], competition [A2], podcast [B1], mechanic, jim*
+relacjonujesz, po, powrocie, domu
+
+## 45. relative-clauses (B1) – 8 słów
+
+treats, inhabitants, oba, poprawne, tak, można, pominąć, jim*
 
 ## 46. question-tags (B1) – 2 słów
 
 lubisz, jazzu
 
-## 47. linking-words (B1) – 13 słów
+## 47. linking-words (B1) – 3 słów
 
-staff [A2], weak, injury [B1], low [B1], reliable [A2], map [A1], stressful, cosy [B1], technical, fog, sporty, snacks, strike* [B1]
+staff [A2], weak, injury [B1]
 
-## 48. phrasal-verbs (B1) – 13 słów
+## 48. phrasal-verbs (B1) – 1 słów
 
-argument [B1], subject [A1], behaviour, dizzy [B1], plug [B1], role, count [B1], stubborn [B1], impatient [A2], quick, firm, figure [B1], application* [A2]
+subject [A1]
 
-## 49. tenses-overview (B1) – 9 słów
-
-diary, alarm, metro, several, applications [A2], childhood, celebrating* [A2], sunset* [A2], disappeared*
-
-## 50. past-perfect-continuous (B2) – 3 słów
+## 49. past-perfect-continuous (B2) – 3 słów
 
 promoted [B1], mud, proud [A2]
 
-## 51. future-continuous (B2) – 6 słów
+## 50. future-continuous (B2) – 5 słów
 
-ladies, gentlemen, popcorn, nap [B1], vacuuming [A2], client* [A2]
+gentlemen, popcorn, nap [B1], vacuuming [A2], client* [A2]
 
-## 52. future-perfect (B2) – 4 słów
+## 51. future-perfect (B2) – 4 słów
 
 cure [B2], disease, loan [B1], luck [A1]
 
-## 53. modals-deduction (B2) – 12 słów
+## 52. tenses-overview (B2) – 0 słów
 
-cable, surprise, killed, mushrooms, poisonous, joking, gps [B1], salesman, diamond, cross [B2], lid, sunscreen
+
+
+## 53. modals-deduction (B2) – 11 słów
+
+cable, surprise, killed, mushrooms, poisonous, gps [B1], salesman, diamond, cross [B2], lid, sunscreen
 
 ## 54. conditional-3-mixed (B2) – 10 słów
 
@@ -222,7 +222,7 @@ organised [A2], goalkeeper, pewno, heights [A2], patience, temper [B1], salmon, 
 
 ex-boyfriend, crazy, szkoda, że, przyszedłeś, merry [A2]
 
-## 56. causative (B2) – 16 słów
+## 56. causative (B2) – 15 słów
 
-nails* [B2], flu [A2], jab [B2], snatched, secretary, porter, expired, renewed, salon*, swollen [B1], photographer, blood [A2], pressure [B1], carpets*, account* [A2], brakes*
+nails* [B2], flu [A2], jab [B2], snatched, secretary, porter, expired, renewed, salon*, swollen [B1], blood [A2], pressure [B1], carpets*, account* [A2], brakes*
 

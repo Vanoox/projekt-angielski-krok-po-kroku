@@ -26,6 +26,13 @@ window.PRACTICE["present-perfect-continuous"] = {
       { en: "revise (BrE) / review (AmE)", pl: "powtarzać materiał (przed egzaminem)" },
       { en: "practise (BrE) / practice (AmE)", pl: "ćwiczyć", note: "w BrE rzeczownik to practice, czasownik – practise" },
       { en: "know, like, want, believe, own", pl: "znać, lubić, chcieć, wierzyć, posiadać", note: "czasowniki stanu – zwykle bez formy ciągłej: I've known her for years." },
+      // --- słowa z ćwiczeń ---
+      { en: "chapter", pl: "rozdział" },
+      { en: "be covered in", pl: "być pokrytym, być całym w (czymś)" },
+      { en: "onion", pl: "cebula" },
+      { en: "spotless", pl: "lśniący, bez skazy" },
+      { en: "mess", pl: "bałagan" },
+      { en: "muddy", pl: "zabłocony" },
     ],
   },
 

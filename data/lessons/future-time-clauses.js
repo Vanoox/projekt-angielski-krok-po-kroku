@@ -331,7 +331,7 @@ window.LESSONS.push({
     {
       "type": "tip",
       "title": "Until czy by? (do…)",
-      "html": "<p>Polskie „do” w określeniach czasu ma dwa odpowiedniki:</p><ul><li><b>until</b> – czynność <b>trwa</b> aż do tego momentu: <em>I'll be in the office <b>until</b> six.</em> (Będę w biurze do szóstej.)</li><li><b>by</b> – coś się stanie <b>najpóźniej</b> w tym momencie: <em>I'll finish the report <b>by</b> six.</em> (Skończę raport do szóstej.)</li></ul><p>Tak samo w zdaniach: <em>I'll wait <b>until</b> you come back</em>, ale <em><b>By the time</b> you come back, I'll have finished</em>.</p>"
+      "html": "<p>Polskie „do” w określeniach czasu ma dwa odpowiedniki:</p><ul><li><b>until</b> – czynność <b>trwa</b> aż do tego momentu: <em>I'll be in the office <b>until</b> six.</em> (Będę w biurze do szóstej.)</li><li><b>by</b> – coś się stanie <b>najpóźniej</b> w tym momencie: <em>I'll finish the report <b>by</b> six.</em> (Skończę raport do szóstej.)</li></ul><p>Tak samo w zdaniach: <em>I'll wait <b>until</b> you come back</em>, ale <em><b>By the time</b> you come back, I'll be ready</em> (zanim wrócisz, będę już gotowy).</p>"
     },
     {
       "type": "tip",

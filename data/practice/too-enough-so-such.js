@@ -23,6 +23,9 @@ window.PRACTICE["too-enough-so-such"] = {
       { en: "mess", pl: "bałagan" },
       { en: "crowded", pl: "zatłoczony" },
       { en: "I've had enough!", pl: "Mam dość!" },
+      // --- słowa z ćwiczeń ---
+      { en: "race", pl: "wyścig" },
+      { en: "stupid", pl: "głupi" },
     ],
   },
 

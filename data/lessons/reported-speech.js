@@ -43,8 +43,8 @@ window.LESSONS.push({
         ],
         [
           "Past Continuous",
-          "Past Perfect Continuous (lub bez zmiany)",
-          "“I was <b>sleeping</b>.” → She said she <b>had been sleeping</b>."
+          "bez zmiany (lub Past Perfect Continuous – poznasz go na poziomie B2)",
+          "“I was <b>sleeping</b>.” → She said she <b>was sleeping</b>."
         ],
         [
           "will",
