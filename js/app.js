@@ -536,7 +536,7 @@
     if ((/n't$/.test(t) || t === "cannot") && SUBJECTS.has(next)) return [t];
     if (CONTR[t]) return [t, ...CONTR[t]];
     let m;
-    if ((m = t.match(/^(\w+)n't$/))) return [t, m[1] + " not"];
+    if ((m = t.match(/^(\w+)n't$/)) && t !== "amn't") return [t, m[1] + " not"]; // „amn't” nie istnieje – nie zaliczamy go jako „am not”
     if ((m = t.match(/^(\w+)'m$/))) return [t, m[1] + " am"];
     if ((m = t.match(/^(\w+)'re$/))) return [t, m[1] + " are"];
     if ((m = t.match(/^(\w+)'ve$/))) return [t, m[1] + " have"];
@@ -2852,9 +2852,16 @@
     cjIntroMap = new Map([...V.values()].map((x) => [x.verb, Math.min(x.lesson, first.has(x.verb) ? first.get(x.verb) : Infinity)]));
     return cjIntroMap;
   }
-  // W ćwiczeniu pomijamy wyrażenia z your/yourself/somebody (forma zależy od osoby) i czasowniki, które z ludźmi brzmią
-  // dziwnie („I rain”, „we happen”).
-  const CJ_DRILL_SKIP = /\b(your|yourself|somebody|someone|something)\b|^(rain|snow|happen|freeze|boil|rise|shine|bark|flow|melt|float|leak|explode|expire|cost|seem|sound|ring|get dark|go out|kick off|take place|break down)$/;
+  // Ćwiczenie: tylko czasowniki, które brzmią naturalnie z każdą osobą i bez dopełnienia – czynności (work, cook…) i wyrażenia
+  // z dopełnieniem ze słówek (have breakfast, play the guitar). Dostępne od lekcji, w której pojawiają się w słówkach / zdaniach
+  // (cjIntro). Jednorazowe (arrive, wake up…) – bez czasów Perfect Continuous („she had been arriving” brzmi dziwnie).
+  const CJ_DRILL_ACT = new Set(("work|study|teach|cook|read|write|play|drive|swim|run|sleep|sing|dance|travel|relax|walk|laugh|cry|talk|chat|cycle|" +
+    "exercise|ski|paint|climb|shout|learn|eat|drink|smoke|clean|wash|hurry|worry|concentrate|complain|celebrate|vacuum|tidy|have breakfast|" +
+    "have a shower|have a break|do the shopping|eat out|tidy up|ride a bike|play the guitar|play the piano|go jogging|go hiking|go to work|" +
+    "stay up late|go out|lose weight").split("|"));
+  const CJ_DRILL_PUNCT = new Set(("get up|wake up|go to bed|get up early|fall asleep|get dressed|get home|arrive|move house|get married|get engaged|" +
+    "make a decision|win the lottery|get lost|get back|split up|grow up|give up|find out|vote|retire|graduate").split("|"));
+  const CJ_PERF_CONT = new Set(["ppc", "papc", "fpc"]);
   const cjLockedIdx = (t) => PATH.indexOf(BY_ID[t.lesson]);
 
   // Moje błędy: klucz odm~czasownik~czas~osoba~forma – zadanie odtwarzane z generatora (stabilne, dopóki czasownik
@@ -2881,11 +2888,12 @@
   // 10 zadań: czasy z przerobionych lekcji (wybrane w filtrze), czasowniki znane do bieżącej lekcji, różne czasowniki.
   function cjDrillItems(tenses, forms, n) {
     const reach = reachIdx(), intro = cjIntro();
-    const verbs = shuffle([...cjVerbs().keys()].filter((v) => intro.get(v) <= reach && !CJ_DRILL_SKIP.test(v)));
+    const verbs = shuffle([...cjVerbs().keys()].filter((v) => intro.get(v) <= reach && (CJ_DRILL_ACT.has(v) || CJ_DRILL_PUNCT.has(v))));
     const out = [], used = new Set();
     for (let guard = 0; out.length < n && guard < n * 40 && verbs.length; guard++) {
       const t = tenses[Math.floor(Math.random() * tenses.length)];
-      const v = verbs.find((x) => !used.has(x) && !(t.cont && cjStative(cjForms(x)))) || verbs.find((x) => !(t.cont && cjStative(cjForms(x))));
+      const fits = (x) => !(t.cont && cjStative(cjForms(x))) && !(CJ_PERF_CONT.has(t.id) && CJ_DRILL_PUNCT.has(x));
+      const v = verbs.find((x) => !used.has(x) && fits(x)) || verbs.find(fits);
       if (!v) continue;
       used.add(v);
       const p = ["I", "you", "he", "she", "we", "they"][Math.floor(Math.random() * 6)];
