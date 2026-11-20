@@ -1,6 +1,6 @@
 window.PRACTICE = window.PRACTICE || {};
 window.PRACTICE["articles"] = {
-  requires: ["plural-nouns", "countable-uncountable"],
+  requires: ["articles-basics", "countable-uncountable"],
 
   vocab: {
     intro: "Słowa z przykładów i ćwiczeń oraz stałe wyrażenia, w których przedimek trzeba po prostu zapamiętać. Zwróć uwagę na uwagi o wymowie – to od niej zależy wybór a/an.",

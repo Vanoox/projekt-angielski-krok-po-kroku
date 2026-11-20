@@ -1,0 +1,1370 @@
+# Konstrukcje użyte przed lekcją, która je wyjaśnia
+
+Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia regularne) – traktuj jako listę miejsc do przejrzenia. Pominięto przedimki, my/your i this/that (w pierwszych lekcjach nie da się ich uniknąć – wymagają krótkiego wyjaśnienia na starcie, nie przepisywania zdań).
+
+## 1. to-be – 41
+
+- `test7` **possessive-s** (lekcja 6): What is **your teacher's name**?
+- `sec13:compare` **present-simple** (lekcja 7): **Do** you work here?
+- `sec13:compare` **present-simple** (lekcja 7): She **doesn't** like fish.
+- `sec13:compare` **present-simple** (lekcja 7): **Does** he live in Gdańsk?
+- `sec14:mistakes` **present-simple** (lekcja 7): **Do** you like pizza?
+- `practice7.4` **present-simple** (lekcja 7): **Do** you speak English?
+- `practice9.0` **present-simple** (lekcja 7): **Do** you work in a bank?
+- `practice9.2` **present-simple** (lekcja 7): She **doesn't** like coffee.
+- `practice9.8` **present-simple** (lekcja 7): **Does** your brother live in London?
+- `test15:q` **present-simple** (lekcja 7): **Do** you are a student?
+- `sec7:examples` **present-cont** (lekcja 12): Are you hungry? – Yes, I**'m starving**!
+- `practice9.6` **present-cont** (lekcja 12): I have a cold, so I**'m staying** at home.
+- `practice4.6` **past-simple** (lekcja 13): Where is the bathroom? – It's on the **left**.
+- `sec7:examples` **can** (lekcja 14): I'm cold. **Can** you close the window?
+- `practice7.8` **can** (lekcja 14): I'm hot. **Can** you open the window?
+- `practice7.8:q` **can** (lekcja 14): I have hot. **Can** you open the window?
+- `practice4.4` **comparatives** (lekcja 28): How is your mum? – She's much **better**, thanks.
+- `sec8:examples` **much-many** (lekcja 22): How **much** is this T-shirt? – It's £15.
+- `sec9:examples` **much-many** (lekcja 22): How **much** are these apples?
+- `practice4.4` **much-many** (lekcja 22): How is your mum? – She's **much** better, thanks.
+- `practice4.8` **much-many** (lekcja 22): How **much** are the tickets?
+- `practice6.10` **much-many** (lekcja 22): How **much** are the tickets?
+- `practice8.7` **much-many** (lekcja 22): How **much** are these shoes?
+- `test6` **much-many** (lekcja 22): How **much** is this ticket?
+- `practice1.6` **freq-adv** (lekcja 8): You are **always** late!
+- `sec9:examples` **prep-time** (lekcja 15): When's your birthday? – It's **in May**.
+- `practice3.3` **prep-time** (lekcja 15): Are the shops open **on Sunday**?
+- `practice4.5` **prep-time** (lekcja 15): What is the weather like in Poland **in winter**?
+- `practice4.9` **prep-time** (lekcja 15): When is your birthday? – **In June**.
+- `practice5.8` **prep-time** (lekcja 15): Is this shop open **on Sunday**s?
+- `sec14:mistakes` **plural-irreg** (lekcja 3): **People** are nice here.
+- `practice0.4` **plural-irreg** (lekcja 3): These **people** are my neighbours.
+- `practice0.9` **plural-irreg** (lekcja 3): The **children** are at school.
+- `practice3.2` **plural-irreg** (lekcja 3): Are your **children** at school today?
+- `practice7.7` **plural-irreg** (lekcja 3): My **children** are at school.
+- `practice7.7:q` **plural-irreg** (lekcja 3): My **children** is at school.
+- `practice7.9` **plural-irreg** (lekcja 3): The **people** here are very nice.
+- `practice7.9:q` **plural-irreg** (lekcja 3): The **people** here is very nice.
+- `test8` **plural-irreg** (lekcja 3): The **children** are in the garden.
+- `practice1.9` **passive** (lekcja 43): They **are interested in** football.
+- `practice5.6` **passive** (lekcja 43): She **is interested in** music.
+
+## 3. plural-nouns – 91
+
+- `sec2:examples` **present-simple** (lekcja 7): **She takes** a lot of photos.
+- `practice3.6` **present-simple** (lekcja 7): **She works** in a shoe shop in the city centre.
+- `test3` **present-simple** (lekcja 7): **She brushes** her teeth after every meal.
+- `sec2:examples` **present-cont** (lekcja 12): The leaves **are falling**.
+- `sec4:examples` **present-cont** (lekcja 12): Two people **are waiting** outside.
+- `sec6:examples` **present-cont** (lekcja 12): The police **are looking** for the thief.
+- `exercise9` **present-cont** (lekcja 12): The police **are questioning** the man now.
+- `practice1.0` **present-cont** (lekcja 12): The leaves on the trees **are turning** yellow.
+- `practice4.2` **present-cont** (lekcja 12): The children **are playing** in the garden.
+- `practice4.2:q` **present-cont** (lekcja 12): The child **is playing** in the garden.
+- `practice5.2` **present-cont** (lekcja 12): The police **are looking** for two men.
+- `practice6.8` **present-cont** (lekcja 12): We**'re staying** in a five-star hotel.
+- `test18` **present-cont** (lekcja 12): Two women and three children **are waiting** outside.
+- `sec4:examples` **past-simple** (lekcja 13): I **caught** three fish.
+- `sec9:examples` **past-simple** (lekcja 13): We **stayed** in a four-star hotel.
+- `sec9:examples` **past-simple** (lekcja 13): About two hundred people **came** to the meeting.
+- `exercise5` **past-simple** (lekcja 13): The cat **caught** two mice.
+- `exercise10` **past-simple** (lekcja 13): We **saw** a lot of sheep on the hills.
+- `practice0.2` **past-simple** (lekcja 13): We **visited** five countries in two weeks.
+- `practice0.4` **past-simple** (lekcja 13): She **had** two babies – twins!
+- `practice1.7` **past-simple** (lekcja 13): My little sister has **lost** two teeth .
+- `practice1.9` **past-simple** (lekcja 13): We **had** mice in the cellar last winter.
+- `practice1.11` **past-simple** (lekcja 13): We **saw** three deer in the forest.
+- `practice2.3` **past-simple** (lekcja 13): I **bought** a pair of jeans yesterday.
+- `practice2.4` **past-simple** (lekcja 13): The police have already **arrived**.
+- `practice3.0` **past-simple** (lekcja 13): We **stayed** in a five-star hotel.
+- `practice3.3` **past-simple** (lekcja 13): It **was** a two-hour walk.
+- `practice3.5` **past-simple** (lekcja 13): Thousands of fans **were** waiting outside the stadium.
+- `practice3.8` **past-simple** (lekcja 13): We **went** on a three-day trip to the mountains.
+- `practice4.6` **past-simple** (lekcja 13): The babies **were** crying.
+- `practice4.6:q` **past-simple** (lekcja 13): The baby **was** crying.
+- `practice5.3` **past-simple** (lekcja 13): I **bought** two pairs of jeans.
+- `test6` **past-simple** (lekcja 13): I **bought** two pairs of shoes.
+- `test8` **past-simple** (lekcja 13): We **caught** five fish.
+- `test14` **past-simple** (lekcja 13): There **were** five hundred people at the concert.
+- `test14:q` **past-simple** (lekcja 13): There **were** five hundreds people at the concert.
+- `test15` **past-simple** (lekcja 13): We **stayed** in a three-star hotel.
+- `test15:q` **past-simple** (lekcja 13): We **stayed** in a three-stars hotel.
+- `test16` **past-simple** (lekcja 13): How many people **came** to the party?
+- `practice1.7` **present-perfect** (lekcja 29): My little sister **has lost** two teeth .
+- `practice2.4` **present-perfect** (lekcja 29): The police **have already arrived**.
+- `sec2:examples` **can** (lekcja 14): **Can** you wash the dishes?
+- `sec6:examples` **can** (lekcja 14): Where are my glasses? I **can**'t find them.
+- `practice0.0` **can** (lekcja 14): **Can** you wash the glasses , please?
+- `practice1.4` **can** (lekcja 14): **Can** you send me the photos from the party?
+- `practice2.2` **can** (lekcja 14): I **can**'t find my headphones. Have you seen them?
+- `practice1.11` **comparatives** (lekcja 28): We saw three deer in **the forest**.
+- `practice3.5` **past-cont** (lekcja 21): Thousands of fans **were waiting** outside the stadium.
+- `practice4.6` **past-cont** (lekcja 21): The babies **were crying**.
+- `practice4.6:q` **past-cont** (lekcja 21): The baby **was crying**.
+- `sec4:examples` **there-is** (lekcja 10): **There are** three women and two men in the team.
+- `exercise1` **there-is** (lekcja 10): **There are** a lot of people in the park.
+- `practice0.1` **there-is** (lekcja 10): **There are** three buses to the airport every hour.
+- `practice4.3` **there-is** (lekcja 10): **There are** some mice in the kitchen.
+- `practice4.3:q` **there-is** (lekcja 10): **There is** a mouse in the kitchen.
+- `practice5.5` **there-is** (lekcja 10): **There are** a lot of books on the shelves.
+- `practice6.2` **there-is** (lekcja 10): **There are** some mice in our garden.
+- `test0` **there-is** (lekcja 10): **There are** a lot of churches in this town.
+- `test2` **there-is** (lekcja 10): **There are** twelve boys and ten girls in the class.
+- `test14` **there-is** (lekcja 10): **There were** five hundred people at the concert.
+- `test14:q` **there-is** (lekcja 10): **There were** five hundreds people at the concert.
+- `sec2:examples` **some-any** (lekcja 23): I need a kilo of tomatoes and **some** potatoes.
+- `practice1.3` **some-any** (lekcja 23): We need **some** tomatoes for the salad.
+- `practice4.3` **some-any** (lekcja 23): There are **some** mice in the kitchen.
+- `practice4.7` **some-any** (lekcja 23): They have got **some** new watches.
+- `practice6.2` **some-any** (lekcja 23): There are **some** mice in our garden.
+- `sec2:examples` **much-many** (lekcja 22): She takes **a lot of** photos.
+- `sec4:examples` **much-many** (lekcja 22): How **many** children have they got?
+- `sec13:mistakes` **much-many** (lekcja 22): **many** people
+- `exercise1` **much-many** (lekcja 22): There are **a lot of** people in the park.
+- `exercise10` **much-many** (lekcja 22): We saw **a lot of** sheep on the hills.
+- `practice0.8` **much-many** (lekcja 22): How **many** days are there in a week?
+- `practice1.6` **much-many** (lekcja 22): How **many** women work in your office?
+- `practice1.10` **much-many** (lekcja 22): How **many** people live in your house?
+- `practice5.1` **much-many** (lekcja 22): How **many** people are there in your class?
+- `practice5.5` **much-many** (lekcja 22): There are **a lot of** books on the shelves.
+- `test0` **much-many** (lekcja 22): There are **a lot of** churches in this town.
+- `test16` **much-many** (lekcja 22): How **many** people came to the party?
+- `practice0.10` **freq-adv** (lekcja 8): We **sometimes** see foxes in our garden at night.
+- `practice0.10` **prep-time** (lekcja 15): We sometimes see foxes in our garden **at night**.
+- `sec2:examples` **have-got** (lekcja 9): I**'ve got** two sisters and three brothers.
+- `sec4:examples` **have-got** (lekcja 9): We**'ve got** mice in the kitchen!
+- `sec4:examples` **have-got** (lekcja 9): The farmer **has got** fifty sheep.
+- `sec9:examples` **have-got** (lekcja 9): We**'ve got** a six-year-old daughter.
+- `exercise0` **have-got** (lekcja 9): I**'ve got** two children .
+- `practice3.2` **have-got** (lekcja 9): I**'ve got** an eight-year-old son.
+- `practice4.7` **have-got** (lekcja 9): They **have got** some new watches.
+- `practice4.7:q` **have-got** (lekcja 9): He **has got** a new watch.
+- `practice6.0` **have-got** (lekcja 9): I**'ve got** one brother and two sisters.
+- `practice6.4` **have-got** (lekcja 9): The farmer **has got** thirty sheep and ten cows.
+- `practice6.9` **have-got** (lekcja 9): She **has got** a ten-year-old son.
+
+## 4. this-that – 41
+
+- `sec4:examples` **present-simple** (lekcja 7): I **don't** like these trousers. I prefer those (ones).
+- `exercise10` **present-simple** (lekcja 7): **Do** you like these shoes? – No, I prefer those ones in the window.
+- `practice0.2` **present-simple** (lekcja 7): These glasses are new. **Do** you like them? (mam je na nosie)
+- `practice0.6` **present-simple** (lekcja 7): **Do** you remember that summer in Greece ten years ago?
+- `practice0.7` **present-simple** (lekcja 7): These scissors **don't** cut well. (trzymam je)
+- `practice1.5` **present-simple** (lekcja 7): These are my new shoes. **Do** you like them?
+- `practice1.7` **present-simple** (lekcja 7): **Don't** buy these apples here – those ones at the next stall are cheaper.
+- `sec4:examples` **present-cont** (lekcja 12): These shoes **are killing** me!
+- `sec4:examples` **present-cont** (lekcja 12): Look at those clouds. **It's going** to rain.
+- `sec10:mistakes` **present-cont** (lekcja 12): That book **is interesting**.
+- `test7` **present-cont** (lekcja 12): These books **are boring**.
+- `test7:q` **present-cont** (lekcja 12): This book **is boring**.
+- `sec5:examples` **past-simple** (lekcja 13): I **was** only ten at that time.
+- `sec5:examples` **past-simple** (lekcja 13): In those days there **was** no internet.
+- `sec5:examples` **past-simple** (lekcja 13): That **was** a great party last night!
+- `exercise3` **past-simple** (lekcja 13): I've **passed** my exam! – Wow, that's great!
+- `exercise6` **past-simple** (lekcja 13): In those days people **didn't** have mobile phones.
+- `practice2.2` **past-simple** (lekcja 13): I **lived** in Gdańsk in 2010. At that time I was a student.
+- `practice2.3` **past-simple** (lekcja 13): Listen to this! I've **won** a trip to Paris!
+- `practice2.8` **past-simple** (lekcja 13): **Did** you watch the match last night? That was amazing!
+- `practice3.4` **past-simple** (lekcja 13): In those days people **wrote** letters.
+- `practice4.4` **past-simple** (lekcja 13): In those days there **were** no smartphones.
+- `test6` **past-simple** (lekcja 13): At that time I **lived** in London.
+- `exercise3` **present-perfect** (lekcja 29): I**'ve passed** my exam! – Wow, that's great!
+- `practice2.3` **present-perfect** (lekcja 29): Listen to this! I**'ve won** a trip to Paris!
+- `sec4:examples` **going-to** (lekcja 26): Look at those clouds. It**'s going to rain**.
+- `sec2:formula` **can** (lekcja 14): **Can** you see those mountains?
+- `sec4:examples` **can** (lekcja 14): **Can** I try that one, please?
+- `exercise7` **can** (lekcja 14): Hello, this is Marek. **Can** I speak to Agnieszka?
+- `practice0.1` **can** (lekcja 14): **Can** you see those mountains over there?
+- `practice2.7` **can** (lekcja 14): I'm sorry, I **can**'t come to your party. – Oh, that's a pity.
+- `practice2.8` **past-cont** (lekcja 21): Did you watch the match last night? That **was amazing**!
+- `sec5:examples` **there-is** (lekcja 10): In those days **there was** no internet.
+- `practice4.4` **there-is** (lekcja 10): In those days **there were** no smartphones.
+- `sec5:examples` **some-any** (lekcja 23): These days **everyone** has a smartphone.
+- `sec4:examples` **much-many** (lekcja 22): How **much** are these? – They're €10 each.
+- `practice2.1` **much-many** (lekcja 22): These days **a lot of** people work from home.
+- `practice3.5` **much-many** (lekcja 22): How **much** is that bag?
+- `test2` **much-many** (lekcja 22): How **much** are these sunglasses?
+- `practice2.2` **prep-time** (lekcja 15): I lived in Gdańsk **in 2**010. At that time I was a student.
+- `practice2.4` **have-got** (lekcja 9): I**'ve got** a new job! – That's fantastic!
+
+## 5. pronouns-possessives – 117
+
+- `practice1.5` **possessive-s** (lekcja 6): Is that **Anna's car**? – Yes, it's hers.
+- `practice2.6` **possessive-s** (lekcja 6): **Piotr's daughter** loves her dad.
+- `practice4.4:q` **possessive-s** (lekcja 6): This is **Kasia's phone**.
+- `practice4.7:q` **possessive-s** (lekcja 6): The cat is eating **the cat's food**.
+- `sec4:examples` **present-simple** (lekcja 7): **She loves** him, but he doesn't love her.
+- `sec9:examples` **present-simple** (lekcja 7): Be careful! **Don't** cut yourself.
+- `sec9:examples` **present-simple** (lekcja 7): **She lives** by herself.
+- `sec11:examples` **present-simple** (lekcja 7): **Do** you live on your own?
+- `sec11:examples` **present-simple** (lekcja 7): **Don't** leave the children by themselves.
+- `sec11:examples` **present-simple** (lekcja 7): **She wants** a room of her own.
+- `sec13:examples` **present-simple** (lekcja 7): They **don't** talk to each other anymore.
+- `sec13:examples` **present-simple** (lekcja 7): How **do** you feel?
+- `sec16:mistakes` **present-simple** (lekcja 7): Yes, I like it. / Yes, I **do**.
+- `exercise2` **present-simple** (lekcja 7): That's not my umbrella. Mine is black. Is **it yours**?
+- `practice0.2` **present-simple** (lekcja 7): **Do** you know Ola? She works with my brother.
+- `practice0.7` **present-simple** (lekcja 7): Between you and me, I **don't** like this place.
+- `practice1.7` **present-simple** (lekcja 7): Whose coat is this? Is **it theirs**?
+- `practice2.4` **present-simple** (lekcja 7): Kasia, **don't** forget your keys!
+- `practice4.1` **present-simple** (lekcja 7): **He lives** with her.
+- `practice5.0` **present-simple** (lekcja 7): **She lives** on her own.
+- `practice5.6` **present-simple** (lekcja 7): We did **it ourselves**.
+- `test0` **present-simple** (lekcja 7): I **don't** know her, but I know her brother.
+- `test10` **present-simple** (lekcja 7): **Do** you want this book? You can keep it.
+- `test10:q` **present-simple** (lekcja 7): **Do** you want this book? You can keep.
+- `sec4:examples` **present-cont** (lekcja 12): I**'m talking** to you!
+- `sec7:examples` **present-cont** (lekcja 12): The dog **is wagging** its tail.
+- `sec16:mistakes` **present-cont** (lekcja 12): **It's raining** again.
+- `exercise1` **present-cont** (lekcja 12): Kasia **is visiting** her grandparents this weekend.
+- `practice0.5` **present-cont** (lekcja 12): My parents **are coming**. I'm going to meet them at the airport.
+- `practice0.6` **present-cont** (lekcja 12): Wait for me! I**'m coming**.
+- `practice2.2` **present-cont** (lekcja 12): The children **are playing** in their room.
+- `practice2.7` **present-cont** (lekcja 12): Mark **is washing** his hair.
+- `practice4.7` **present-cont** (lekcja 12): It **is eating** its food.
+- `practice4.7:q` **present-cont** (lekcja 12): The cat **is eating** the cat's food.
+- `practice5.7` **present-cont** (lekcja 12): The dog **is looking** for its ball.
+- `practice6.1` **present-cont** (lekcja 12): Ola **is visiting** her aunt in Lublin.
+- `practice6.1:q` **present-cont** (lekcja 12): Ola **is visiting** his aunt in Lublin.
+- `practice7.6` **present-cont** (lekcja 12): It's cold and **it's raining**.
+- `test17` **present-cont** (lekcja 12): My sister and I **are going** to London next week.
+- `sec4:examples` **past-simple** (lekcja 13): We **invited** them to the party.
+- `sec6:examples` **past-simple** (lekcja 13): These shoes are nice. Where **did** you buy them?
+- `sec9:examples` **past-simple** (lekcja 13): She **taught** herself to play the guitar.
+- `sec9:examples` **past-simple** (lekcja 13): We really **enjoyed** ourselves.
+- `sec9:examples` **past-simple** (lekcja 13): He **looked** at himself in the mirror.
+- `sec9:examples` **past-simple** (lekcja 13): I **did** it myself.
+- `sec9:examples` **past-simple** (lekcja 13): The door **opened** by itself.
+- `sec11:examples` **past-simple** (lekcja 13): He **fixed** the bike on his own.
+- `sec16:mistakes` **past-simple** (lekcja 13): He and I **went** to the cinema.
+- `sec16:mistakes` **past-simple** (lekcja 13): I **washed** my hair.
+- `sec16:mistakes` **past-simple** (lekcja 13): We **met** in 2015. / We met each other in 2015.
+- `exercise3` **past-simple** (lekcja 13): They **looked** at each other and smiled.
+- `exercise4` **past-simple** (lekcja 13): The company **changed** its logo last year.
+- `exercise5` **past-simple** (lekcja 13): **Did** you make this cake yourself?
+- `practice0.3` **past-simple** (lekcja 13): I **bought** these flowers for you, Mum.
+- `practice0.4` **past-simple** (lekcja 13): Our teacher **gave** us a lot of homework.
+- `practice1.2` **past-simple** (lekcja 13): Can I borrow your pen? I've **lost** mine.
+- `practice1.8` **past-simple** (lekcja 13): I think you've got my umbrella. – Oh, sorry! I **thought** it was mine.
+- `practice3.1` **past-simple** (lekcja 13): **Did** you enjoy yourself at the party?
+- `practice3.6` **past-simple** (lekcja 13): My grandfather **taught** himself to speak English.
+- `practice3.7` **past-simple** (lekcja 13): The children **made** breakfast all by themselves.
+- `practice5.6` **past-simple** (lekcja 13): We **did** it ourselves.
+- `practice6.3` **past-simple** (lekcja 13): The company has **changed** its address.
+- `practice6.3:q` **past-simple** (lekcja 13): The company has **changed** it's address.
+- `practice6.5` **past-simple** (lekcja 13): I **washed** my face and went to bed.
+- `practice6.5:q` **past-simple** (lekcja 13): I **washed** the face and went to bed.
+- `practice7.7` **past-simple** (lekcja 13): I **made** this cake myself.
+- `test3` **past-simple** (lekcja 13): **Did** you all enjoy yourselves?
+- `test7` **past-simple** (lekcja 13): They **bought** it from her.
+- `test7:q` **past-simple** (lekcja 13): My parents **bought** the flat from Mrs Kowalska.
+- `test15` **past-simple** (lekcja 13): She **taught** herself to swim.
+- `sec13:examples` **present-perfect** (lekcja 29): We**'ve known** each other for years.
+- `practice1.2` **present-perfect** (lekcja 29): Can I borrow your pen? I**'ve lost** mine.
+- `practice6.3` **present-perfect** (lekcja 29): The company **has changed** its address.
+- `practice6.3:q` **present-perfect** (lekcja 29): The company **has changed** it's address.
+- `sec6:examples` **will** (lekcja 25): You never know what **will** happen.
+- `practice3.3` **will** (lekcja 25): Tom, be careful with that knife! You**'ll** cut yourself.
+- `practice0.5` **going-to** (lekcja 26): My parents are coming. I**'m going to meet** them at the airport.
+- `test17` **going-to** (lekcja 26): My sister and I **are going to London** next week.
+- `sec4:examples` **can** (lekcja 14): **Can** you help me?
+- `sec4:examples` **can** (lekcja 14): Where's the cat? I **can**'t see it.
+- `sec13:examples` **can** (lekcja 14): I **can**'t concentrate.
+- `exercise0` **can** (lekcja 14): **Can** you call me later?
+- `practice1.2` **can** (lekcja 14): **Can** I borrow your pen? I've lost mine.
+- `practice3.4` **can** (lekcja 14): I **can**'t concentrate – it's too noisy here.
+- `practice5.4` **can** (lekcja 14): **Can** you give me his number?
+- `practice6.6` **can** (lekcja 14): Where's my phone? I **can**'t find it.
+- `practice6.6:q` **can** (lekcja 14): Where's my phone? I **can**'t find.
+- `practice7.0` **can** (lekcja 14): **Can** you help me with this suitcase?
+- `test10` **can** (lekcja 14): Do you want this book? You **can** keep it.
+- `test10:q` **can** (lekcja 14): Do you want this book? You **can** keep.
+- `practice3.0` **must** (lekcja 30): We **must** hurry – the train leaves in five minutes.
+- `sec11:examples` **would** (lekcja 42): I**'d love** to have my own flat.
+- `sec4:examples` **comparatives** (lekcja 28): My sister is **taller than** me.
+- `sec7:examples` **comparatives** (lekcja 28): Their house is **bigger than** ours.
+- `practice1.4` **comparatives** (lekcja 28): Their kids are **older than** ours.
+- `test5` **comparatives** (lekcja 28): I feel **better** today.
+- `sec9:examples` **some-any** (lekcja 23): Help yourselves to **some** cake!
+- `practice3.5` **some-any** (lekcja 23): Help yourselves to **some** coffee, everyone!
+- `practice0.4` **much-many** (lekcja 22): Our teacher gave us **a lot of** homework.
+- `practice6.7` **much-many** (lekcja 22): They've got two cats and they love them very **much**.
+- `practice6.7:q` **much-many** (lekcja 22): They've got two cats and they love it very **much**.
+- `sec6:examples` **freq-adv** (lekcja 8): You **never** know what will happen.
+- `sec13:examples` **freq-adv** (lekcja 8): I **usually** shower in the morning.
+- `practice4.0` **freq-adv** (lekcja 8): She **often** visits them.
+- `practice4.0:q` **freq-adv** (lekcja 8): Anna **often** visits her grandparents.
+- `practice5.2` **freq-adv** (lekcja 8): They **never** talk to each other.
+- `practice6.4` **freq-adv** (lekcja 8): We **always** enjoy ourselves at the seaside.
+- `practice6.4:q` **freq-adv** (lekcja 8): We **always** enjoy at the seaside.
+- `practice7.2` **freq-adv** (lekcja 8): They **often** call each other.
+- `sec13:examples` **prep-time** (lekcja 15): I usually shower **in the morning**.
+- `sec16:mistakes` **prep-time** (lekcja 15): We met **in 2**015. / We met each other in 2015.
+- `test11` **prep-time** (lekcja 15): Let's meet **at six o'clock**.
+- `practice1.8` **have-got** (lekcja 9): I think you**'ve got** my umbrella. – Oh, sorry! I thought it was mine.
+- `practice6.7` **have-got** (lekcja 9): They**'ve got** two cats and they love them very much.
+- `practice6.7:q` **have-got** (lekcja 9): They**'ve got** two cats and they love it very much.
+- `test2` **have-got** (lekcja 9): My dad **has got** his own company.
+- `sec13:examples` **adverb-ly** (lekcja 27): I **usually** shower in the morning.
+
+## 6. possessive-s – 31
+
+- `sec8:examples` **present-simple** (lekcja 7): **She writes** children's books.
+- `sec10:examples` **present-cont** (lekcja 12): We**'re spending** Christmas at my aunt's.
+- `practice2.0` **present-cont** (lekcja 12): Whose phone **is ringing**?
+- `practice5.3` **present-cont** (lekcja 12): I**'m going** to the hairdresser's tomorrow.
+- `test12` **present-cont** (lekcja 12): I**'m staying** at my aunt's this week.
+- `sec4:examples` **past-simple** (lekcja 13): Tom and Anna's wedding **was** amazing.
+- `sec6:examples` **past-simple** (lekcja 13): I **didn't** like the end of the film.
+- `sec8:examples` **past-simple** (lekcja 13): We **met** on Valentine's Day.
+- `sec10:examples` **past-simple** (lekcja 13): **Did** you go to Sarah's party?
+- `sec13:mistakes` **past-simple** (lekcja 13): I **was** at the doctor's yesterday.
+- `exercise3` **past-simple** (lekcja 13): I **didn't** understand the end of the film.
+- `exercise9` **past-simple** (lekcja 13): We **spent** the weekend at my grandma's .
+- `practice0.3` **past-simple** (lekcja 13): The men's changing room is on the **left**.
+- `practice0.4` **past-simple** (lekcja 13): Have you **met** James's girlfriend?
+- `practice1.7` **past-simple** (lekcja 13): We **spent** the weekend at my uncle's.
+- `practice2.4` **past-simple** (lekcja 13): Whose car is **parked** outside my garage?
+- `practice3.3` **past-simple** (lekcja 13): We **were** at my grandma's yesterday.
+- `practice3.4` **past-simple** (lekcja 13): The end of the film **was** sad.
+- `practice4.2` **past-simple** (lekcja 13): We **stayed** at my cousin's for a week.
+- `practice4.2:q` **past-simple** (lekcja 13): We **stayed** at my cousin for a week.
+- `practice5.4` **past-simple** (lekcja 13): Yesterday's match **was** boring.
+- `test3` **past-simple** (lekcja 13): Kasia and Marek's wedding **was** in August.
+- `test4` **past-simple** (lekcja 13): We **spent** the weekend at our friends' house.
+- `practice5.3` **going-to** (lekcja 26): I**'m going to the** hairdresser's tomorrow.
+- `exercise5` **can** (lekcja 14): I **can**'t talk now – I'm at the hairdresser's .
+- `sec4:examples` **past-cont** (lekcja 21): Tom and Anna's wedding **was amazing**.
+- `practice5.4` **past-cont** (lekcja 21): Yesterday's match **was boring**.
+- `sec8:examples` **prep-time** (lekcja 15): Mother's Day in Poland is **on 2**6 May.
+- `practice0.7` **prep-time** (lekcja 15): My niece's birthday is **in June**.
+- `test3` **prep-time** (lekcja 15): Kasia and Marek's wedding was **in August**.
+- `sec10:examples` **have-got** (lekcja 9): I**'ve got** an appointment at the dentist's.
+
+## 7. present-simple – 66
+
+- `practice2.6` **can** (lekcja 14): My laptop doesn't work. **Can** I use yours?
+- `test8` **some-any** (lekcja 23): Does your sister have **any** children?
+- `practice2.4` **much-many** (lekcja 22): It doesn't snow **much** in London.
+- `practice4.5` **much-many** (lekcja 22): How **much** does this bag cost ?
+- `practice7.7` **much-many** (lekcja 22): She watches **a lot of** films.
+- `practice7.7:q` **much-many** (lekcja 22): She watchs **a lot of** films.
+- `practice8.8` **much-many** (lekcja 22): How **much** does this ticket cost?
+- `test7` **much-many** (lekcja 22): She speaks **a little** French.
+- `sec5:examples` **freq-adv** (lekcja 8): We **usually** have dinner at six.
+- `sec5:examples` **freq-adv** (lekcja 8): They **never** watch TV in the evening.
+- `sec5:examples` **freq-adv** (lekcja 8): Do you **often** cook at home?
+- `sec16:mistakes` **freq-adv** (lekcja 8): I **always** go to work by bus.
+- `sec16:mistakes` **freq-adv** (lekcja 8): I **never** eat meat.
+- `exercise6` **freq-adv** (lekcja 8): She is **always** late.
+- `practice0.8` **freq-adv** (lekcja 8): Dad **usually** relaxes in front of the TV after work.
+- `practice4.1` **freq-adv** (lekcja 8): What time do you **usually** get up ?
+- `practice4.2` **freq-adv** (lekcja 8): How **often** does she go swimming?
+- `practice5.10` **freq-adv** (lekcja 8): How **often** do they go to the gym?
+- `practice6.0` **freq-adv** (lekcja 8): She **always** has breakfast at home.
+- `practice6.1` **freq-adv** (lekcja 8): Do you **often** play tennis?
+- `practice6.2` **freq-adv** (lekcja 8): My dad **never** drinks coffee.
+- `practice6.3` **freq-adv** (lekcja 8): He doesn't **usually** work at weekends.
+- `practice6.5` **freq-adv** (lekcja 8): She is **always** tired after work.
+- `practice6.7` **freq-adv** (lekcja 8): We **sometimes** cook together.
+- `practice6.10` **freq-adv** (lekcja 8): I **rarely** watch TV.
+- `practice7.8` **freq-adv** (lekcja 8): We **often** play football.
+- `practice7.8:q` **freq-adv** (lekcja 8): We play **often** football.
+- `practice8.1` **freq-adv** (lekcja 8): I **usually** get up at six.
+- `practice8.10` **freq-adv** (lekcja 8): My dad **rarely** cooks.
+- `practice9.8` **freq-adv** (lekcja 8): Does it **often** rain here in spring?
+- `test3` **freq-adv** (lekcja 8): How **often** do you visit your grandparents?
+- `test5` **freq-adv** (lekcja 8): My dad **never** eats breakfast.
+- `test12` **freq-adv** (lekcja 8): I **usually** go to bed at eleven.
+- `test20` **freq-adv** (lekcja 8): I **never** eat meat.
+- `test20:q` **freq-adv** (lekcja 8): I don't **never** eat meat.
+- `test22` **freq-adv** (lekcja 8): Is your son **often** late?
+- `test23` **freq-adv** (lekcja 8): She doesn't visit us very **often**.
+- `sec5:examples` **prep-time** (lekcja 15): They never watch TV **in the evening**.
+- `sec7:examples` **prep-time** (lekcja 15): Water boils **at 1**00 degrees Celsius.
+- `sec8:examples` **prep-time** (lekcja 15): The train leaves **at 6**.15 tomorrow morning.
+- `exercise8` **prep-time** (lekcja 15): Does he play football **at weekend**s?
+- `exercise9` **prep-time** (lekcja 15): Water freezes **at 0** degrees Celsius.
+- `practice0.3` **prep-time** (lekcja 15): She washes her car **on Sunday**s.
+- `practice0.9` **prep-time** (lekcja 15): She has lunch **at one o'clock**.
+- `practice2.5` **prep-time** (lekcja 15): The kids don't go to school **on Saturday**s.
+- `practice3.6` **prep-time** (lekcja 15): Does the shop open **on Sunday**s? – No, it doesn't.
+- `practice5.4` **prep-time** (lekcja 15): We don't go to the cinema **on Friday**s.
+- `practice5.4:q` **prep-time** (lekcja 15): We go to the cinema **on Friday**s.
+- `practice6.3` **prep-time** (lekcja 15): He doesn't usually work **at weekend**s.
+- `practice8.5` **prep-time** (lekcja 15): The shop opens **at nine o'clock**.
+- `practice9.8` **prep-time** (lekcja 15): Does it often rain here **in spring**?
+- `practice9.9` **prep-time** (lekcja 15): Is it cold in your country **in winter**?
+- `test1` **prep-time** (lekcja 15): She doesn't work **on Saturday**s.
+- `test4` **prep-time** (lekcja 15): Our train leaves **at 7**.30.
+- `test6` **prep-time** (lekcja 15): What do you do **at weekend**s?
+- `test24` **prep-time** (lekcja 15): My sister doesn't study **at weekend**s, but she studies every evening.
+- `practice0.5` **gerund-after-verb** (lekcja 39): He **enjoys cooking** for his friends.
+- `test2` **gerund-after-verb** (lekcja 39): Do you **like swimming**?
+- `sec5:examples` **adverb-ly** (lekcja 27): We **usually** have dinner at six.
+- `practice0.8` **adverb-ly** (lekcja 27): Dad **usually** relaxes in front of the TV after work.
+- `practice4.1` **adverb-ly** (lekcja 27): What time do you **usually** get up ?
+- `practice6.3` **adverb-ly** (lekcja 27): He doesn't **usually** work at weekends.
+- `practice6.10` **adverb-ly** (lekcja 27): I **rarely** watch TV.
+- `practice8.1` **adverb-ly** (lekcja 27): I **usually** get up at six.
+- `practice8.10` **adverb-ly** (lekcja 27): My dad **rarely** cooks.
+- `test12` **adverb-ly** (lekcja 27): I **usually** go to bed at eleven.
+
+## 8. adverbs-frequency – 63
+
+- `sec3:examples` **past-simple** (lekcja 13): We have always **lived** in this town.
+- `sec1:formula` **present-perfect** (lekcja 29): I **have never been** to Japan. You can always call me.
+- `exercise4` **present-perfect** (lekcja 29): I**'ve never been** to Australia. I'd love to go!
+- `exercise9` **present-perfect** (lekcja 29): He is always late. I**'ve never seen** him on time!
+- `practice1.8` **present-perfect** (lekcja 29): I **have never been** to Spain.
+- `practice3.4` **present-perfect** (lekcja 29): They **have never been** to Asia.
+- `practice3.4:q` **present-perfect** (lekcja 29): They **have been** to Asia.
+- `sec1:formula` **can** (lekcja 14): I have never been to Japan. You **can** always call me.
+- `sec3:examples` **can** (lekcja 14): I **can** never remember his name.
+- `exercise10` **can** (lekcja 14): I **can** never find my keys.
+- `practice1.5` **can** (lekcja 14): You **can** always ask the teacher.
+- `exercise4` **would** (lekcja 42): I've never been to Australia. I**'d love** to go!
+- `sec2:examples` **prep-time** (lekcja 15): I always drink coffee **in the morning**.
+- `sec2:examples` **prep-time** (lekcja 15): They sometimes play tennis **at the weekend**.
+- `sec3:examples` **prep-time** (lekcja 15): The trains are often late **in winter**.
+- `sec3:examples` **prep-time** (lekcja 15): She's usually very busy **on Monday**s.
+- `sec3:examples` **prep-time** (lekcja 15): He doesn't usually work **on Saturday**s.
+- `sec12:mistakes` **prep-time** (lekcja 15): I am usually at home **on Sunday**s.
+- `exercise5` **prep-time** (lekcja 15): I go swimming twice a week – **on Monday**s and Thursdays.
+- `exercise6` **prep-time** (lekcja 15): We see each other once a year, **at Christmas**.
+- `practice0.5` **prep-time** (lekcja 15): My grandparents are usually at home **in the evening**s.
+- `practice1.2` **prep-time** (lekcja 15): They are often busy **at weekend**s.
+- `practice2.1` **prep-time** (lekcja 15): We have English lessons **on Monday**s and Wednesdays.
+- `practice2.5` **prep-time** (lekcja 15): What do you usually do **at the weekend**?
+- `practice3.1` **prep-time** (lekcja 15): I'm always tired **in the evening**.
+- `practice3.1:q` **prep-time** (lekcja 15): I'm tired **in the evening**.
+- `practice3.2` **prep-time** (lekcja 15): We usually have pizza **on Friday**s.
+- `practice3.2:q` **prep-time** (lekcja 15): We have pizza **on Friday**s.
+- `practice4.0` **prep-time** (lekcja 15): I usually come back home **at six o'clock**.
+- `practice4.2` **prep-time** (lekcja 15): Are you always so tired **in the morning**?
+- `practice4.4` **prep-time** (lekcja 15): I never drink coffee **in the evening**.
+- `test2` **prep-time** (lekcja 15): I often meet up with my friends **on Friday**s.
+- `test5` **prep-time** (lekcja 15): Do you ever work **on Sunday**s?
+- `test11` **prep-time** (lekcja 15): I sometimes work **at weekend**s.
+- `sec1:formula` **adverb-ly** (lekcja 27): I **usually** get up at seven.
+- `sec1:formula` **adverb-ly** (lekcja 27): He doesn't often cook. I'm not **usually** tired.
+- `sec2:examples` **adverb-ly** (lekcja 27): We **usually** have dinner at six.
+- `sec2:examples` **adverb-ly** (lekcja 27): He **rarely** watches TV.
+- `sec2:examples` **adverb-ly** (lekcja 27): I **hardly** ever eat fast food.
+- `sec3:examples` **adverb-ly** (lekcja 27): She's **usually** very busy on Mondays.
+- `sec3:examples` **adverb-ly** (lekcja 27): He doesn't **usually** work on Saturdays.
+- `sec8:examples` **adverb-ly** (lekcja 27): How often does he visit you? – **Hardly** ever.
+- `sec8:examples` **adverb-ly** (lekcja 27): Are you often late? – No, not **usually**.
+- `sec12:mistakes` **adverb-ly** (lekcja 27): I am **usually** at home on Sundays.
+- `sec12:mistakes` **adverb-ly** (lekcja 27): I **usually** go to bed at eleven.
+- `exercise1` **adverb-ly** (lekcja 27): He **usually** drinks tea.
+- `exercise7` **adverb-ly** (lekcja 27): I **hardly** ever eat sweets – maybe once a year.
+- `practice0.2` **adverb-ly** (lekcja 27): My bus is late two or three times a month, but **usually** it's on time.
+- `practice0.3` **adverb-ly** (lekcja 27): We **hardly** ever go to the theatre – maybe once a year.
+- `practice0.4` **adverb-ly** (lekcja 27): What time do you **usually** get up?
+- `practice0.5` **adverb-ly** (lekcja 27): My grandparents are **usually** at home in the evenings.
+- `practice1.0` **adverb-ly** (lekcja 27): I **usually** walk to work.
+- `practice1.4` **adverb-ly** (lekcja 27): She **hardly** ever eats meat.
+- `practice2.5` **adverb-ly** (lekcja 27): What do you **usually** do at the weekend?
+- `practice3.2` **adverb-ly** (lekcja 27): We **usually** have pizza on Fridays.
+- `practice3.3` **adverb-ly** (lekcja 27): She doesn't **usually** drive to work.
+- `practice4.0` **adverb-ly** (lekcja 27): I **usually** come back home at six o'clock.
+- `practice4.1` **adverb-ly** (lekcja 27): My sister **rarely** cooks.
+- `practice4.3` **adverb-ly** (lekcja 27): I **hardly** ever go to parties.
+- `practice4.7` **adverb-ly** (lekcja 27): He doesn't **usually** have lunch at home.
+- `test8` **adverb-ly** (lekcja 27): She is **usually** very busy.
+- `test8:q` **adverb-ly** (lekcja 27): She **usually** is very busy.
+- `test10` **adverb-ly** (lekcja 27): We **hardly** ever eat out.
+
+## 9. have-got – 39
+
+- `sec8:examples` **present-cont** (lekcja 12): **She's having** a shower. Can she call you back?
+- `sec9:compare` **present-cont** (lekcja 12): We**'re having** dinner now.
+- `sec8:examples` **past-simple** (lekcja 13): We **had** a great time at the party.
+- `sec8:examples` **past-simple** (lekcja 13): **Did** you have lunch? – Not yet.
+- `exercise10` **past-simple** (lekcja 13): When I **was** a child, I had a dog.
+- `practice3.3` **past-simple** (lekcja 13): We **had** a great time at the party last night.
+- `practice4.0` **past-simple** (lekcja 13): When I **was** a child, I had a cat.
+- `practice4.1` **past-simple** (lekcja 13): We **didn't** have a car when I was young.
+- `practice4.2` **past-simple** (lekcja 13): **Did** you have a good time in Spain?
+- `practice4.3` **past-simple** (lekcja 13): She **had** a cold last week.
+- `practice4.4` **past-simple** (lekcja 13): I **didn't** have time to call you yesterday, sorry.
+- `test7` **past-simple** (lekcja 13): When I **was** a child, I had a bike.
+- `sec8:examples` **can** (lekcja 14): She's having a shower. **Can** she call you back?
+- `sec8:examples` **can** (lekcja 14): **Can** I have a look?
+- `exercise8` **can** (lekcja 14): She **can**'t talk now. She 's having a shower.
+- `practice3.2` **can** (lekcja 14): **Can** I call you back? I 'm having a shower.
+- `practice3.7` **can** (lekcja 14): Sorry, I **can**'t come. I 've got a headache.
+- `sec2:formula` **some-any** (lekcja 23): We don't have **any** children.
+- `sec4:examples` **some-any** (lekcja 23): Have you got **any** brothers or sisters? – Yes, I've got one brother.
+- `sec4:examples` **some-any** (lekcja 23): Do they have **any** pets? – No, they don't.
+- `sec6:examples` **some-any** (lekcja 23): Do you have **any** questions?
+- `exercise1` **some-any** (lekcja 23): I haven't got **any** money on me.
+- `exercise5` **some-any** (lekcja 23): He doesn't have **any** brothers.
+- `practice1.1` **some-any** (lekcja 23): She hasn't got **any** brothers.
+- `practice2.3` **some-any** (lekcja 23): We don't have **any** milk.
+- `practice2.6` **some-any** (lekcja 23): Does Mark have **any** children?
+- `practice3.4` **some-any** (lekcja 23): Have … got you ___ **any** brothers or sisters?
+- `practice6.1` **some-any** (lekcja 23): Have you got **any** brothers or sisters?
+- `practice6.5` **some-any** (lekcja 23): I haven't got **any** time now.
+- `test4` **some-any** (lekcja 23): She hasn't got **any** children.
+- `practice5.2` **much-many** (lekcja 22): We haven't got **much** time.
+- `practice3.0` **prep-time** (lekcja 15): I usually have breakfast **at 7**.
+- `test6` **prep-time** (lekcja 15): We usually have dinner **at eight o'clock**.
+- `sec8:examples` **adverb-ly** (lekcja 27): I **usually** have breakfast at seven.
+- `exercise4` **adverb-ly** (lekcja 27): We **usually** have dinner at six.
+- `practice3.0` **adverb-ly** (lekcja 27): I **usually** have breakfast at 7.
+- `practice3.6` **adverb-ly** (lekcja 27): What time do you **usually** have lunch?
+- `practice5.5` **adverb-ly** (lekcja 27): I **usually** have breakfast at seven.
+- `test6` **adverb-ly** (lekcja 27): We **usually** have dinner at eight o'clock.
+
+## 10. there-is-are – 117
+
+- `practice3.9` **present-cont** (lekcja 12): Look at those clouds! There **is going** to be a storm.
+- `sec6:examples` **past-simple** (lekcja 13): There **was** a lot of traffic this morning.
+- `sec6:examples` **past-simple** (lekcja 13): There **were** about fifty people at the wedding.
+- `sec6:examples` **past-simple** (lekcja 13): **Was** there anything interesting in the news?
+- `sec6:examples` **past-simple** (lekcja 13): There **weren't** any tickets left.
+- `sec13:mistakes` **past-simple** (lekcja 13): There **were** a lot of people at the concert.
+- `exercise3` **past-simple** (lekcja 13): There isn't any milk **left**. Can you buy some?
+- `exercise5` **past-simple** (lekcja 13): There **was** a terrible storm last night.
+- `exercise6` **past-simple** (lekcja 13): There **were** a lot of people at the concert yesterday.
+- `practice1.4` **past-simple** (lekcja 13): Are there any tickets **left**? – No, there aren't.
+- `practice3.0` **past-simple** (lekcja 13): There **was** a lot of snow last winter.
+- `practice3.1` **past-simple** (lekcja 13): There **were** twenty people at my birthday party last Saturday.
+- `practice3.2` **past-simple** (lekcja 13): **Were** there any problems yesterday?
+- `practice3.3` **past-simple** (lekcja 13): There **weren't** any shops here ten years ago.
+- `practice3.4` **past-simple** (lekcja 13): When I **was** a child, there wasn't a computer in our house.
+- `practice3.6` **past-simple** (lekcja 13): Don't worry, there **won**'t be any problems.
+- `practice5.4` **past-simple** (lekcja 13): There **were** a lot of people in the park yesterday.
+- `practice6.5` **past-simple** (lekcja 13): There **was** an accident on the road yesterday.
+- `practice6.8` **past-simple** (lekcja 13): There **won**'t be any lessons tomorrow.
+- `test5` **past-simple** (lekcja 13): There **were** a lot of people at the match.
+- `test7` **past-simple** (lekcja 13): There **wasn't** a supermarket here ten years ago.
+- `test11` **past-simple** (lekcja 13): There **wasn't** a TV in the room.
+- `test11:q` **past-simple** (lekcja 13): There **was** a TV in the room.
+- `test16` **past-simple** (lekcja 13): There **was** no electricity yesterday.
+- `test17` **past-simple** (lekcja 13): How many people **were** there at the meeting yesterday?
+- `sec6:examples` **present-perfect** (lekcja 29): There **have been** a lot of changes recently.
+- `practice3.7` **present-perfect** (lekcja 29): There **has been** a lot of rain this month.
+- `practice3.8` **present-perfect** (lekcja 29): There **have been** three accidents on this road this year.
+- `sec6:examples` **will** (lekcja 25): There **will** be a meeting on Monday.
+- `sec13:mistakes` **will** (lekcja 25): There **will** be a party.
+- `exercise7` **will** (lekcja 25): There **will** be a test next Friday.
+- `practice3.5` **will** (lekcja 25): There **will** be a lot of people at the concert tomorrow.
+- `practice3.6` **will** (lekcja 25): Don't worry, there **won't** be any problems.
+- `practice5.5` **will** (lekcja 25): There **will** be an exam tomorrow.
+- `practice6.8` **will** (lekcja 25): There **won't** be any lessons tomorrow.
+- `test6` **will** (lekcja 25): There **will** be a festival next week.
+- `sec6:examples` **going-to** (lekcja 26): There**'s going to be** a storm.
+- `practice3.9` **going-to** (lekcja 26): Look at those clouds! There **is going to be** a storm.
+- `exercise3` **can** (lekcja 14): There isn't any milk left. **Can** you buy some?
+- `practice2.5` **can** (lekcja 14): I **can**'t make a cake – there's no flour at all.
+- `practice4.2` **can** (lekcja 14): There's a strange noise in the kitchen. **Can** you check?
+- `practice6.2` **can** (lekcja 14): There's no bread. **Can** you buy some?
+- `sec6:examples` **must** (lekcja 30): There **must** be a mistake.
+- `practice2.1` **if** (lekcja 33): There's some juice in the fridge, **if** you're thirsty.
+- `sec1:formula` **some-any** (lekcja 23): There isn't **any** sugar. = There's no sugar.
+- `sec1:formula` **some-any** (lekcja 23): Are there **any** good restaurants here?
+- `sec4:examples` **some-any** (lekcja 23): There's **some** milk in the fridge.
+- `sec4:examples` **some-any** (lekcja 23): Are there **any** questions? – No, there aren't.
+- `sec4:examples` **some-any** (lekcja 23): There's **someone** at the door.
+- `sec4:examples` **some-any** (lekcja 23): There's **nothing** on TV tonight.
+- `sec6:examples` **some-any** (lekcja 23): Was there **anything** interesting in the news?
+- `sec6:examples` **some-any** (lekcja 23): There weren't **any** tickets left.
+- `sec8:compare` **some-any** (lekcja 23): There isn't **any** milk in the fridge.
+- `sec8:compare` **some-any** (lekcja 23): We haven't got **any** milk.
+- `sec13:mistakes` **some-any** (lekcja 23): There is **some** milk.
+- `sec13:mistakes` **some-any** (lekcja 23): There isn't **any** bread. / There's no bread.
+- `sec13:mistakes` **some-any** (lekcja 23): There isn't **any** milk. / There's no milk.
+- `exercise2` **some-any** (lekcja 23): Are there **any** eggs in the fridge?
+- `exercise3` **some-any** (lekcja 23): There isn't **any** milk left. Can you buy some?
+- `practice0.2` **some-any** (lekcja 23): There is **some** bread in the cupboard.
+- `practice0.4` **some-any** (lekcja 23): Are there **any** good films on TV tonight?
+- `practice0.8` **some-any** (lekcja 23): There isn't **any** money in my wallet.
+- `practice1.1` **some-any** (lekcja 23): There aren't **any** chairs in the room.
+- `practice1.3` **some-any** (lekcja 23): Are there **any** shops in your street?
+- `practice1.4` **some-any** (lekcja 23): Are there **any** tickets left? – No, there aren't.
+- `practice1.6` **some-any** (lekcja 23): Is there **any** coffee? – No, there isn't. Sorry.
+- `practice1.7` **some-any** (lekcja 23): Are there **any** trains to Gdańsk today? – Yes, there are.
+- `practice1.9` **some-any** (lekcja 23): There aren't **any** eggs. We need to buy some.
+- `practice2.1` **some-any** (lekcja 23): There's **some** juice in the fridge, if you're thirsty.
+- `practice2.2` **some-any** (lekcja 23): Are there **any** museums in your town?
+- `practice2.3` **some-any** (lekcja 23): There aren't **any** buses on Sundays.
+- `practice2.6` **some-any** (lekcja 23): There are **some** apples in the bowl. Take one!
+- `practice3.2` **some-any** (lekcja 23): Were there **any** problems yesterday?
+- `practice3.3` **some-any** (lekcja 23): There weren't **any** shops here ten years ago.
+- `practice3.6` **some-any** (lekcja 23): Don't worry, there won't be **any** problems.
+- `practice4.5` **some-any** (lekcja 23): There are … They're **some** letters for you. ___ on your desk.
+- `practice5.2` **some-any** (lekcja 23): There isn't **any** milk in the fridge.
+- `practice6.2` **some-any** (lekcja 23): There's no bread. Can you buy **some**?
+- `practice6.4` **some-any** (lekcja 23): There are **some** letters for you on the table.
+- `practice6.6` **some-any** (lekcja 23): Is there **anybody** here?
+- `practice6.8` **some-any** (lekcja 23): There won't be **any** lessons tomorrow.
+- `practice6.9` **some-any** (lekcja 23): There's **something** in your hair.
+- `test2` **some-any** (lekcja 23): There's **some** cheese in the fridge.
+- `test9` **some-any** (lekcja 23): There's **nobody** in the office.
+- `test10` **some-any** (lekcja 23): Are there **any** good hotels in this town?
+- `test10:q` **some-any** (lekcja 23): There are **some** good hotels in this town.
+- `test13` **some-any** (lekcja 23): There isn't **any** milk.
+- `test13:q` **some-any** (lekcja 23): There is no **any** milk.
+- `sec1:formula` **much-many** (lekcja 22): How **many** students are there in your class?
+- `sec4:examples` **much-many** (lekcja 22): How **many** bedrooms are there? – There are three.
+- `sec4:examples` **much-many** (lekcja 22): How **much** time is there before the train leaves?
+- `sec6:examples` **much-many** (lekcja 22): There was **a lot of** traffic this morning.
+- `sec6:examples` **much-many** (lekcja 22): There have been **a lot of** changes recently.
+- `sec13:mistakes` **much-many** (lekcja 22): There are **many** shops in my town.
+- `sec13:mistakes` **much-many** (lekcja 22): How **many** people are there in your family?
+- `sec13:mistakes` **much-many** (lekcja 22): There were **a lot of** people at the concert.
+- `exercise4` **much-many** (lekcja 22): How **many** people are there in your family?
+- `exercise6` **much-many** (lekcja 22): There were **a lot of** people at the concert yesterday.
+- `practice0.3` **much-many** (lekcja 22): There's **a lot of** traffic in the city centre.
+- `practice0.5` **much-many** (lekcja 22): There isn't **much** furniture in the room.
+- `practice0.9` **much-many** (lekcja 22): How **many** chairs are there in the kitchen?
+- `practice2.7` **much-many** (lekcja 22): How **many** students are there in your group?
+- `practice2.8` **much-many** (lekcja 22): How **much** milk is there in the bottle?
+- `practice3.0` **much-many** (lekcja 22): There was **a lot of** snow last winter.
+- `practice3.5` **much-many** (lekcja 22): There will be **a lot of** people at the concert tomorrow.
+- `practice3.7` **much-many** (lekcja 22): There has been **a lot of** rain this month.
+- `practice5.3` **much-many** (lekcja 22): How **many** rooms are there in this house?
+- `practice5.4` **much-many** (lekcja 22): There were **a lot of** people in the park yesterday.
+- `practice6.3` **much-many** (lekcja 22): How **many** students are there in your group?
+- `practice6.7` **much-many** (lekcja 22): There are **a lot of** mistakes in this text.
+- `test3` **much-many** (lekcja 22): How **many** apples are there in the basket?
+- `test4` **much-many** (lekcja 22): How **much** water is there in the bottle?
+- `test5` **much-many** (lekcja 22): There were **a lot of** people at the match.
+- `test17` **much-many** (lekcja 22): How **many** people were there at the meeting yesterday?
+- `sec6:examples` **prep-time** (lekcja 15): There will be a meeting **on Monday**.
+- `practice2.3` **prep-time** (lekcja 15): There aren't any buses **on Sunday**s.
+- `sec6:examples` **adverb-ly** (lekcja 27): There have been a lot of changes **recently**.
+
+## 11. imperatives-lets – 40
+
+- `practice1.3` **present-cont** (lekcja 12): **It's raining**. Let's stay at home.
+- `practice1.5` **past-simple** (lekcja 13): Turn **left** at the church and then go straight on.
+- `sec3:examples` **will** (lekcja 25): Don't worry. Everything **will** be fine.
+- `sec5:examples` **will** (lekcja 25): You stay here, and I**'ll** get the car.
+- `sec5:examples` **will** (lekcja 25): Hurry up, or we**'ll** miss the bus.
+- `sec5:examples` **will** (lekcja 25): Study hard and you**'ll** pass.
+- `practice1.2` **will** (lekcja 25): Don't be sad. Everything **will** be OK.
+- `practice1.6` **will** (lekcja 25): Don't worry about the money – I**'ll** pay.
+- `practice2.1` **will** (lekcja 25): Close the door, **will** you?
+- `sec11:examples` **can** (lekcja 14): **Can** you help me, please?
+- `sec14:mistakes` **can** (lekcja 14): **Can** I have some water, please?
+- `sec11:examples` **could** (lekcja 14): **Could** you speak more slowly, please?
+- `sec11:examples` **could** (lekcja 14): **Could** I have the bill, please?
+- `exercise5` **could** (lekcja 14): **Could** I have the menu, please?
+- `practice2.5` **could** (lekcja 14): Excuse me, **could** you tell me the time, please?
+- `practice2.8` **must** (lekcja 30): Please do sit down! You **must** be tired.
+- `sec11:examples` **would** (lekcja 42): **Would** you mind opening the window?
+- `sec14:mistakes` **would** (lekcja 42): **Would** you mind opening the window?
+- `exercise6` **would** (lekcja 42): **Would** you mind helping me with this box?
+- `practice0.8` **would** (lekcja 42): Pass me the salt, **would** you?
+- `practice2.2` **would** (lekcja 42): **Would** you mind turning the music down?
+- `sec3:examples` **some-any** (lekcja 23): Don't worry. **Everything** will be fine.
+- `sec6:examples` **some-any** (lekcja 23): Help yourself to **some** coffee.
+- `sec7:examples` **some-any** (lekcja 23): Let's not wait **any** longer.
+- `sec14:mistakes` **some-any** (lekcja 23): Can I have **some** water, please?
+- `exercise3` **some-any** (lekcja 23): Let's not tell **anyone** about it.
+- `practice0.2` **some-any** (lekcja 23): I'm hungry. Let's get **something** to eat.
+- `practice1.2` **some-any** (lekcja 23): Don't be sad. **Everything** will be OK.
+- `practice1.10` **some-any** (lekcja 23): Never tell **anyone** your PIN.
+- `practice3.1` **some-any** (lekcja 23): Let's do **something** interesting today.
+- `test2` **some-any** (lekcja 23): Let's order **some** Chinese food, shall we?
+- `test3` **some-any** (lekcja 23): Let's not tell **anyone**.
+- `practice4.3` **much-many** (lekcja 22): Don't hurry, we have **a lot of** time.
+- `exercise4` **prep-time** (lekcja 15): Don't be late tomorrow – the train leaves **at 7**.
+- `test5` **prep-time** (lekcja 15): Never swim alone **at night**.
+- `sec11:examples` **gerund-after-verb** (lekcja 39): Would you **mind opening** the window?
+- `sec14:mistakes` **gerund-after-verb** (lekcja 39): Would you **mind opening** the window?
+- `exercise6` **gerund-after-verb** (lekcja 39): Would you **mind helping** me with this box?
+- `practice2.2` **gerund-after-verb** (lekcja 39): Would you **mind turning** the music down?
+- `sec11:examples` **adverb-ly** (lekcja 27): Could you speak more **slowly**, please?
+
+## 12. present-continuous – 20
+
+- `practice9.5` **past-simple** (lekcja 13): She knows your brother. They **went** to school together.
+- `exercise4` **can** (lekcja 14): What are you doing ? I **can** hear a strange noise!
+- `practice2.1` **can** (lekcja 14): I **can**'t talk now – I am driving .
+- `practice2.5` **can** (lekcja 14): We aren't watching TV, so you **can** turn it off.
+- `practice2.10` **can** (lekcja 14): My phone is ringing ! **Can** you pass it to me?
+- `practice9.6` **can** (lekcja 14): **Can** you turn the TV off? Nobody is watching it at the moment.
+- `practice8.8` **comparatives** (lekcja 28): Your English is getting **better**.
+- `sec1:formula` **some-any** (lekcja 23): Are you waiting for **someone**? Is it raining?
+- `sec4:examples` **some-any** (lekcja 23): Listen! **Someone** is knocking at the door.
+- `sec6:examples` **some-any** (lekcja 23): Are you reading **anything** interesting at the moment?
+- `sec8:examples` **some-any** (lekcja 23): Are you doing **anything** tonight?
+- `practice8.7` **some-any** (lekcja 23): Listen! **Someone** is playing the piano.
+- `practice9.0` **some-any** (lekcja 23): Hurry up! **Everyone** is waiting for you.
+- `practice9.6` **some-any** (lekcja 23): Can you turn the TV off? **Nobody** is watching it at the moment.
+- `sec6:examples` **much-many** (lekcja 22): My brother is staying with us for **a few** days.
+- `sec8:examples` **prep-time** (lekcja 15): We're flying to Malta **on Saturday**.
+- `practice9.7` **prep-time** (lekcja 15): What do / do you usually ___ **on Sunday**s?
+- `sec7:examples` **adverb-ly** (lekcja 27): More and more people are working **remotely**.
+- `practice9.4` **adverb-ly** (lekcja 27): We **usually** have dinner at seven.
+- `practice9.7` **adverb-ly** (lekcja 27): What do / do you **usually** ___ on Sundays?
+
+## 13. past-simple – 28
+
+- `practice2.4` **comparatives** (lekcja 28): I thought **the test** was easy, but I was wrong.
+- `practice0.8` **some-any** (lekcja 23): **Something** strange happened on my way to work.
+- `practice3.8` **some-any** (lekcja 23): There wasn't **any** milk in the fridge this morning.
+- `practice4.3` **some-any** (lekcja 23): He didn't eat **anything** for breakfast.
+- `practice8.3` **some-any** (lekcja 23): Did you buy **some** bread this morning?
+- `practice3.7` **much-many** (lekcja 22): There were **a lot of** people at the concert last night.
+- `practice5.3` **much-many** (lekcja 22): How **much** did your new bike cost ?
+- `practice6.9` **much-many** (lekcja 22): How **much** did your phone cost?
+- `test9` **much-many** (lekcja 22): How **much** did you pay for this ticket?
+- `sec8:examples` **prep-time** (lekcja 15): I met my husband **in 2**012.
+- `sec9:examples` **prep-time** (lekcja 15): She didn't go to work **on Monday**.
+- `sec15:mistakes` **prep-time** (lekcja 15): I was born **in 1**995.
+- `exercise3` **prep-time** (lekcja 15): Were you at the meeting **on Monday**?
+- `practice2.6` **prep-time** (lekcja 15): We left the party **at midnight**.
+- `practice2.8` **prep-time** (lekcja 15): I got up late **on Sunday**.
+- `practice3.2` **prep-time** (lekcja 15): Were you at the party **on Saturday**? – Yes, I was.
+- `practice3.9` **prep-time** (lekcja 15): My grandfather was born **in 1**950.
+- `practice7.11` **prep-time** (lekcja 15): I was born **in 1**998.
+- `practice7.11:q` **prep-time** (lekcja 15): I born **in 1**998.
+- `practice8.4` **prep-time** (lekcja 15): She was born **in 2**001.
+- `practice8.6` **prep-time** (lekcja 15): Why didn't you come to the party **on Saturday**?
+- `practice9.8` **prep-time** (lekcja 15): When did you start learning English? – **In 2**015.
+- `test2` **prep-time** (lekcja 15): Were you at home **on Sunday**?
+- `test5` **prep-time** (lekcja 15): My parents met each other **in 1**990.
+- `test18` **prep-time** (lekcja 15): I visited my uncle **in May**.
+- `test18:q` **prep-time** (lekcja 15): I visitted my uncle **in May**.
+- `exercise6` **adverb-ly** (lekcja 27): The bus stopped **suddenly** and I fell over.
+- `practice9.0` **adverb-ly** (lekcja 27): I **usually** go to work by bus, but yesterday I walked.
+
+## 14. can-could – 44
+
+- `sec12:formula` **present-perfect** (lekcja 29): I **haven't been** able to sleep well recently.
+- `sec13:examples` **present-perfect** (lekcja 29): She **has been** able to walk again since the operation.
+- `exercise8` **present-perfect** (lekcja 29): I **haven't been** able to contact him all week.
+- `practice0.0` **present-perfect** (lekcja 29): I can't swim – I**'ve never learned**.
+- `practice4.2` **present-perfect** (lekcja 29): Since the accident, he **hasn't been** able to walk without a stick.
+- `practice4.8` **present-perfect** (lekcja 29): We **haven't been** able to contact her since Monday – her phone is off.
+- `test6` **present-perfect** (lekcja 29): I **haven't been** able to contact him since Monday.
+- `test16` **present-perfect** (lekcja 29): I**'ve never been** able to dance salsa.
+- `sec12:formula` **will** (lekcja 25): You **will** be able to speak English fluently in a year.
+- `sec13:examples` **will** (lekcja 25): When **will** you be able to finish the report?
+- `sec13:examples` **will** (lekcja 25): I **won't** be able to come on Friday.
+- `sec16:mistakes` **will** (lekcja 25): I **will** be able to come tomorrow.
+- `exercise3` **will** (lekcja 25): Don't worry, you **will** be able to drive after a few lessons.
+- `practice4.0` **will** (lekcja 25): I **won't** be able to come to your wedding next month – I'll be abroad.
+- `practice4.1` **will** (lekcja 25): If you practise every day, you **will** be able to play this song in a month.
+- `practice4.6` **will** (lekcja 25): **Will** you be able to help me tomorrow?
+- `practice4.7` **will** (lekcja 25): Sorry, I **won't** be able to finish the report by Friday.
+- `practice6.3` **will** (lekcja 25): I **won't** be able to come tomorrow.
+- `practice7.7` **will** (lekcja 25): You**'ll** be able to drive a car next year.
+- `test5` **will** (lekcja 25): We **won't** be able to come to your birthday party.
+- `test10` **will** (lekcja 25): I **will** be able to help you next week.
+- `test10:q` **will** (lekcja 25): I **will** can help you next week.
+- `sec12:formula` **would** (lekcja 42): I**'d love** to be able to play the piano.
+- `practice4.3` **would** (lekcja 42): I**'d love** to be able to speak Japanese.
+- `sec4:examples` **comparatives** (lekcja 28): My grandma can use a smartphone **better than** me.
+- `sec9:examples` **if** (lekcja 33): **If** you're bored, you could help me in the kitchen.
+- `practice4.1` **if** (lekcja 33): **If** you practise every day, you will be able to play this song in a month.
+- `sec10:examples` **some-any** (lekcja 23): We couldn't see **anything** – it was too dark.
+- `practice0.7` **some-any** (lekcja 23): It's too dark in here – I can't see **anything**.
+- `practice2.4` **some-any** (lekcja 23): She couldn't speak **any** English when she came to London.
+- `practice7.2` **some-any** (lekcja 23): I can't see **anything** without my glasses.
+- `sec4:examples` **much-many** (lekcja 22): Can you speak German? – Only **a little**.
+- `exercise3` **much-many** (lekcja 22): Don't worry, you will be able to drive after **a few** lessons.
+- `practice0.6` **much-many** (lekcja 22): Tom can't speak French, but he understands **a little**.
+- `sec5:examples` **prep-time** (lekcja 15): It can be very cold here **in January**.
+- `sec9:examples` **prep-time** (lekcja 15): What shall we do **on Sunday**? – Well, we could have a picnic.
+- `sec13:examples` **prep-time** (lekcja 15): I won't be able to come **on Friday**.
+- `sec6:examples` **adverb-ly** (lekcja 27): Could you speak more **slowly**, please?
+- `sec12:formula` **adverb-ly** (lekcja 27): You will be able to speak English **fluently** in a year.
+- `sec12:formula` **adverb-ly** (lekcja 27): I haven't been able to sleep well **recently**.
+- `sec16:mistakes` **adverb-ly** (lekcja 27): It was difficult, but **finally** I was able to / managed to open the door.
+- `practice2.7` **adverb-ly** (lekcja 27): When I was young, I could run 10 km **easily**.
+- `practice5.2` **adverb-ly** (lekcja 27): The hotel was full, but **luckily** we managed to get the last room.
+- `practice5.8` **adverb-ly** (lekcja 27): I lost my keys, but **luckily** I managed to get in through the window.
+
+## 15. prepositions-time – 80
+
+- `sec6:examples` **present-perfect** (lekcja 29): I**'ve lived** here for ten years.
+- `sec6:examples` **present-perfect** (lekcja 29): I**'ve lived** here since 2015.
+- `sec8:compare` **present-perfect** (lekcja 29): I**'ve been** waiting for an hour.
+- `sec8:compare` **present-perfect** (lekcja 29): I**'ve been** waiting since 3 o'clock.
+- `sec14:mistakes` **present-perfect** (lekcja 29): I**'ve worked** here for three years.
+- `sec14:mistakes` **present-perfect** (lekcja 29): I**'ve lived** here since 2019.
+- `exercise6` **present-perfect** (lekcja 29): I**'ve known** her since 2010.
+- `exercise7` **present-perfect** (lekcja 29): We**'ve been** married for twenty years.
+- `practice4.0` **present-perfect** (lekcja 29): I**'ve had** this car since 2019.
+- `practice4.1` **present-perfect** (lekcja 29): We**'ve been** friends for ten years.
+- `practice4.5` **present-perfect** (lekcja 29): I **haven't seen** him for ages.
+- `practice4.8` **present-perfect** (lekcja 29): I**'ve known** her since we were children.
+- `practice4.11` **present-perfect** (lekcja 29): I**'ve been** learning English for six months.
+- `practice7.3` **present-perfect** (lekcja 29): We **have lived** here since 2018.
+- `practice8.2` **present-perfect** (lekcja 29): I**'ve been** here for two hours.
+- `practice8.2:q` **present-perfect** (lekcja 29): I**'ve been** here since two hours.
+- `practice8.8` **present-perfect** (lekcja 29): I**'ve been** working since 8 o'clock this morning.
+- `practice9.3` **present-perfect** (lekcja 29): I**'ve known** him for ten years.
+- `practice9.11` **present-perfect** (lekcja 29): I **haven't seen** you since June.
+- `test4` **present-perfect** (lekcja 29): We**'ve lived** in Kraków since 2010.
+- `test5` **present-perfect** (lekcja 29): I**'ve been** learning English for three years.
+- `test12` **present-perfect** (lekcja 29): I**'ve been** waiting for you for an hour.
+- `test16` **present-perfect** (lekcja 29): I**'ve had** this phone for two years.
+- `sec3:examples` **will** (lekcja 25): I**'ll** call you next week.
+- `sec7:examples` **will** (lekcja 25): I**'ll** be back in two hours.
+- `sec7:examples` **will** (lekcja 25): You**'ll** receive the parcel within three days.
+- `sec8:compare` **will** (lekcja 25): I**'ll** stay until 6.
+- `sec8:compare` **will** (lekcja 25): I**'ll** finish by 6.
+- `sec14:mistakes` **will** (lekcja 25): I**'ll** see you next Friday.
+- `sec14:mistakes` **will** (lekcja 25): The bus **will** come in five minutes.
+- `sec14:mistakes` **will** (lekcja 25): I**'ll** call you tomorrow evening.
+- `exercise3` **will** (lekcja 25): I**'ll** be ready in five minutes.
+- `practice3.0` **will** (lekcja 25): I**'ll** see you next Monday.
+- `practice3.7` **will** (lekcja 25): I**'ll** finish the project this week.
+- `practice5.0` **will** (lekcja 25): I**'ll** be at the office until 5 p.m., then I'm going home.
+- `practice5.8` **will** (lekcja 25): I**'ll** call you back in an hour – I'm busy now.
+- `practice6.1` **will** (lekcja 25): Hurry up, or we **won't** get to the cinema in time for the start!
+- `practice6.8` **will** (lekcja 25): The doctor **will** see you in a moment.
+- `practice7.0` **will** (lekcja 25): I**'ll** call you next Tuesday.
+- `practice8.0` **will** (lekcja 25): I**'ll** see you next Friday.
+- `practice8.0:q` **will** (lekcja 25): I**'ll** see you on next Friday.
+- `practice9.4` **will** (lekcja 25): I**'ll** be back in an hour.
+- `test2` **will** (lekcja 25): I**'ll** call you tomorrow morning.
+- `test13` **will** (lekcja 25): We**'ll** go to the beach next Sunday.
+- `test13:q` **will** (lekcja 25): We**'ll** go to the beach in next Sunday.
+- `test23` **will** (lekcja 25): I**'ll** be back by Sunday at the latest.
+- `exercise1` **going-to** (lekcja 26): We**'re going to Spain** in August.
+- `sec14:mistakes` **must** (lekcja 30): You **must** pay by the end of the month.
+- `practice5.1` **must** (lekcja 30): The essay **must** be ready by Monday.
+- `practice7.8` **must** (lekcja 30): You **must** return the book by Friday.
+- `practice9.8` **must** (lekcja 30): I **must** finish this report by Thursday.
+- `practice8.5` **have-to** (lekcja 30): You **have to** pay the bill by Friday.
+- `practice8.5:q` **have-to** (lekcja 30): You **have to** pay the bill until Friday.
+- `exercise4` **comparatives** (lekcja 28): Please return the book by Monday at **the latest**.
+- `test8` **comparatives** (lekcja 28): Send the form back by Friday at **the latest**.
+- `test23` **comparatives** (lekcja 28): I'll be back by Sunday at **the latest**.
+- `sec9:compare` **past-cont** (lekcja 21): I fell asleep while I **was reading**.
+- `sec14:mistakes` **past-cont** (lekcja 21): The phone rang while I **was having** a shower.
+- `practice5.5` **past-cont** (lekcja 21): I fell asleep while I **was watching** TV.
+- `practice8.7` **past-cont** (lekcja 21): The phone rang while I **was cooking**.
+- `practice8.7:q` **past-cont** (lekcja 21): The phone rang during I **was cooking**.
+- `test19` **past-cont** (lekcja 21): The phone rang while I **was cooking** dinner.
+- `test19:q` **past-cont** (lekcja 21): I **was cooking** dinner. The phone rang.
+- `practice2.0` **some-any** (lekcja 23): I always do **some** exercise in the morning.
+- `practice2.5` **some-any** (lekcja 23): Are you doing **anything** special at the weekend?
+- `practice5.4` **some-any** (lekcja 23): **Nobody** said a word during the meeting.
+- `practice5.7` **some-any** (lekcja 23): **Someone** stole my bag while I was on the train.
+- `practice0.7` **much-many** (lekcja 22): **Many** birds fly south in autumn.
+- `practice1.3` **much-many** (lekcja 22): **Lots of** people go on holiday in August.
+- `sec2:examples` **adverb-ly** (lekcja 27): I **usually** sleep badly at night.
+- `exercise10` **adverb-ly** (lekcja 27): I **usually** go to bed late at night.
+- `practice0.1` **adverb-ly** (lekcja 27): We **usually** go skiing in February.
+- `practice1.9` **adverb-ly** (lekcja 27): The fireworks start **exactly** at midnight.
+- `practice1.10` **adverb-ly** (lekcja 27): I **usually** work from home on Fridays.
+- `practice2.4` **adverb-ly** (lekcja 27): Owls **usually** hunt at night.
+- `practice7.4` **adverb-ly** (lekcja 27): What do you **usually** do at the weekend?
+- `practice8.10` **adverb-ly** (lekcja 27): At the weekend, I **usually** relax.
+- `practice8.10:q` **adverb-ly** (lekcja 27): In the weekend I **usually** relax.
+- `test15` **adverb-ly** (lekcja 27): I **usually** do my homework in the evening.
+- `test15:q` **adverb-ly** (lekcja 27): I **usually** do my homework at the evening.
+
+## 16. prepositions-place – 26
+
+- `practice3.3` **present-perfect** (lekcja 29): My grandma **has been** in hospital since Monday.
+- `sec2:examples` **will** (lekcja 25): Turn left and you**'ll** see it on the right.
+- `exercise1` **will** (lekcja 25): I**'ll** meet you at the bus stop.
+- `practice3.8` **will** (lekcja 25): He's at the dentist's – he**'ll** be back at two.
+- `practice8.8` **will** (lekcja 25): I**'ll** wait for you at the bus stop.
+- `practice8.8:q` **will** (lekcja 25): I**'ll** wait for you on the bus stop.
+- `practice3.6` **going-to** (lekcja 26): I'm tired. I**'m going to bed**.
+- `practice8.0:q` **going-to** (lekcja 26): I**'m going to home** now.
+- `sec11:compare` **comparatives** (lekcja 28): We walked through **the forest**.
+- `sec9:examples` **past-cont** (lekcja 21): A man **was running** towards us.
+- `practice6.8` **past-cont** (lekcja 21): A big dog **was running** towards us, barking loudly.
+- `sec2:examples` **some-any** (lekcja 23): **Someone** is at the door.
+- `sec4:examples` **some-any** (lekcja 23): There are **some** clouds in the sky.
+- `practice0.0` **some-any** (lekcja 23): There's **some** orange juice in the fridge.
+- `practice1.2` **some-any** (lekcja 23): **Someone**'s at the door. Can you open it?
+- `practice1.10` **some-any** (lekcja 23): There are **some** lovely old houses in this village.
+- `practice6.11` **some-any** (lekcja 23): She walked into the shop and asked for **some** bread.
+- `practice2.8` **adverb-ly** (lekcja 27): Do you **usually** travel by … by car or ___ train?
+- `practice3.7` **adverb-ly** (lekcja 27): What time do you **usually** get home?
+- `practice3.9` **adverb-ly** (lekcja 27): I **usually** stay at home on Sundays.
+- `practice6.8` **adverb-ly** (lekcja 27): A big dog was running towards us, barking **loudly**.
+- `practice8.6` **adverb-ly** (lekcja 27): We **usually** go to the city centre by car.
+- `practice8.6:q` **adverb-ly** (lekcja 27): We **usually** go to the city centre by the car.
+- `practice9.2` **adverb-ly** (lekcja 27): I **usually** read books on the bus.
+- `test18` **adverb-ly** (lekcja 27): I **usually** go to work by car.
+- `test18:q` **adverb-ly** (lekcja 27): I **usually** go to work on car.
+
+## 17. countable-uncountable – 91
+
+- `practice0.1` **present-perfect** (lekcja 29): I**'ve just bought** a new laptop.
+- `practice4.2` **present-perfect** (lekcja 29): I**'ve been** to London three times.
+- `practice4.9` **will** (lekcja 25): Riding a camel was an experience I**'ll** never forget.
+- `sec3:examples` **would** (lekcja 42): I**'d like** a cup of tea, please.
+- `sec3:examples` **would** (lekcja 42): **Would** you like a slice of cake?
+- `sec4:examples` **would** (lekcja 42): **Would** you like some coffee?
+- `sec12:mistakes` **would** (lekcja 42): **Would** you like some cake?
+- `exercise3` **would** (lekcja 42): **Would** you like some biscuits?
+- `practice2.0` **would** (lekcja 42): I**'d like** some information about your English courses.
+- `practice2.2` **would** (lekcja 42): Sorry, there's no coffee left. **Would** you like tea?
+- `practice2.4` **would** (lekcja 42): **Would** you like some more cake?
+- `practice3.1` **would** (lekcja 42): I**'d like** a slice of pizza, please.
+- `test4` **would** (lekcja 42): **Would** you like some tea?
+- `test11` **would** (lekcja 42): I**'d like** to buy some new furniture for my room.
+- `test11:q` **would** (lekcja 42): I**'d like** to buy a new furniture for my room.
+- `practice2.9` **comparatives** (lekcja 28): No students failed **the test** – everybody passed!
+- `sec1:formula` **some-any** (lekcja 23): There are **some** eggs in the fridge.
+- `sec1:formula` **some-any** (lekcja 23): Can I have **some** water, please?
+- `sec1:formula` **some-any** (lekcja 23): We need **some** bread and some tomatoes.
+- `sec1:formula` **some-any** (lekcja 23): There isn't **any** milk. = There's no milk.
+- `sec1:formula` **some-any** (lekcja 23): Have you got **any** questions?
+- `sec2:examples` **some-any** (lekcja 23): Could you give me **some** advice?
+- `sec2:examples` **some-any** (lekcja 23): We bought **some** new furniture.
+- `sec2:examples` **some-any** (lekcja 23): Money isn't **everything**.
+- `sec4:examples` **some-any** (lekcja 23): There are **some** letters for you on the table.
+- `sec4:examples` **some-any** (lekcja 23): I haven't got **any** money.
+- `sec4:examples` **some-any** (lekcja 23): Are there **any** shops near here?
+- `sec4:examples` **some-any** (lekcja 23): Would you like **some** coffee?
+- `sec4:examples` **some-any** (lekcja 23): Could I have **some** more bread, please?
+- `sec4:examples` **some-any** (lekcja 23): You can take **any** bus from here – they all go to the centre.
+- `sec12:mistakes` **some-any** (lekcja 23): Can you give me **some** advice / a piece of advice?
+- `sec12:mistakes` **some-any** (lekcja 23): I haven't got **any** money. / I've got no money.
+- `sec12:mistakes` **some-any** (lekcja 23): Would you like **some** cake?
+- `sec12:mistakes` **some-any** (lekcja 23): Can you buy **some** bread / a loaf of bread?
+- `exercise0` **some-any** (lekcja 23): Can I give you **some** advice?
+- `exercise2` **some-any** (lekcja 23): Is there **any** sugar in the cupboard?
+- `exercise3` **some-any** (lekcja 23): Would you like **some** biscuits?
+- `exercise5` **some-any** (lekcja 23): There's no milk left. We need to buy **some**.
+- `exercise6` **some-any** (lekcja 23): We haven't got **any** eggs.
+- `exercise10` **some-any** (lekcja 23): We bought **some** furniture for our new flat.
+- `practice0.0` **some-any** (lekcja 23): We need **some** rice for dinner.
+- `practice0.2` **some-any** (lekcja 23): There's **some** cheese in the fridge.
+- `practice0.3` **some-any** (lekcja 23): Can you give me **some** information about the course?
+- `practice0.5` **some-any** (lekcja 23): Let's buy **some** fruit for the trip.
+- `practice0.7` **some-any** (lekcja 23): We've got **some** new furniture in the living room.
+- `practice0.8` **some-any** (lekcja 23): Could you lend me **some** money?
+- `practice1.4` **some-any** (lekcja 23): Is there **any** milk left?
+- `practice1.5` **some-any** (lekcja 23): Are there **any** eggs in the fridge?
+- `practice2.0` **some-any** (lekcja 23): I'd like **some** information about your English courses.
+- `practice2.1` **some-any** (lekcja 23): There aren't **any** tickets left for tonight's concert.
+- `practice2.3` **some-any** (lekcja 23): Have you got **any** brothers or sisters?
+- `practice2.4` **some-any** (lekcja 23): Would you like **some** more cake?
+- `practice2.6` **some-any** (lekcja 23): We didn't buy **any** bread yesterday.
+- `practice2.7` **some-any** (lekcja 23): I've got **some** good news for you!
+- `practice2.8` **some-any** (lekcja 23): We haven't got **any** salt. Can you buy some?
+- `practice2.10` **some-any** (lekcja 23): You can call me **any** time – I'm always at home.
+- `practice3.7` **some-any** (lekcja 23): I bought a packet of rice and **some** vegetables.
+- `practice5.1` **some-any** (lekcja 23): I need **some** information about trains to Gdańsk.
+- `practice5.5` **some-any** (lekcja 23): There isn't **any** milk in the fridge.
+- `practice5.9` **some-any** (lekcja 23): Can I have **some** water please?
+- `practice5.9:q` **some-any** (lekcja 23): Can I have **any** water, please?
+- `practice6.1` **some-any** (lekcja 23): Have we got **any** eggs?
+- `practice6.6` **some-any** (lekcja 23): I need **some** information about hotels in Gdańsk.
+- `test0` **some-any** (lekcja 23): Can I give you **some** advice?
+- `test2` **some-any** (lekcja 23): We haven't got **any** bread.
+- `test3` **some-any** (lekcja 23): Are there **any** restaurants near here?
+- `test4` **some-any** (lekcja 23): Would you like **some** tea?
+- `test8` **some-any** (lekcja 23): There isn't **any** sugar in the cupboard.
+- `test8:q` **some-any** (lekcja 23): There is **some** sugar in the cupboard.
+- `test9` **some-any** (lekcja 23): Are there **any** good films on TV tonight?
+- `test9:q` **some-any** (lekcja 23): There are **some** good films on TV tonight.
+- `test10:q` **some-any** (lekcja 23): There isn't **any** juice left.
+- `test11` **some-any** (lekcja 23): I'd like to buy **some** new furniture for my room.
+- `test13` **some-any** (lekcja 23): We need **some** information.
+- `test13:q` **some-any** (lekcja 23): We need **some** informations.
+- `test16` **some-any** (lekcja 23): Is there **any** more coffee?
+- `test17` **some-any** (lekcja 23): There's **some** milk, but there aren't any eggs.
+- `sec2:examples` **much-many** (lekcja 22): I don't have **much** time today.
+- `sec2:examples` **much-many** (lekcja 22): How **much** luggage have you got?
+- `sec12:mistakes` **much-many** (lekcja 22): I haven't got **much** time today.
+- `sec12:mistakes` **much-many** (lekcja 22): How **much** money have you got? – None.
+- `exercise9` **much-many** (lekcja 22): How **much** luggage have you got? – Just one suitcase.
+- `practice5.3` **much-many** (lekcja 22): We bought **a lot of** new furniture.
+- `practice5.3:q` **much-many** (lekcja 22): We bought **a lot of** new furnitures.
+- `practice5.6` **much-many** (lekcja 22): How **much** luggage have you got?
+- `practice5.6:q` **much-many** (lekcja 22): How **many** luggage have you got?
+- `practice5.8` **much-many** (lekcja 22): I have **a lot of** homework today.
+- `practice5.8:q` **much-many** (lekcja 22): I have **a lot of** homeworks today.
+- `practice6.0` **much-many** (lekcja 22): We have **a lot of** furniture in the living room.
+- `test14` **much-many** (lekcja 22): How **many** eggs do we need?
+- `test14:q` **much-many** (lekcja 22): How **much** eggs do we need?
+
+## 18. questions – 36
+
+- `practice5.6:q` **present-perfect** (lekcja 29): She is crying because she **has lost** her keys.
+- `sec4:examples` **will** (lekcja 25): **Will** you be at home tonight?
+- `practice7.4` **will** (lekcja 25): Isn't Tom coming tonight? – Yes, he is. He**'ll** be here at 8.
+- `test9` **will** (lekcja 25): **Will** you be at work tomorrow?
+- `sec19:examples` **comparatives** (lekcja 28): Do you know where **the nearest** pharmacy is?
+- `sec19:examples` **if** (lekcja 33): Do you know **if** Kate is coming tonight?
+- `practice7.9` **if** (lekcja 33): Do you know **if** the bank is open today?
+- `practice7.11` **if** (lekcja 33): Do you know **if** this bus goes to the airport?
+- `test24` **if** (lekcja 33): Do you know **if** she is married?
+- `test25` **past-cont** (lekcja 21): What were you doing when I called you? – I **was having** a shower.
+- `practice6.7:q` **some-any** (lekcja 23): **Someone** opened the window.
+- `practice6.8:q` **some-any** (lekcja 23): You saw **someone** in the park.
+- `practice6.9:q` **some-any** (lekcja 23): **Something** makes you happy.
+- `practice6.10:q` **some-any** (lekcja 23): **Somebody** knows the answer.
+- `practice6.11:q` **some-any** (lekcja 23): Your sister helps **someone** every day.
+- `sec7:examples` **much-many** (lekcja 22): How **many** people work here?
+- `sec7:examples` **much-many** (lekcja 22): How **much** does this cost?
+- `sec9:examples` **much-many** (lekcja 22): How **many** languages do you speak?
+- `sec19:examples` **much-many** (lekcja 22): Can you tell me how **much** these shoes cost?
+- `sec22:mistakes` **much-many** (lekcja 22): How **many** brothers have you got?
+- `exercise5` **much-many** (lekcja 22): How **much** milk do you need?
+- `practice3.3` **much-many** (lekcja 22): How **many** brothers have you got?
+- `practice3.4` **much-many** (lekcja 22): How **much** does a ticket cost?
+- `practice4.3` **much-many** (lekcja 22): How **much** does this jacket cost?
+- `practice5.5` **much-many** (lekcja 22): How **many** cousins have you got?
+- `practice6.6` **much-many** (lekcja 22): How **many** people came to your party?
+- `practice7.10` **much-many** (lekcja 22): Can you tell me how **much** this bag costs?
+- `practice7.10:q` **much-many** (lekcja 22): How **much** does this bag cost?
+- `practice8.6` **much-many** (lekcja 22): How **many** children have they got?
+- `practice8.6:q` **much-many** (lekcja 22): How **much** children have they got?
+- `practice9.3` **much-many** (lekcja 22): How **many** people came to the meeting?
+- `test3` **much-many** (lekcja 22): How **much** coffee do you drink a day?
+- `test19` **much-many** (lekcja 22): How **much** money do you need?
+- `test19:q` **much-many** (lekcja 22): How **many** money do you need?
+- `test23` **much-many** (lekcja 22): How **many** students are there in your class?
+- `practice5.9` **adverb-ly** (lekcja 27): How often do you **usually** go swimming?
+
+## 19. present-simple-vs-continuous – 45
+
+- `practice4.7` **present-perfect** (lekcja 29): A: Why are you laughing ? B: Tom **has just told** me a funny story.
+- `practice9.1` **present-perfect** (lekcja 29): I am meeting Kasia for lunch tomorrow – we**'ve booked** a table.
+- `sec4:examples` **going-to** (lekcja 26): We normally go to the seaside in summer, but this year we**'re going to the** mountains.
+- `practice2.11` **should** (lekcja 31): I think you **should** talk to her.
+- `practice4.8` **comparatives** (lekcja 28): A: How are you feeling today? B: Much **better**, thanks.
+- `practice2.8` **if** (lekcja 33): Look – the chef is tasting the sauce to check **if** it needs more salt.
+- `sec7:examples` **some-any** (lekcja 23): I need **some** help right now.
+- `sec16:mistakes` **some-any** (lekcja 23): Listen! **Somebody** is singing.
+- `practice1.2` **some-any** (lekcja 23): Do / need you ___ **any** help with that box?
+- `practice1.7` **some-any** (lekcja 23): Mmm, **something** smells good! Are you baking a cake?
+- `practice2.7` **some-any** (lekcja 23): Why are you looking at me like that? Have I got **something** on my face?
+- `practice4.4` **some-any** (lekcja 23): A: Do you want **some** tea? B: Yes, please.
+- `practice5.7` **some-any** (lekcja 23): Are you seeing **anyone** at the moment?
+- `practice7.13` **some-any** (lekcja 23): Listen! **Someone** is singing in the bathroom.
+- `practice9.4` **some-any** (lekcja 23): Are you doing **anything** this evening? Let's go to the cinema.
+- `practice9.6` **some-any** (lekcja 23): My sister is getting married in June. **Everything** is booked!
+- `test4` **some-any** (lekcja 23): Do you need **any** help?
+- `sec4:examples` **much-many** (lekcja 22): I don't watch **much** TV, but I'm watching a great series at the moment.
+- `sec7:examples` **much-many** (lekcja 22): How **much** does this jacket cost?
+- `practice1.5` **much-many** (lekcja 22): How **much** do / cost these shoes ___?
+- `practice4.8` **much-many** (lekcja 22): A: How are you feeling today? B: **Much** better, thanks.
+- `practice5.5` **much-many** (lekcja 22): How **much** does this dictionary cost?
+- `practice6.7` **much-many** (lekcja 22): This dress costs too **much**.
+- `practice6.7:q` **much-many** (lekcja 22): This dress is costing too **much**.
+- `sec1:compare` **adverb-ly** (lekcja 27): She **usually** drives to work.
+- `sec4:examples` **adverb-ly** (lekcja 27): He **usually** wears jeans, but today he's wearing a suit.
+- `sec4:examples` **adverb-ly** (lekcja 27): We **normally** go to the seaside in summer, but this year we're going to the mountains.
+- `exercise1` **adverb-ly** (lekcja 27): She **usually** drinks / 's drinking tea, but today she ___ coffee.
+- `practice0.7` **adverb-ly** (lekcja 27): Mark **normally** works days, but this week he is working nights at the hospital.
+- `practice0.8` **adverb-ly** (lekcja 27): Adam **usually** walks / is driving to school, but today his dad ___ him.
+- `practice3.12` **adverb-ly** (lekcja 27): My parents **usually** go to bed at ten.
+- `practice4.6` **adverb-ly** (lekcja 27): A: Does Peter **usually** drive to work? B: No, he usually cycles.
+- `practice5.0` **adverb-ly** (lekcja 27): I **usually** go to work by bus, but today I'm walking.
+- `practice6.8` **adverb-ly** (lekcja 27): **Usually** I get up at seven.
+- `practice6.8:q` **adverb-ly** (lekcja 27): **Usually** I'm getting up at seven.
+- `practice7.0` **adverb-ly** (lekcja 27): I **usually** drink tea, but today I'm drinking coffee.
+- `practice8.1` **adverb-ly** (lekcja 27): I **usually** spend my holidays in Poland, but this year I'm in Valencia.
+- `practice8.5` **adverb-ly** (lekcja 27): **Luckily**, most people here understand me.
+- `test0` **adverb-ly** (lekcja 27): Ania **usually** drives to work, but this week she's taking the bus.
+- `test13` **adverb-ly** (lekcja 27): I **usually** drive to work, but today I'm walking to work.
+- `test13:q` **adverb-ly** (lekcja 27): I **usually** drive to work. (today / walk)
+- `test22` **adverb-ly** (lekcja 27): My sister **usually** goes to bed at ten.
+- `test22:q` **adverb-ly** (lekcja 27): My sister is **usually** going to bed at ten.
+- `test24` **adverb-ly** (lekcja 27): I don't **usually** work on Fridays.
+- `test25` **adverb-ly** (lekcja 27): Paul **usually** cycles to work, but this week he is taking the train because his bike is broken.
+
+## 20. irregular-verbs – 56
+
+- `sec17:examples` **present-perfect** (lekcja 29): I**'ve never eaten** oysters.
+- `sec17:examples` **present-perfect** (lekcja 29): We**'ve known** each other since school.
+- `sec19:mistakes` **present-perfect** (lekcja 29): I **have been** there twice.
+- `sec19:mistakes` **present-perfect** (lekcja 29): I saw / I**'ve seen** that film.
+- `exercise5` **present-perfect** (lekcja 29): Which form is correct? I **have done** my homework.
+- `practice4.2` **present-perfect** (lekcja 29): I**'ve never won** anything in my life.
+- `practice5.1` **present-perfect** (lekcja 29): She **has become** very popular on social media.
+- `practice5.8` **present-perfect** (lekcja 29): Who **has drunk** my orange juice?
+- `practice7.2` **present-perfect** (lekcja 29): She **has chosen** a beautiful dress for the wedding.
+- `practice7.4` **present-perfect** (lekcja 29): I'm sorry, I**'ve forgotten** her name.
+- `practice7.8` **present-perfect** (lekcja 29): We **have spoken** to the manager about the problem.
+- `practice8.1` **present-perfect** (lekcja 29): I**'ve seen** this film three times.
+- `practice8.9` **present-perfect** (lekcja 29): I'm sorry, I**'ve forgotten** your name.
+- `practice8.10` **present-perfect** (lekcja 29): I**'ve been** to London three times – I love it!
+- `practice9.0` **present-perfect** (lekcja 29): I **have seen** this film before.
+- `practice9.4` **present-perfect** (lekcja 29): He **has gone** home.
+- `practice9.6:q` **present-perfect** (lekcja 29): Prices **have rised** a lot this year.
+- `practice9.8` **present-perfect** (lekcja 29): She **has chosen** a new car.
+- `practice10.1` **present-perfect** (lekcja 29): I**'ve never flown** by plane.
+- `test3` **present-perfect** (lekcja 29): I**'ve written** two emails.
+- `test5` **present-perfect** (lekcja 29): She **hasn't eaten** anything.
+- `test8` **present-perfect** (lekcja 29): I **have broken** my glasses.
+- `test20` **present-perfect** (lekcja 29): She **has already left**.
+- `test21` **present-perfect** (lekcja 29): I lost my phone last week, but I**'ve found** it now.
+- `test22` **present-perfect** (lekcja 29): We met in 2015 and we**'ve been** friends ever since.
+- `sec17:examples` **will** (lekcja 25): By Friday I**'ll** have spent all my money.
+- `practice4.7` **comparatives** (lekcja 28): Your English has got much **better**!
+- `exercise3` **past-cont** (lekcja 21): She broke her leg when she **was skiing**.
+- `practice1.0` **past-cont** (lekcja 21): I cut my finger while I **was making** dinner yesterday.
+- `sec17:examples` **some-any** (lekcja 23): When I arrived, **everyone** had gone home.
+- `practice1.8` **some-any** (lekcja 23): **Somebody** shut the door very loudly.
+- `practice2.7` **some-any** (lekcja 23): We went to the shop and bought **some** bread.
+- `practice4.2` **some-any** (lekcja 23): I've never won **anything** in my life.
+- `practice7.0` **some-any** (lekcja 23): **Someone** stole my wallet on the tram.
+- `practice7.6` **some-any** (lekcja 23): Has **anyone** seen my keys?
+- `test5` **some-any** (lekcja 23): She hasn't eaten **anything**.
+- `test5:q` **some-any** (lekcja 23): She didn't eat **anything**.
+- `sec16:examples` **much-many** (lekcja 22): She took **a lot of** photos on holiday.
+- `practice1.1` **much-many** (lekcja 22): How **much** did your new shoes cost ?
+- `practice3.6` **much-many** (lekcja 22): How **much** money have you spent this month?
+- `practice4.7` **much-many** (lekcja 22): Your English has got **much** better!
+- `practice5.7` **much-many** (lekcja 22): I drank too **much** coffee yesterday.
+- `practice6.3` **much-many** (lekcja 22): My son has grown so **much** this year!
+- `test11` **much-many** (lekcja 22): We have sung this song **many** times.
+- `test11:q` **much-many** (lekcja 22): We have sang this song **many** times.
+- `sec18:examples` **passive** (lekcja 43): This house **was built in** 1920.
+- `sec19:mistakes` **passive** (lekcja 43): The company **was founded in** 1998.
+- `exercise4` **passive** (lekcja 43): This book **was written by** a Polish author.
+- `practice3.7` **passive** (lekcja 43): This bridge **was built in** the 19th century.
+- `practice8.5` **passive** (lekcja 43): The letter **was written in** pencil.
+- `practice10.3` **passive** (lekcja 43): This house **was built in** 1990.
+- `test10:q` **passive** (lekcja 43): The thief **was catched by** the police.
+- `test24` **passive** (lekcja 43): This book **was written in** English.
+- `practice1.8` **adverb-ly** (lekcja 27): Somebody shut the door very **loudly**.
+- `test0:q` **adverb-ly** (lekcja 27): I **usually** take the bus. (yesterday)
+- `test2:q` **adverb-ly** (lekcja 27): They **usually** win. (last Saturday)
+
+## 21. past-continuous – 13
+
+- `practice7.7` **comparatives** (lekcja 28): Now the dog lives with us and it's **the happiest** dog in town.
+- `sec10:examples` **if** (lekcja 33): I was wondering **if** you could help me.
+- `sec5:examples` **some-any** (lekcja 23): **Everyone** was dancing and having fun. Suddenly, the music stopped.
+- `sec5:examples` **some-any** (lekcja 23): People were waiting for the bus and **nobody** was speaking.
+- `practice2.6` **some-any** (lekcja 23): I knew the answer, but I didn't say **anything**.
+- `test7` **some-any** (lekcja 23): While we were talking, **someone** knocked at the door.
+- `sec14:mistakes` **much-many** (lekcja 22): I liked the film very **much**.
+- `practice1.7` **much-many** (lekcja 22): Were the neighbours making **a lot of** noise? – Yes, they were.
+- `sec5:examples` **adverb-ly** (lekcja 27): Everyone was dancing and having fun. **Suddenly**, the music stopped.
+- `sec10:examples` **adverb-ly** (lekcja 27): My old flatmate was **constantly** borrowing my things.
+- `exercise9` **adverb-ly** (lekcja 27): When the teacher came in, the students were talking. They stopped **immediately**.
+- `practice0.4` **adverb-ly** (lekcja 27): It was raining **heavily** when we left the cinema.
+- `practice2.0` **adverb-ly** (lekcja 27): I was watching TV when **suddenly** the lights went out.
+
+## 22. much-many – 8
+
+- `sec5:examples` **will** (lekcja 25): There's little hope that they**'ll** find him.
+- `practice2.4` **will** (lekcja 25): I'm not very hungry – I**'ll** just have a little soup.
+- `sec3:examples` **some-any** (lekcja 23): There's plenty of food for **everyone**.
+- `exercise1` **some-any** (lekcja 23): We don't have much bread. Can you buy **some**?
+- `exercise8` **some-any** (lekcja 23): There aren't enough chairs for **everyone**. We need three more.
+- `practice4.4` **some-any** (lekcja 23): Are there enough chairs for **everyone**?
+- `practice4.7` **some-any** (lekcja 23): There's plenty of food – please have **some** more!
+- `practice2.5` **adverb-ly** (lekcja 27): **Unfortunately**, there's little hope of finding the dog now.
+
+## 23. indefinite-pronouns – 18
+
+- `sec7:examples` **present-perfect** (lekcja 29): I**'ve looked** everywhere for my phone.
+- `sec7:examples` **present-perfect** (lekcja 29): Everyone else **has gone** home.
+- `practice0.6` **present-perfect** (lekcja 29): I**'ve looked** everywhere for my glasses – in every room!
+- `practice2.3` **present-perfect** (lekcja 29): Someone **has left** their phone on the table.
+- `test4` **present-perfect** (lekcja 29): I**'ve lost** my phone somewhere.
+- `practice0.9` **will** (lekcja 25): You can ask me anything – I**'ll** try to answer.
+- `sec2:formula` **would** (lekcja 42): Did you buy anything? / **Would** you like something to drink?
+- `sec6:examples` **would** (lekcja 42): **Would** you like something to eat?
+- `sec6:examples` **would** (lekcja 42): I**'d like** something hot to drink.
+- `exercise7` **would** (lekcja 42): **Would** you like something to drink?
+- `practice2.5` **would** (lekcja 42): I**'d like** to go somewhere exotic this summer.
+- `practice5.3` **would** (lekcja 42): I**'d like** to buy something new for the party.
+- `practice5.3:q` **would** (lekcja 42): I**'d like** to buy new something for the party.
+- `sec8:examples` **if** (lekcja 33): **If** anybody asks, I'm in a meeting.
+- `sec2:formula` **gerund-after-verb** (lekcja 39): Did you buy anything? / Would you **like something** to drink?
+- `sec6:examples` **gerund-after-verb** (lekcja 39): Would you **like something** to eat?
+- `sec6:examples` **gerund-after-verb** (lekcja 39): I'd **like something** hot to drink.
+- `exercise7` **gerund-after-verb** (lekcja 39): Would you **like something** to drink?
+
+## 24. articles – 44
+
+- `sec6:examples` **present-perfect** (lekcja 29): The government **has raised** taxes.
+- `practice2.8` **present-perfect** (lekcja 29): This is the best pizza I**'ve ever eaten**!
+- `sec3:examples` **will** (lekcja 25): I**'ll** be back in an hour.
+- `sec22:mistakes` **will** (lekcja 25): I**'ll** see you next week.
+- `exercise1` **will** (lekcja 25): I**'ll** be ready in an hour.
+- `practice2.5` **will** (lekcja 25): Dad, can I borrow the car tonight? I**'ll** be careful.
+- `test10` **will** (lekcja 25): I**'ll** be there in an hour.
+- `test19` **will** (lekcja 25): I**'ll** see you at Christmas.
+- `test19:q` **will** (lekcja 25): I**'ll** see you at the Christmas.
+- `sec13:examples` **going-to** (lekcja 26): I'm tired. I**'m going to bed**.
+- `exercise8` **going-to** (lekcja 26): It's late. I**'m going to bed** .
+- `sec16:examples` **should** (lekcja 31): We **should** help the poor.
+- `exercise12` **should** (lekcja 31): We **should** do more to help the poor.
+- `practice8.11` **should** (lekcja 31): The rich **should** pay higher taxes.
+- `test12` **should** (lekcja 31): The government **should** help the unemployed.
+- `practice0.4` **would** (lekcja 42): I**'d like** a one-way ticket to Bristol, please.
+- `practice4.4` **would** (lekcja 42): I**'d love** to see the Mona Lisa in the Louvre.
+- `sec5:examples` **comparatives** (lekcja 28): Who is **the best** player in the team?
+- `sec7:examples` **comparatives** (lekcja 28): Women live **longer than** men.
+- `sec22:mistakes` **comparatives** (lekcja 28): It's **the most** expensive hotel in town.
+- `exercise11` **comparatives** (lekcja 28): Mount Everest is **the highest** mountain in the world.
+- `practice2.6` **comparatives** (lekcja 28): Excuse me, where's **the nearest** bus stop?
+- `practice2.8` **comparatives** (lekcja 28): This is **the best** pizza I've ever eaten!
+- `practice3.2` **comparatives** (lekcja 28): Cats are usually **more independent than** dogs.
+- `practice3.8` **comparatives** (lekcja 28): Most people think health is **more important than** money.
+- `practice4.0` **comparatives** (lekcja 28): The Vistula is **the longest** river in Poland.
+- `practice4.3` **comparatives** (lekcja 28): The Pacific is **the largest** ocean in the world.
+- `practice6.7` **comparatives** (lekcja 28): It's **the best** film of the year.
+- `practice7.4` **comparatives** (lekcja 28): She's **the best** student in our class.
+- `practice8.8` **comparatives** (lekcja 28): It's **the oldest** building in the town.
+- `practice8.10` **comparatives** (lekcja 28): She's **the best** singer in the world.
+- `test22` **comparatives** (lekcja 28): The Alps are much **higher than** the Tatras.
+- `sec6:examples` **gerund-after-verb** (lekcja 39): I **love walking** by the sea.
+- `practice9.2` **relative** (lekcja 45): She's the only **person who knows** the answer.
+- `sec6:examples` **adverb-ly** (lekcja 27): We **usually** go to the mountains in winter.
+- `sec16:examples` **adverb-ly** (lekcja 27): The **elderly** often feel lonely.
+- `sec16:examples` **adverb-ly** (lekcja 27): I **usually** read in the evening.
+- `practice3.2` **adverb-ly** (lekcja 27): Cats are **usually** more independent than dogs.
+- `practice5.0` **adverb-ly** (lekcja 27): I **usually** go to – bed after midnight.
+- `practice5.8` **adverb-ly** (lekcja 27): I **usually** do my homework in the evening.
+- `practice7.9` **adverb-ly** (lekcja 27): I **usually** have lunch at one.
+- `practice7.9:q` **adverb-ly** (lekcja 27): I **usually** have the lunch at one.
+- `practice9.3` **adverb-ly** (lekcja 27): I love - Italian food, **especially** pizza.
+- `test6` **adverb-ly** (lekcja 27): I **usually** go back home at six o'clock.
+
+## 25. future-will – 23
+
+- `exercise0` **present-perfect** (lekcja 29): – I**'ve lost** my pen. – Don't worry, I 'll lend you mine.
+- `practice2.3` **present-perfect** (lekcja 29): I**'ve asked** him three times, but he won't answer my question.
+- `practice6.1` **present-perfect** (lekcja 29): I 'm visiting my grandmother this weekend. I**'ve already bought** the train ticket.
+- `practice6.3` **present-perfect** (lekcja 29): I**'ve decided**. I 'm going to do more exercise this year.
+- `practice6.2` **going-to** (lekcja 26): Look at that car! It **is going to crash** into the tree!
+- `exercise6` **have-to** (lekcja 30): My car won't start. I'll **have to** take the bus.
+- `test8` **have-to** (lekcja 30): In the future I'll **have to** work more.
+- `sec3:examples` **gerund-after-verb** (lekcja 39): I don't feel **like cooking**. I think I'll order a pizza.
+- `practice2.7` **gerund-after-verb** (lekcja 39): Will you **stop making** that noise? I'm trying to work!
+- `sec5:examples` **adverb-ly** (lekcja 27): She'll **probably** be tired after the flight.
+- `sec13:mistakes` **adverb-ly** (lekcja 27): He **probably** won't come.
+- `exercise4` **adverb-ly** (lekcja 27): He **probably** won't come.
+- `practice0.8` **adverb-ly** (lekcja 27): Prices will **probably** go up next year.
+- `practice0.9` **adverb-ly** (lekcja 27): I **probably** won't have time to see you tomorrow.
+- `practice3.0` **adverb-ly** (lekcja 27): She will **probably** call tomorrow.
+- `practice3.1` **adverb-ly** (lekcja 27): I **definitely** won't forget.
+- `practice3.4` **adverb-ly** (lekcja 27): It **probably** won't rain today.
+- `practice4.5` **adverb-ly** (lekcja 27): He **probably** won't come to the meeting.
+- `practice4.10` **adverb-ly** (lekcja 27): He **probably** won't help us.
+- `practice4.10:q` **adverb-ly** (lekcja 27): He won't **probably** help us.
+- `practice5.9` **adverb-ly** (lekcja 27): It'll **probably** rain tomorrow.
+- `test5` **adverb-ly** (lekcja 27): She **probably** won't come.
+- `test15` **adverb-ly** (lekcja 27): I will **definitely** help you.
+
+## 26. going-to – 8
+
+- `sec3:examples` **present-perfect** (lekcja 29): I**'ve already decided**. I'm going to apply for that job.
+- `exercise1` **present-perfect** (lekcja 29): We are going to go to Spain this summer. We**'ve already booked** the hotel.
+- `exercise9` **present-perfect** (lekcja 29): I**'ve decided**. I am going to learn to drive this year.
+- `practice2.5` **present-perfect** (lekcja 29): I**'ve eaten** far too much. I think I 'm going to explode !
+- `practice5.4:q` **present-perfect** (lekcja 29): I**'ve decided** to learn the guitar.
+- `practice7.7` **present-perfect** (lekcja 29): We 're going to have a party on Saturday. We**'ve invited** thirty people.
+- `sec3:examples` **gerund-after-verb** (lekcja 39): I'm going to **stop eating** sweets. Seriously!
+- `sec3:examples` **adverb-ly** (lekcja 27): I'm going to stop eating sweets. **Seriously**!
+
+## 27. adjectives-adverbs – 8
+
+- `exercise3` **present-perfect** (lekcja 29): I**'ve been** very busy lately.
+- `practice3.8` **present-perfect** (lekcja 29): That was the most frightening film I**'ve ever seen**. I couldn't sleep afterwards.
+- `sec4:examples` **comparatives** (lekcja 28): **The test** was surprisingly easy.
+- `practice3.8` **comparatives** (lekcja 28): That was **the most** frightening film I've ever seen. I couldn't sleep afterwards.
+- `sec8:compare` **passive** (lekcja 43): She **was interested in** the offer.
+- `sec8:compare` **passive** (lekcja 43): We **were surprised by** the news.
+- `test2` **passive** (lekcja 43): My sister **is interested in** art.
+- `practice2.2` **relative** (lekcja 45): She looked angrily at the **man who pushed** her.
+
+## 28. comparatives-superlatives – 10
+
+- `sec7:examples` **present-perfect** (lekcja 29): This is the best pizza I**'ve ever eaten**.
+- `exercise1` **present-perfect** (lekcja 29): This is the most boring film I**'ve ever seen**.
+- `exercise8` **present-perfect** (lekcja 29): That was the worst meal I**'ve ever had**. It was awful!
+- `practice1.8` **present-perfect** (lekcja 29): That was the most difficult exam I**'ve ever taken**.
+- `practice3.6` **present-perfect** (lekcja 29): This is the best coffee I**'ve ever had**.
+- `practice6.4` **present-perfect** (lekcja 29): That was the worst film I**'ve ever seen**.
+- `practice7.5` **present-perfect** (lekcja 29): This is the most beautiful beach I**'ve ever seen**.
+- `practice7.5:q` **present-perfect** (lekcja 29): I**'ve never seen** a more beautiful beach. → This is …
+- `test14` **present-perfect** (lekcja 29): This is the most interesting book I**'ve ever read**.
+- `test14:q` **present-perfect** (lekcja 29): I**'ve never read** a more interesting book.
+
+## 29. present-perfect – 1
+
+- `practice3.1` **would** (lekcja 42): I've never been to Africa, but I**'d love** to go.
+
+## 30. must-have-to – 10
+
+- `sec16:mistakes` **if** (lekcja 33): You don't have to come **if** you're busy.
+- `exercise0` **if** (lekcja 33): You don't have to come to the meeting **if** you don't want to. It's optional.
+- `practice0.9` **if** (lekcja 33): You don't need to bring any food, but you can **if** you want.
+- `practice3.2` **if** (lekcja 33): **If** you miss the bus, you will have to walk.
+- `practice5.1` **if** (lekcja 33): We might have to cancel the trip **if** the weather is bad.
+- `practice8.4` **if** (lekcja 33): You don't have to come to the party **if** you don't want to.
+- `practice8.4:q` **if** (lekcja 33): You mustn't come to the party **if** you don't want to.
+- `test22` **if** (lekcja 33): **If** you lose your ticket, you will have to buy a new one.
+- `sec3:examples` **gerund-after-verb** (lekcja 39): I really must **stop eating** so much chocolate.
+- `practice5.2` **gerund-after-verb** (lekcja 39): I **hate having** to get up so early.
+
+## 31. should-advice – 14
+
+- `sec8:examples` **would** (lekcja 42): If I were you, I **wouldn't** buy that car.
+- `practice5.1` **would** (lekcja 42): If I were you, I **wouldn't** worry about it.
+- `practice5.5` **would** (lekcja 42): If I were you, I **would** call her right now.
+- `practice6.6` **would** (lekcja 42): If I were you I **wouldn't** buy this phone.
+- `sec8:examples` **if** (lekcja 33): **If** I were you, I'd talk to your manager.
+- `sec8:examples` **if** (lekcja 33): **If** I were you, I wouldn't buy that car.
+- `sec14:mistakes` **if** (lekcja 33): **If** I were you, I'd go.
+- `exercise4` **if** (lekcja 33): **If** I were you, I'd take the job.
+- `practice5.0` **if** (lekcja 33): **If** I were you, I'd sell that old car.
+- `practice5.1` **if** (lekcja 33): **If** I were you, I wouldn't worry about it.
+- `practice5.5` **if** (lekcja 33): **If** I were you, I would call her right now.
+- `practice6.6` **if** (lekcja 33): **If** I were you I wouldn't buy this phone.
+- `practice7.7` **if** (lekcja 33): **If** I were you, I'd talk to her.
+- `test7` **if** (lekcja 33): **If** I were you, I'd take a taxi.
+
+## 32. word-order – 8
+
+- `practice5.8` **would** (lekcja 42): I**'d like** to know who you spoke to.
+- `practice6.7` **would** (lekcja 42): I**'d like** to eat something sweet.
+- `practice6.7:q` **would** (lekcja 42): I**'d like** to eat sweet something.
+- `sec12:examples` **if** (lekcja 33): I wonder **if** he'll come.
+- `practice5.4` **if** (lekcja 33): Do you know **if** the restaurant is open on Mondays?
+- `practice5.7` **if** (lekcja 33): Do you know **if** I can park here?
+- `test14` **if** (lekcja 33): I wonder **if** Tom passed the exam.
+- `practice6.0` **gerund-after-verb** (lekcja 39): I **like swimming** very much.
+
+## 36. past-perfect – 1
+
+- `sec6:examples` **would** (lekcja 42): If I had known about the party, I **would** have come.
+
+## 39. gerund-infinitive – 10
+
+- `sec5:examples` **would** (lekcja 42): **Would** you mind opening the window?
+- `sec19:mistakes` **would** (lekcja 42): I**'d like** to go to Spain.
+- `exercise9` **would** (lekcja 42): **Would** you like to join us for dinner?
+- `practice0.3` **would** (lekcja 42): **Would** you mind being a bit quieter?
+- `practice1.4` **would** (lekcja 42): I**'d love** to come to your party.
+- `practice3.4` **would** (lekcja 42): I**'d like** you to meet my parents.
+- `practice6.2` **would** (lekcja 42): **Would** you mind turning the music down?
+- `practice8.7` **would** (lekcja 42): **Would** you mind helping me?
+- `practice8.7:q` **would** (lekcja 42): **Would** you mind to help me?
+- `test6` **would** (lekcja 42): I**'d like** you to meet my sister.
+
+## 40. used-to-would – 16
+
+- `sec1:formula` **would** (lekcja 42): Grandma **would** tell us stories.
+- `sec6:examples` **would** (lekcja 42): When I was a child, my grandfather **would** take me fishing.
+- `sec6:examples` **would** (lekcja 42): On Sundays Mum **would** make pancakes.
+- `sec6:examples` **would** (lekcja 42): He **would** always forget his keys.
+- `exercise4` **would** (lekcja 42): Every summer, my grandma **would** make us cherry jam.
+- `exercise10` **would** (lekcja 42): When we were kids, we **would** play in the garden for hours.
+- `practice1.9` **would** (lekcja 42): When I was at university, I **would** study in the library until midnight.
+- `practice3.5` **would** (lekcja 42): On Saturdays our grandad **would** take us to the zoo.
+- `practice4.6` **would** (lekcja 42): Every Sunday my mum **would** make a big lunch.
+- `practice4.11:q` **would** (lekcja 42): When I was a child, I **would** have a cat.
+- `practice5.8` **would** (lekcja 42): When we were children, we **would** go to the seaside every summer.
+- `practice5.9` **would** (lekcja 42): My grandfather **would** always tell us stories about the war.
+- `test5` **would** (lekcja 42): Every Sunday grandma **would** bake a cake.
+- `test10` **would** (lekcja 42): When I was a student, I **would** often stay up all night.
+- `test14:q` **would** (lekcja 42): We **would** have a dog called Max.
+- `test8` **passive** (lekcja 43): I didn't use to **be interested in** politics.
+

@@ -1,6 +1,7 @@
 // Generuje listę <script> w index.html na podstawie plików w data/.
 // Użycie: node tools/build-index.js   (uruchom po dodaniu nowego pliku z danymi)
-// Kolejność lekcji = kolejność w data/lessons/order.json (wpływa na ścieżkę nauki w obrębie kategorii).
+// Kolejność lekcji = kolejność w data/lessons/order.json = ścieżka nauki (lekcja może używać tylko
+// gramatyki i słówek z lekcji wcześniejszych – sprawdzisz to: node tools/audit/dump.js && node tools/audit/report.js).
 const fs = require("fs");
 const path = require("path");
 const root = path.join(__dirname, "..");

@@ -1,6 +1,6 @@
 window.PRACTICE = window.PRACTICE || {};
 window.PRACTICE["pronouns-possessives"] = {
-  requires: ["to-be", "have-got"],
+  requires: ["to-be"],
 
   vocab: {
     intro: "Czasowniki, które łączą się z zaimkami zwrotnymi (i te, które – mimo polskiego „się” – się z nimi NIE łączą), oraz słowa potrzebne w ćwiczeniach.",

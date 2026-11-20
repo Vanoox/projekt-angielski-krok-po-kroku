@@ -21,10 +21,9 @@
     const p = PRACTICE[l.id] || {};
     return { ...l, vocab: p.vocab || l.vocab || null, practice: p.practice || l.practice || [], test: p.test || l.test || [], requires: p.requires || l.requires || [], _i: i };
   });
-  const catIdx = (c) => { const i = CATEGORIES.indexOf(c); return i < 0 ? 99 : i; };
-  // Rekomendowana ścieżka: poziom → kategoria → kolejność w pliku
-  const PATH = raw.slice().sort((a, b) =>
-    LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || catIdx(a.category) - catIdx(b.category) || a._i - b._i);
+  // Rekomendowana ścieżka: kolejność z data/lessons/order.json (kolejność nauki – każda lekcja
+  // korzysta tylko z tego, co było wcześniej). Poziom tylko jako zabezpieczenie.
+  const PATH = raw.slice().sort((a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || a._i - b._i);
   const BY_ID = Object.fromEntries(PATH.map((l) => [l.id, l]));
   const VOCAB = (window.VOCAB || []).slice().sort((a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level));
   const VOCAB_BY_ID = Object.fromEntries(VOCAB.map((t) => [t.id, t]));

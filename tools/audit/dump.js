@@ -1,0 +1,12 @@
+const fs=require('fs'),path=require('path'),vm=require('vm');
+const R='r:/Projekty/angielski/data';
+const ctx={window:{}};vm.createContext(ctx);
+for(const d of ['lessons','practice','vocab'])for(const f of fs.readdirSync(path.join(R,d)).filter(f=>f.endsWith('.js')))vm.runInContext(fs.readFileSync(path.join(R,d,f),'utf8'),ctx);
+const order=JSON.parse(fs.readFileSync(R+'/lessons/order.json'));
+const L=Object.fromEntries(ctx.window.LESSONS.map(l=>[l.id,l]));
+const out=order.map((id,i)=>({i:i+1,id,level:L[id].level,title:L[id].titlePl,lesson:L[id],practice:ctx.window.PRACTICE[id]||null}));
+fs.writeFileSync(__dirname+'/all.json',JSON.stringify(out));
+fs.writeFileSync(__dirname+'/vocab.json',JSON.stringify(ctx.window.VOCAB));
+console.log(out.map(o=>`${o.i} ${o.level} ${o.id} sec=${o.lesson.sections.length} ex=${(o.lesson.exercises||[]).length} voc=${o.practice?.vocab?.items?.length} pr=${(o.practice?.practice||[]).reduce((s,p)=>s+p.items.length,0)} test=${(o.practice?.test||[]).length} req=${(o.practice?.requires||[]).join(',')}`).join('\n'));
+console.log('sectypes',[...new Set(out.flatMap(o=>o.lesson.sections.map(s=>s.type)))]);
+console.log('lesson keys',[...new Set(out.flatMap(o=>Object.keys(o.lesson)))]);

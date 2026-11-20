@@ -112,6 +112,11 @@ window.LESSONS.push({
       "html": "<p>W mowie i w swobodnym piśmie (SMS, e-mail do znajomego) skracamy be prawie zawsze. Skrót <b>'s</b> dodajemy nie tylko do zaimków, ale też do rzeczowników, imion i słów pytających: <em>My brother<b>'s</b> a pilot. Tom<b>'s</b> here. Where<b>'s</b> the toilet? What<b>'s</b> this?</em></p><p><b>Nie skracamy</b>: w krótkich odpowiedziach twierdzących (<em>Yes, it <b>is</b>.</em>), na końcu zdania (<em>I don't know where she <b>is</b>.</em>, nie: <em>…where she's</em>) i gdy be zaczyna pytanie (<em><b>Are</b> you ready?</em>). W tekstach oficjalnych (np. podanie, e-mail do urzędu) lepiej pisać formy pełne.</p><p>Uważaj na pisownię: <b>it's</b> = it is, a <b>its</b> (bez apostrofu) = jego/jej – o rzeczy lub zwierzęciu: <em><b>It's</b> a nice hotel. <b>Its</b> rooms are big.</em></p>"
     },
     {
+      "type": "tip",
+      "title": "Małe słowa, które zobaczysz w przykładach",
+      "html": "<p>W przykładach poniżej pojawiają się słowa, które dokładnie omawiamy w kolejnych lekcjach. Na razie wystarczy, że będziesz wiedzieć, co znaczą:</p><ul><li><b>a / an</b> – „jakiś, jeden”, stoi przed rzeczownikiem w l.poj., też przed zawodem: <em>She's <b>a</b> nurse. He's <b>an</b> engineer.</em> Po polsku tego słowa nie tłumaczymy. <b>an</b> stawiamy przed samogłoską.</li><li><b>the</b> – „ten, ta, to” – konkretny, wiadomo który: <em><b>The</b> keys are on the table.</em> (nasze klucze)</li><li><b>my</b> – mój, <b>your</b> – twój / wasz, <b>his</b> – jego, <b>her</b> – jej, <b>our</b> – nasz, <b>their</b> – ich: <em><b>My</b> sister is a doctor.</em></li><li><b>this</b> – ten / to (blisko), <b>that</b> – tamten / to (dalej): <em>What's <b>this</b>?</em></li><li><b>'s</b> po imieniu lub rzeczowniku to zwykle skrót od <b>is</b> (<em>Tom's here.</em> = Tom is here). Ale <em>Tom's car</em> (z rzeczownikiem po 's) to „samochód Toma” – to tzw. dopełniacz saksoński, który poznasz w osobnej lekcji.</li></ul><p>Przedimki a / an / the omawiamy w następnej lekcji, zaimki my / your… i dopełniacz 's – kilka lekcji dalej.</p>"
+    },
+    {
       "type": "examples",
       "title": "Przykłady: kim jesteś – imię, zawód, narodowość",
       "items": [
