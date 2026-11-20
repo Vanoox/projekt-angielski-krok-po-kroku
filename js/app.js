@@ -161,6 +161,7 @@
     const prev = state.scores[key];
     if (!prev || correct / total >= prev.correct / prev.total) state.scores[key] = { correct, total };
     save();
+    syncNavState();
   };
 
   // ---------- Moje błędy: system pudełek (eng-mistakes) ----------
@@ -403,8 +404,24 @@
   // ---------- Sidebar ----------
   function renderLevelFilter() {
     $("#levelFilter").innerHTML =
-      `<button class="chip ${state.levels.length === 4 ? "active" : ""}" data-all>Wszystkie</button>` +
-      LEVELS.map((l) => `<button class="chip ${state.levels.length < 4 && state.levels.includes(l) ? "active" : ""}" data-level="${l}">${l}</button>`).join("");
+      `<button class="chip ${state.levels.length === 4 ? "active" : ""}" data-all aria-pressed="${state.levels.length === 4}">Wszystkie</button>` +
+      LEVELS.map((l) => { const on = state.levels.length < 4 && state.levels.includes(l); return `<button class="chip ${on ? "active" : ""}" data-level="${l}" aria-pressed="${on}" title="Poziom ${l}">${l}</button>`; }).join("");
+  }
+  // Stan lekcji w menu: przerobiona (state.done) / zaczęta (jakiś wynik w state.scores) / nie zaczęta.
+  const lessonStarted = (id) => Object.keys(state.scores).some((k) => k === id || k.startsWith(id + "::"));
+  const navMark = (id) => state.done[id] ? `<span class="nav-mark is-done" title="Przerobione">${icon("check")}</span>`
+    : lessonStarted(id) ? `<span class="nav-mark is-started" title="Zaczęte – są wyniki zadań"></span>`
+    : `<span class="nav-mark"></span>`;
+  // Odświeża znaczniki i liczniki „3/6” w gotowym menu – bez przebudowy i bez przewijania strony.
+  function syncNavState() {
+    const nav = $("#nav"); if (!nav) return;
+    nav.querySelectorAll(".nav-item[data-lesson]").forEach((a) => { a.querySelector(".nav-mark").outerHTML = navMark(a.dataset.lesson); });
+    nav.querySelectorAll(".nav-group[data-cat]").forEach((g) => {
+      const ids = [...g.querySelectorAll(".nav-item[data-lesson]")].map((a) => a.dataset.lesson);
+      const d = ids.filter((id) => state.done[id]).length, c = g.querySelector(".nav-group-count");
+      c.textContent = `${d}/${ids.length}`; c.title = `Przerobione: ${d} z ${ids.length}`;
+      c.classList.toggle("is-full", d === ids.length);
+    });
   }
   function renderNav() {
     const cur = currentLessonId();
@@ -421,12 +438,13 @@
       const items = PATH.filter((l) => l.category === c && state.levels.includes(l.level))
         .sort((a, b) => LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || a._i - b._i);
       if (!items.length) return "";
-      return `<div class="nav-group"><div class="nav-group-title">${esc(c)}</div>` +
-        items.map((l) => `<a class="nav-item ${l.id === cur ? "active" : ""}" href="#/lesson/${l.id}">
-          ${badge(l.level)}<span class="nav-title">${esc(l.title)}</span>${state.done[l.id] ? `<span class="done-mark" title="Przerobione">${icon("check")}</span>` : ""}</a>`).join("") +
+      return `<div class="nav-group" data-cat="${esc(c)}"><div class="nav-group-title"><span>${esc(c)}</span><span class="nav-group-count"></span></div>` +
+        items.map((l) => `<a class="nav-item ${l.id === cur ? "active" : ""}" href="#/lesson/${l.id}" data-lesson="${l.id}">
+          ${badge(l.level)}<span class="nav-title">${esc(l.title)}</span>${navMark(l.id)}</a>`).join("") +
         `</div>`;
     }).join("");
     $("#nav").innerHTML = quick + (groups || `<div class="nav-empty">Brak lekcji dla wybranych poziomów.</div>`);
+    syncNavState();
     const active = $("#nav .nav-item.active");
     if (active) active.scrollIntoView({ block: "nearest" });
     syncTodayCounts();
@@ -1517,7 +1535,7 @@
             key: s.key,
             onDone: (c, t) => {
               d.querySelector(".set-meta").innerHTML = `${s.items.length} zad. ${scorePill(state.scores[s.key])}`;
-              if (s.quick && c / t >= 0.8) { state.done[id] = true; save(); renderNav(); }
+              if (s.quick && c / t >= 0.8) { state.done[id] = true; save(); syncNavState(); }
             },
           });
           run();
@@ -1545,11 +1563,11 @@
     }
     $("#plToggle").addEventListener("change", (e) => { state.showPl = e.target.checked; save(); art.classList.toggle("hide-pl", !state.showPl); });
     const doneBtn = $("#doneBtn"); syncDoneBtn(doneBtn, id);
-    doneBtn.addEventListener("click", () => { state.done[id] = !state.done[id]; if (!state.done[id]) delete state.done[id]; save(); syncDoneBtn(doneBtn, id); renderNav(); });
+    doneBtn.addEventListener("click", () => { state.done[id] = !state.done[id]; if (!state.done[id]) delete state.done[id]; save(); syncDoneBtn(doneBtn, id); syncNavState(); });
     const box = $("#exercises");
     const run = () => renderExercises(box, (l.exercises || []).map((ex) => ({ ex, lesson: l })), {
       key: id,
-      onDone: (c, t) => { if (c / t >= 0.8) { state.done[id] = true; save(); renderNav(); syncDoneBtn(doneBtn, id); } },
+      onDone: (c, t) => { if (c / t >= 0.8) { state.done[id] = true; save(); syncNavState(); syncDoneBtn(doneBtn, id); } },
     });
     run();
     box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
