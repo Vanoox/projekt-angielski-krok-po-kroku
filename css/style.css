@@ -685,6 +685,50 @@ a.level-test:hover { text-decoration: none; }
   .act-calwrap { max-width: none; }
 }
 
+/* ---------- Cel dzienny: kółko postępu (goalHtml, #goalTop w pasku) ---------- */
+.goal-ring { display: block; width: 100%; height: 100%; }
+.goal-ring circle { fill: none; stroke-width: 4; }
+.goal-ring .gr-bg { stroke: var(--surface-2); }
+.goal-ring .gr-fg { stroke: var(--accent); stroke-linecap: round; transition: stroke-dasharray .4s; }
+.goal-ring.is-done .gr-fg { stroke: var(--ok); }
+.goal-ring .gr-fg[stroke-dasharray^="0 "] { stroke-linecap: butt; } /* przy 0 nie rysuj kropki */
+.goal-card { display: flex; align-items: center; gap: 20px; padding: 18px 20px; margin: 0 0 20px; scroll-margin-top: calc(var(--topbar) + 16px); }
+.goal-big { position: relative; flex: none; width: 92px; height: 92px; }
+.goal-big .gr-bg { stroke: var(--border); }
+.goal-num { position: absolute; inset: 0; display: grid; place-items: center; font-size: 14px; color: var(--text-3); white-space: nowrap; }
+.goal-num b { font-family: Fraunces, Georgia, serif; font-size: 24px; color: var(--text); }
+.goal-body { flex: 1; min-width: 0; }
+.goal-title { display: block; font-size: 17px; }
+.goal-msg { margin: 4px 0 10px; color: var(--text-2); font-size: 14px; }
+.goal-ok { color: var(--ok); }
+.goal-set { display: flex; flex-wrap: wrap; align-items: center; gap: 6px 10px; font-size: 13.5px; color: var(--text-3); }
+.goal-set .chips { display: flex; gap: 6px; }
+.goal-set .chip { min-width: 40px; justify-content: center; }
+.goal-top { display: inline-flex; align-items: center; gap: 6px; font-variant-numeric: tabular-nums; }
+.gt-ring { width: 20px; height: 20px; flex: none; }
+.gt-ring .gr-bg { stroke: var(--border); }
+.goal-mini.is-done .gt-txt { color: var(--ok); }
+.nav-goal { display: none; }
+.nav-goal .gt-ring { width: 17px; height: 17px; }
+.nav-goal .gt-txt { margin-left: auto; font-size: 12.5px; color: var(--text-3); font-variant-numeric: tabular-nums; }
+.goal-msg-pop {
+  position: absolute; top: calc(100% + 8px); right: 16px; padding: 8px 14px; border-radius: 10px;
+  background: var(--ok-soft); color: var(--ok); border: 1px solid color-mix(in srgb, var(--ok) 35%, transparent);
+  font-size: 14px; font-weight: 600; box-shadow: var(--shadow); pointer-events: none;
+  opacity: 0; transform: translateY(-4px); transition: opacity .25s, transform .25s;
+}
+.goal-msg-pop:empty { display: none; }
+.goal-msg-pop.show { opacity: 1; transform: none; }
+@media (max-width: 640px) {
+  .goal-card { padding: 16px; gap: 14px; align-items: flex-start; }
+  .goal-big { width: 80px; height: 80px; }
+  .goal-num { font-size: 12px; }
+  .goal-num b { font-size: 19px; }
+  .goal-top { display: none !important; } /* na telefonie w pasku brak miejsca – kółko celu jest w menu (.nav-goal) */
+  .nav-goal { display: flex; }
+  .goal-msg-pop { right: 10px; left: 10px; text-align: center; }
+}
+
 /* ---------- Sprawdziany powtórkowe (#/sprawdzian/…) ---------- */
 .order-cp a { border-style: dashed; background: var(--surface-2); }
 .order-cp .order-num { background: transparent; font-size: 17px; }

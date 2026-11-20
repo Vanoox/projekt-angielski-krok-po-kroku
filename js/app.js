@@ -145,6 +145,8 @@
     get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem("eng-" + k, JSON.stringify(v)); } catch (e) {} },
   };
+  // Cel dzienny (eng-goal): zadania + słówka w fiszkach dziennie (patrz „Cel dzienny” niżej).
+  const GOAL_CHOICES = [10, 20, 30, 50], GOAL_DEFAULT = 20;
   // Ponownie wywoływane po wczytaniu kopii postępu (Object.assign(state, loadState())).
   const loadState = () => ({
     done: store.get("done", {}),
@@ -156,6 +158,7 @@
     srs: store.get("srs", {}),
     srsNew: store.get("srsNew", 10),
     activity: store.get("activity", {}),
+    goal: ((g) => (GOAL_CHOICES.includes(g) ? g : GOAL_DEFAULT))(store.get("goal", GOAL_DEFAULT)),
   });
   const state = loadState();
   const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
@@ -194,11 +197,16 @@
   const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
   const dayTotal = (e) => (e ? (e.t || 0) + (e.w || 0) : 0);
   function logActivity(d) {
-    const k = today(), e = { ...(state.activity[k] || {}) };
+    const k = today(), e = { ...(state.activity[k] || {}) }, before = dayTotal(e);
     for (const [f, n] of Object.entries(d)) e[f] = (e[f] || 0) + n;
     delete e.a; // od teraz dzień ma prawdziwe dane (przybliżenie było dolnym oszacowaniem, więc tylko dopisujemy)
     state.activity[k] = e;
     store.set("activity", state.activity);
+    // Cel dzienny: komunikat „Cel na dziś zrobiony” tylko w chwili przekroczenia celu i najwyżej raz dziennie
+    // (eng-goalDay = dzień ostatniego komunikatu; np. podniesienie celu po jego zrobieniu nie pokaże go drugi raz).
+    const hit = before < state.goal && dayTotal(e) >= state.goal && store.get("goalDay", "") !== k;
+    if (hit) store.set("goalDay", k);
+    syncGoal(hit);
   }
   // Historia sprzed dziennika (raz – gdy eng-activity jeszcze nie ma, także po wczytaniu starej kopii): PRZYBLIŻENIE
   // z lastSeen w eng-mistakes (1 zadanie w dniu ostatniej odpowiedzi; poprawne, gdy pudełko > 1) i eng-srs
@@ -281,6 +289,58 @@
       <div class="act-legend" aria-hidden="true">Mniej ${[0, 1, 2, 3, 4].map((l) => `<span class="act-c act-l${l}"></span>`).join("")} Więcej</div>
       </div>
     </section>`;
+  }
+
+  // ---------- Cel dzienny (eng-goal) ----------
+  // Liczy się to samo co w dzienniku: zadania z odpowiedzią + ocenione słówka w fiszkach (dayTotal z eng-activity).
+  // Cel to ustawienie (10/20/30/50, domyślnie 20): trafia do pliku z kopią (jak wszystkie eng-*), ale przy łączeniu
+  // kopii zostaje taki, jak na tym urządzeniu (KEEP_LOCAL, jak eng-srsNew); „Zastąp” bierze go z pliku.
+  // Widoki: goalHtml() – karta z kółkiem i zmianą celu (Kolejność nauki, strona główna; do wstawienia w „Twój dzień”),
+  // .goal-mini – małe kółko „12/20” na każdej stronie: w górnym pasku (#goalTop), a na telefonie (gdzie w pasku brak
+  // miejsca) w menu (.nav-goal). Odświeża je syncGoal() po każdym wpisie w dzienniku.
+  const goalCount = () => dayTotal(state.activity[today()]);
+  const goalRing = (n, g) => {
+    const pct = Math.min(100, Math.round((n / g) * 100));
+    return `<svg class="goal-ring${n >= g ? " is-done" : ""}" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><circle class="gr-bg" cx="18" cy="18" r="15"/><circle class="gr-fg" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray="${pct} 100" transform="rotate(-90 18 18)"/></svg>`;
+  };
+  const zadanISlowek = (n) => plural(n, "zadanie lub słówko", "zadania lub słówka", "zadań lub słówek");
+  function goalHtml() {
+    const n = goalCount(), g = state.goal, left = g - n;
+    const msg = left > 0
+      ? `${n ? "Jeszcze" : "Zrób dziś"} <b>${left}</b> ${zadanISlowek(left)}. Liczą się wszystkie zadania (lekcje, testy, trening, Moje błędy) i słówka ocenione w fiszkach.`
+      : `<b class="goal-ok">${icon("check")} Cel na dziś zrobiony.</b> Możesz uczyć się dalej albo wrócić jutro.`;
+    return `<section class="card goal-card" id="cel" aria-label="Cel na dziś">
+      <div class="goal-big" role="img" aria-label="Dziś ${n} z ${g}">${goalRing(n, g)}<span class="goal-num"><span><b>${n}</b>/${g}</span></span></div>
+      <div class="goal-body">
+        <b class="goal-title">Cel na dziś: ${g} ${zadanISlowek(g)}</b>
+        <p class="goal-msg">${msg}</p>
+        <div class="goal-set"><span>Dzienny cel:</span><div class="chips">${GOAL_CHOICES.map((c) => `<button class="chip ${c === g ? "active" : ""}" type="button" data-goal="${c}" aria-pressed="${c === g}">${c}</button>`).join("")}</div></div>
+      </div>
+    </section>`;
+  }
+  let goalMsgTimer = 0;
+  function syncGoalMini() {
+    const n = goalCount(), g = state.goal, done = n >= g;
+    const label = done ? `Cel na dziś zrobiony (${n}/${g})` : `Cel na dziś: ${n}/${g} (zadania i słówka)`;
+    document.querySelectorAll(".goal-mini").forEach((el) => {
+      el.hidden = false;
+      el.classList.toggle("is-done", done);
+      el.title = label;
+      el.setAttribute("aria-label", label);
+      el.querySelector(".gt-ring").innerHTML = goalRing(n, g);
+      el.querySelector(".gt-txt").textContent = `${n}/${g}`;
+    });
+  }
+  function syncGoal(celebrate) {
+    syncGoalMini();
+    const m = $("#goalMsg");
+    if (m && celebrate) { // krótki napis pod paskiem, sam znika; bez okna do zamykania
+      m.textContent = "Cel na dziś zrobiony!";
+      m.classList.add("show");
+      clearTimeout(goalMsgTimer);
+      goalMsgTimer = setTimeout(() => { m.classList.remove("show"); m.textContent = ""; }, 4000);
+    }
+    document.querySelectorAll(".goal-card").forEach((el) => { el.outerHTML = goalHtml(); });
   }
 
   // ---------- Słówka na dziś: pudełka dla słówek (eng-srs) ----------
@@ -532,6 +592,7 @@
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">${icon("test")}</span><span class="nav-title">Testy – pisanie zdań</span></a>
       <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">${icon("target")}</span><span class="nav-title">Trening mieszany</span></a>
       <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">${icon("repeat")}</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
+      <a class="nav-item nav-goal goal-mini" href="#/kolejnosc/cel"><span class="nav-ico gt-ring"></span><span class="nav-title">Cel na dziś</span><span class="gt-txt"></span></a>
     </div>`;
     const groups = CATEGORIES.map((c) => {
       const items = PATH.filter((l) => l.category === c && state.levels.includes(l.level))
@@ -544,6 +605,7 @@
     }).join("");
     $("#nav").innerHTML = quick + (groups || `<div class="nav-empty">Brak lekcji dla wybranych poziomów.</div>`);
     syncNavState();
+    syncGoalMini();
     const active = $("#nav .nav-item.active");
     if (active) active.scrollIntoView({ block: "nearest" });
     syncTodayCounts();
@@ -627,6 +689,7 @@
         <div class="order-levels">${levelBars}</div>
         <a class="order-backup-link" href="#/kolejnosc/kopia" data-jump="kopia">${icon("save")} Kopia postępu – pobierz albo wczytaj z pliku</a>
       </div>
+      ${goalHtml()}
       ${activityHtml()}
       ${backupReminder()}
       ${groups}
@@ -649,7 +712,8 @@
   // już odczytane (plik da się przeczytać); eng-theme jest w localStorage zwykłym tekstem, stąd RAW_KEYS.
   const BACKUP_APP = "angielski", BACKUP_VERSION = 1;
   const RAW_KEYS = ["eng-theme"];
-  const BACKUP_SKIP = ["eng-backup"]; // dane przypomnienia o kopii dotyczą tylko tego urządzenia
+  // Dane przypomnienia o kopii i dzień komunikatu o celu dziennym dotyczą tylko tego urządzenia.
+  const BACKUP_SKIP = ["eng-backup", "eng-goalDay"];
   const DAY = 864e5, REMIND_DAYS = 14;
   const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
   // Sprawdzenie typów przy wczytywaniu – plik niezgodny z tym opisem jest odrzucany w całości.
@@ -662,6 +726,7 @@
     "eng-mistakes": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
     "eng-srs": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
     "eng-srsNew": (v) => NEW_CHOICES.includes(v),
+    "eng-goal": (v) => GOAL_CHOICES.includes(v),
     "eng-theme": (v) => v === "light" || v === "dark",
     "eng-activity": (v) => isObj(v) && Object.entries(v).every(([k, e]) => DAY_RE.test(k) && isObj(e) &&
       ["t", "ok", "w"].every((f) => e[f] === undefined || (Number.isFinite(e[f]) && e[f] >= 0))),
@@ -695,9 +760,9 @@
       return out;
     },
   };
-  // Ustawienia (poziomy w menu, tłumaczenia, motyw) przy łączeniu zostają takie, jak na tym urządzeniu –
+  // Ustawienia (poziomy w menu, tłumaczenia, motyw, limit nowych słówek, cel dzienny) przy łączeniu zostają takie, jak na tym urządzeniu –
   // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
-  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew"];
+  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew", "eng-goal"];
   // Klucze bez własnej reguły (eng-mistakes, eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
   // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
   // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
@@ -904,6 +969,7 @@
           ${overview ? `<a class="btn" href="#/lesson/tenses-overview">${icon("map")} Przegląd wszystkich czasów</a>` : ""}
         </div>
       </section>
+      ${Object.keys(state.activity).length ? goalHtml() : ""}
       ${todayWidget()}
       ${backupReminder()}
       <div class="stats">
@@ -2305,6 +2371,7 @@
       content.innerHTML = renderHome();
     }
     document.title = title;
+    syncGoal(); // pasek: także po północy i po wczytaniu kopii (przed szukaniem kotwicy – karta celu jest tu przebudowywana)
     // Przy przełączaniu zakładek tej samej lekcji zostajemy przy nagłówku zamiast skakać na górę.
     const tabsEl = $(".tabs");
     const anchor = h.startsWith("#/kolejnosc/") && document.getElementById(h.slice(12)); // np. #/kolejnosc/kopia
@@ -2316,6 +2383,15 @@
   }
 
   // ---------- Zdarzenia globalne ----------
+  document.addEventListener("click", (e) => {
+    const b = e.target.closest("[data-goal]");
+    if (!b) return;
+    state.goal = +b.dataset.goal;
+    store.set("goal", state.goal);
+    syncGoal();
+    const nb = document.querySelector(`.goal-card [data-goal="${state.goal}"]`); // karta jest przebudowana – fokus wraca na przycisk
+    if (nb) nb.focus();
+  });
   document.addEventListener("click", (e) => {
     const sb = e.target.closest(".speak");
     if (sb) { e.preventDefault(); e.stopPropagation(); speak(sb.dataset.say, sb); return; }
