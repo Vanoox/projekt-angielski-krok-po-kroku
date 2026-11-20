@@ -528,6 +528,205 @@
     return `<div class="diff"><div><span class="d-lbl">Twoja odpowiedź:</span> ${g}</div><div><span class="d-lbl">Poprawnie:</span> ${e} ${speakBtn(best.eRaw.join(" "))}</div></div>`;
   }
 
+  // ---------- Typowe błędy (tylko opis błędnej odpowiedzi – ocena się nie zmienia) ----------
+  // Odpowiedź porównujemy z najbliższym wzorcem (skróty rozwinięte do pełnych form) i nazywamy różnice.
+  // Heurystyka: przy wątpliwościach „other” (bez etykiety) – lepiej nic nie napisać niż napisać źle.
+  const ERR_INFO = {
+    s3: { label: "Końcówka -s w 3. osobie", tip: "Po he / she / it czasownik ma -s (she works), ale po does / doesn't / did i po can, will, must już nie (Does she work? She can swim).", lesson: "present-simple" },
+    plural: { label: "Liczba mnoga", tip: "Po two, three, many, these, those rzeczownik ma końcówkę -s (two books, these cars), po a / one / this – nie.", lesson: "plural-nouns" },
+    ends: { label: "Końcówka -s", tip: "Sprawdź końcówkę -s: czasownik po he / she / it (she works) albo rzeczownik w liczbie mnogiej (two books)." },
+    article: { label: "Przedimek a / an / the", tip: "a / an – jedna rzecz, o której mówisz pierwszy raz (an przed samogłoską w wymowie: an apple); the – konkretna, znana już rzecz.", lesson: "articles-basics" },
+    aux: { label: "Czasownik posiłkowy", tip: "do / does / did, am / is / are, was / were, have / has muszą pasować do osoby (he does, they do) i do czasu." },
+    irr: { label: "Forma czasownika nieregularnego", tip: "Sprawdź, której z trzech form potrzeba: go – went (Past Simple) – gone (po have / has).", lesson: "irregular-verbs" },
+    verb: { label: "Forma czasownika", tip: "Sprawdź końcówkę czasownika: -ing (is working), -ed (worked) albo forma podstawowa (can work, didn't work)." },
+    prep: { label: "Przyimek", tip: "Przyimki często nie pasują 1:1 do polskich (in / on / at, to / for) – ucz się ich razem z całym wyrażeniem." },
+    order: { label: "Szyk wyrazów", tip: "Te same słowa, inna kolejność. W zdaniu: podmiot – czasownik – reszta; w pytaniu czasownik posiłkowy przed podmiotem (Do you…? Is she…?).", lesson: "word-order" },
+    typo: { label: "Literówka", tip: "Słowo jest prawie dobre – sprawdź pisownię." },
+    missing: { label: "Brakujące słowo", tip: "W zdaniu brakuje wyrazu – porównaj je z poprawną wersją." },
+    extra: { label: "Zbędne słowo", tip: "W zdaniu jest wyraz, którego nie powinno być." },
+  };
+  const ERR_KEYS = Object.keys(ERR_INFO);
+  const errSet = (s) => new Set(s.split(" "));
+  const ERR_ART = errSet("a an the");
+  const ERR_AUX = errSet("do does did am is are was were have has had be been being will would don't doesn't didn't isn't aren't wasn't weren't haven't hasn't hadn't won't wouldn't");
+  const ERR_PREP = errSet("in on at for from of with by about into onto under over since during until till after before through across between among towards toward behind near above below without inside outside around along");
+  const ERR_SUBJ3 = errSet("he she it who which this that everyone someone anyone one everything something anything nothing");
+  const ERR_BASE = errSet("do does did not can could will would should must might may shall to let's let don't doesn't didn't can't cannot couldn't won't wouldn't shouldn't mustn't");
+  const ERR_PL = errSet("two three four five six seven eight nine ten eleven twelve twenty thirty hundred thousand many some these those few several both all of various");
+  const ERR_SG = errSet("a an one this that every each another");
+  const ERR_DET = errSet("my your his her its our their the this that");
+  const ERR_ADV = errSet("always usually often sometimes never rarely seldom also only just really still hardly ever generally normally even already not");
+  // Słowniki z danych (budowane przy pierwszym użyciu): wszystkie słowa z odpowiedzi, imiona, formy nieregularne,
+  // słowa występujące jako czasownik (po he/she/it z -s, po can/don't…) i jako rzeczownik (po a/the/two…).
+  let errDict = null;
+  function errDicts() {
+    if (errDict) return errDict;
+    const known = new Set(), names = new Set(), lower = new Set(), verbs = new Set(), nouns = new Set(), irr = new Map();
+    const irrL = BY_ID["irregular-verbs"];
+    (irrL ? irrL.sections : []).filter((s) => s.type === "table" && /^Bezokolicznik/.test((s.headers || [])[0] || "")).forEach((s) => s.rows.forEach((r) => {
+      const base = stripTags(r[0]).toLowerCase();
+      if (!/^[a-z]+$/.test(base)) return;
+      r.slice(0, 3).forEach((c) => stripTags(c).toLowerCase().split(/[^a-z]+/).forEach((f) => { if (f && f !== "us" && f !== base) irr.set(f, base); }));
+    }));
+    const sing = (w) => /ies$/.test(w) ? w.slice(0, -3) + "y" : /(ch|sh|ss|x|o)es$/.test(w) ? w.slice(0, -2) : w.slice(0, -1);
+    for (const { ex } of TASKS.values()) {
+      const ans = ex.type === "choice" ? [] : (ex.answers || []).flat();
+      for (const a of ans) {
+        const all = String(a).replace(/[{}()|]/g, " ");
+        // Imiona i nazwy: wielka litera w środku zdania i nigdzie małą (odrzuca „– Are you…?” w dialogach).
+        all.split(/\s+/).forEach((w, i) => { const c = w.replace(/[^\w']/g, ""); if (/^[a-z]/.test(c)) lower.add(c); else if (i && /^[A-Z][a-z]+$/.test(c)) names.add(c.toLowerCase()); });
+        normalize(all).split(" ").forEach((w) => tokenVariants(w).forEach((v) => v.split(" ").forEach((x) => known.add(x))));
+        let first = String(a).replace(/[()]/g, "");
+        while (/\{[^{}]*\}/.test(first)) first = first.replace(/\{([^{}|]*)[^{}]*\}/g, "$1");
+        const t = [...variants(first)].pop().split(" ");
+        t.forEach((w, i) => {
+          const p = t[i - 1];
+          if (ERR_BASE.has(p) && p !== "to" && p !== "not") verbs.add(w);
+          if ((p === "he" || p === "she" || p === "it") && /s$/.test(w)) verbs.add(sing(w));
+          if (ERR_ART.has(p)) nouns.add(w);
+          if (ERR_PL.has(p) && p !== "of" && p !== "all" && /s$/.test(w)) nouns.add(sing(w));
+        });
+      }
+    }
+    lower.forEach((w) => names.delete(w));
+    return (errDict = { known, names, verbs, nouns, irr });
+  }
+  const errSForms = (b) => [b + "s", b + "es", /[^aeiou]y$/.test(b) ? b.slice(0, -1) + "ies" : "-"];
+  const errStems = (w) => {
+    const out = new Set([w]);
+    for (const suf of ["ing", "ies", "ied", "es", "ed", "s", "d"]) {
+      if (!w.endsWith(suf) || w.length < suf.length + 2) continue;
+      const s = w.slice(0, -suf.length);
+      out.add(s); out.add(s + "e");
+      if (suf === "ies" || suf === "ied") out.add(s + "y");
+      if (/([^aeiou])\1$/.test(s)) out.add(s.slice(0, -1));
+    }
+    const irr = errDicts().irr;
+    [...out].forEach((s) => { if (irr.has(s)) out.add(irr.get(s)); });
+    return out;
+  };
+  // Odległość edycyjna (zamiana sąsiednich liter liczy się jako jeden błąd).
+  function errDist(a, b) {
+    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...new Array(b.length).fill(0)]);
+    for (let j = 1; j <= b.length; j++) d[0][j] = j;
+    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
+      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
+    }
+    return d[a.length][b.length];
+  }
+  // Brak / nadmiar -s: base – forma bez -s, missingS – uczeń pominął -s, ctx – wcześniejsze słowa wzorca.
+  function errEndS(base, missingS, ctx) {
+    const D = errDicts();
+    const k = ctx.filter((w) => !ERR_ADV.has(w)), p = k[k.length - 1], p2 = k[k.length - 2];
+    if (missingS) {
+      if (ERR_SUBJ3.has(p) || D.names.has(p)) return "s3";
+      if (ERR_PL.has(p) || (/^\d+$/.test(p || "") && p !== "1")) return "plural";
+    } else {
+      if (ERR_BASE.has(ctx[ctx.length - 1]) || ERR_BASE.has(p)) return "s3";
+      if (ERR_SG.has(p)) return "plural";
+    }
+    const v = D.verbs.has(base), n = D.nouns.has(base);
+    if (v && !n) return "s3";
+    if (n && !v) return "plural";
+    if (missingS && ERR_DET.has(p2) && p && !/s$/.test(p)) return "s3";
+    return "ends";
+  }
+  function errPair(x, y, ctx) {
+    if (ERR_ART.has(x) && ERR_ART.has(y)) return "article";
+    if (ERR_AUX.has(x) && ERR_AUX.has(y)) return "aux";
+    if (errSForms(x).includes(y) && !ERR_ADV.has(x)) return errEndS(x, true, ctx);
+    if (errSForms(y).includes(x) && !ERR_ADV.has(y)) return errEndS(y, false, ctx);
+    const D = errDicts(), stem = [...errStems(x)].some((s) => errStems(y).has(s)), typo = !D.known.has(x) && y.length > 1 && errDist(x, y);
+    if (stem && (D.irr.has(x) || D.irr.has(y))) return "irr";
+    if (typo === 1) return "typo";
+    if (stem) return "verb";
+    if ((ERR_PREP.has(x) || x === "to") && (ERR_PREP.has(y) || y === "to")) return "prep";
+    if (typo && typo <= (y.length <= 4 ? 1 : 2)) return "typo";
+    return "other";
+  }
+  const errLone = (w, missing) => ERR_ART.has(w) ? "article" : ERR_AUX.has(w) ? "aux" : ERR_PREP.has(w) ? "prep" : missing ? "missing" : "extra";
+  // Zwraca listę kluczy ERR_INFO bez powtórzeń, ["other"] (nie wiadomo) albo [] (brak różnic).
+  function errClassify(given, answers) {
+    // Warianty od pełnych form (did not) – przy remisie wygrywają one, a nie skróty.
+    const toks = (s) => [...variants(s)].slice(0, 8).reverse().map((v) => (v ? v.split(" ") : []));
+    const gv = toks(given), ev = answers.flatMap((a) => expandAnswer(a).flatMap(toks));
+    const sorted = (t) => t.slice().sort().join(" ");
+    // Najbliższy wzorzec: odległość edycyjna na słowach, podobne słowo (literówka, inna forma, ten sam rodzaj) = pół błędu,
+    // te same słowa w innej kolejności = jeden błąd. Przy remisie – dłuższy wzorzec (z opcjonalnymi słowami).
+    const memo = new Map();
+    const near = (x, y) => {
+      const k = x + " " + y;
+      if (!memo.has(k)) memo.set(k, (ERR_ART.has(x) && ERR_ART.has(y)) || (ERR_AUX.has(x) && ERR_AUX.has(y)) || (ERR_PREP.has(x) && ERR_PREP.has(y))
+        || [...errStems(x)].some((s) => errStems(y).has(s)) || (Math.min(x.length, y.length) > 2 && errDist(x, y) <= (Math.min(x.length, y.length) <= 4 ? 1 : 2)) ? 0.5 : 1);
+      return memo.get(k);
+    };
+    const cost = (a, b) => {
+      let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
+      for (let i = 1; i <= a.length; i++) {
+        const cur = [i];
+        for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : near(a[i - 1], b[j - 1])));
+        prev = cur;
+      }
+      return prev[b.length];
+    };
+    let best = null;
+    for (const e of ev) for (const g of gv) {
+      const c = sorted(g) === sorted(e) ? (g.join(" ") === e.join(" ") ? 0 : 1) : cost(g, e);
+      if (!best || c < best.c || (c === best.c && e.length > best.e.length)) best = { c, g, e };
+    }
+    if (!best || best.c === 0) return [];
+    const { g, e } = best, r = lcs(g, e);
+    if (sorted(g) === sorted(e)) return ["order"];
+    if (e.length > 2 && r.n < Math.ceil(e.length / 2)) return ["other"];
+    // Odcinki różnic między dopasowanymi słowami.
+    const A = [...r.inA].sort((p, q) => p - q), B = [...r.inB].sort((p, q) => p - q), segs = [];
+    for (let k = 0, pi = -1, pj = -1; k <= A.length; k++) {
+      const ai = k < A.length ? A[k] : g.length, bj = k < B.length ? B[k] : e.length;
+      if (ai - pi > 1 || bj - pj > 1) segs.push({ x: g.slice(pi + 1, ai), y: e.slice(pj + 1, bj), j: pj + 1 });
+      pi = ai; pj = bj;
+    }
+    const out = new Set();
+    // Słowo brakujące w jednym miejscu i zbędne w innym = przestawione.
+    const miss = segs.flatMap((s) => s.y), moved = [];
+    segs.forEach((s) => { s.x = s.x.filter((w) => { const i = miss.indexOf(w); if (i < 0) return true; miss.splice(i, 1); moved.push(w); return false; }); });
+    segs.forEach((s) => { s.y = s.y.filter((w) => { const i = moved.indexOf(w); if (i < 0) return true; moved.splice(i, 1); out.add("order"); return false; }); });
+    for (const s of segs) {
+      const { x, y } = s, ctx = e.slice(0, s.j);
+      // Różna długość: z dłuższej strony zdejmujemy przedimki / posiłkowe / przyimki (brakujące albo zbędne).
+      while (x.length !== y.length && x.length && y.length) {
+        const long = x.length > y.length ? x : y, i = long.findIndex((w) => ERR_ART.has(w) || ERR_AUX.has(w) || ERR_PREP.has(w));
+        if (i < 0) break;
+        out.add(errLone(long[i], long === y));
+        long.splice(i, 1);
+      }
+      if (x.length && y.length && x.length !== y.length) { out.add("other"); continue; }
+      if (!x.length) y.forEach((w) => out.add(errLone(w, true)));
+      else if (!y.length) x.forEach((w) => out.add(errLone(w, false)));
+      else x.forEach((w, i) => out.add(errPair(w, y[i], ctx.concat(y.slice(0, i)))));
+    }
+    if (out.size > 1) out.delete("other");
+    return [...out];
+  }
+  // Etykiety pod poprawką przy jednym zadaniu.
+  const errTagsHtml = (keys) => {
+    const k = (keys || []).filter((x) => ERR_INFO[x]);
+    return k.length ? `<div class="err-tags">${k.map((x) => `<span class="err-tag" title="${esc(ERR_INFO[x].tip)}">${ERR_INFO[x].label}</span>`).join("")}</div>` : "";
+  };
+  // Podsumowanie po zestawie: 1–3 najczęstsze typy błędów (każdy typ liczony raz na zadanie).
+  function errSummaryHtml(ctls) {
+    const cnt = new Map();
+    ctls.forEach((c) => { if (c.result && !c.result.ok) (c.result.errs || []).forEach((k) => { if (ERR_INFO[k]) cnt.set(k, (cnt.get(k) || 0) + 1); }); });
+    const top = [...cnt].sort((a, b) => b[1] - a[1] || ERR_KEYS.indexOf(a[0]) - ERR_KEYS.indexOf(b[0])).slice(0, 3);
+    if (!top.length) return "";
+    // Link do lekcji z wyjaśnieniem tylko wtedy, gdy nie jest dalej na ścieżce niż lekcje z tego zestawu.
+    const reach = Math.max(-1, ...ctls.map((c) => { const t = TASKS.get(KEY_OF.get(c.ex)); return t ? PATH.indexOf(t.lesson) : -1; }));
+    return `<div class="err-sum"><div class="err-sum-h">${top.length > 1 ? "Najczęstsze błędy" : "Najczęstszy błąd"}</div><ul>${top.map(([k, n]) => {
+      const i = ERR_INFO[k], l = i.lesson && BY_ID[i.lesson] && (reach < 0 || PATH.indexOf(BY_ID[i.lesson]) <= reach) ? BY_ID[i.lesson] : null;
+      return `<li><b>${i.label}</b> <span class="err-n">${n}×</span><div class="err-tip">${i.tip}${l ? ` <a href="#/lesson/${l.id}">Lekcja ${lessonNo(l)}: ${esc(l.title)} →</a>` : ""}</div></li>`;
+    }).join("")}</ul></div>`;
+  }
+
   // ---------- Wymowa (Web Speech API) ----------
   let voice = null;
   function pickVoice() {
@@ -1325,6 +1524,7 @@
           b.remove(); card.classList.remove("wrong"); card.classList.add("correct");
           fb.querySelector(".feedback").className = "feedback ok";
           fb.querySelector(".verdict").innerHTML = icon("check") + " Zaliczone (samoocena).";
+          const tags = fb.querySelector(".err-tags"); if (tags) tags.remove();
           ctl.result.ok = true; report(ctl, true);
         });
         fb.querySelector(".feedback").appendChild(b);
@@ -1377,10 +1577,13 @@
         const ok = okEach.every(Boolean);
         okEach.forEach((o, k) => inputs[k].classList.add(o ? "ok" : "bad"));
         const show = accepted.map((a) => a.map((x) => esc(displayAnswer(x))).join(" / "));
+        // Typ błędu w luce: porównujemy razem z kilkoma słowami przed luką (np. „She ___” → końcówka -s w 3. osobie).
+        const before = (k) => { const w = ex.q.split("___")[k].replace(/\([^)]*\)/g, " ").trim().split(/\s+/).filter(Boolean).slice(-3).join(" "); return w ? w + " " : ""; };
+        const errs = ok ? [] : [...new Set(vals.flatMap((v, k) => (v && !okEach[k] ? errClassify(before(k) + v, (accepted[k] || []).map((a) => before(k) + a)) : [])))];
         const extra = ok
           ? (accepted.some((a) => a.length > 1) ? ` <span class="muted">(akceptowane: ${show.join(" … ")})</span>` : "")
-          : ` Poprawnie: <b>${show.join("</b> … <b>")}</b>.`;
-        return { ok, given: any ? vals : null, extra };
+          : ` Poprawnie: <b>${show.join("</b> … <b>")}</b>.` + (any ? errTagsHtml(errs) : "");
+        return { ok, given: any ? vals : null, extra, errs };
       };
       ctl.lock = () => inputs.forEach((x) => { x.disabled = true; });
       ctl.answered = () => inputs.some((x) => x.value.trim());
@@ -1419,11 +1622,11 @@
         const v = ta.value.trim();
         const all = ex.answers.map((a) => esc(displayAnswer(a)));
         if (!v) return { ok: false, given: null, extra: `<div class="w-correct">Poprawnie: <b>${all[0]}</b> ${speakBtn(firstVariant(ex.answers[0]))}${all.length > 1 ? `<div class="muted">Inne poprawne: ${all.slice(1).join(" · ")}</div>` : ""}</div>` };
-        const ok = matches(v, ex.answers);
+        const ok = matches(v, ex.answers), errs = ok ? [] : errClassify(v, ex.answers);
         const extra = ok && ex.type === "dictation" ? ` <b>${esc(ex.say)}</b> ${speakBtn(ex.say)}`
           : ok ? ` ${speakBtn(v)}${(() => { const o = ex.answers.filter((a) => !matches(v, [a])).map((a) => esc(displayAnswer(a))); return o.length ? `<div class="muted">Inne poprawne wersje: ${o.join(" · ")}</div>` : ""; })()}`
-          : diffHtml(v, ex.answers) + (all.length > 1 ? `<div class="muted">Wszystkie akceptowane: ${all.join(" · ")}</div>` : "");
-        return { ok, given: v, extra };
+          : diffHtml(v, ex.answers) + errTagsHtml(errs) + (all.length > 1 ? `<div class="muted">Wszystkie akceptowane: ${all.join(" · ")}</div>` : "");
+        return { ok, given: v, extra, errs };
       };
       ctl.lock = () => { ta.disabled = true; ta.classList.add(ctl.result && ctl.result.ok ? "ok" : "bad"); };
       ctl.answered = () => !!ta.value.trim();
@@ -1451,8 +1654,8 @@
         const v = sentence();
         const all = ex.answers.map((a) => esc(displayAnswer(a)));
         if (!v) return { ok: false, given: null, extra: ` Poprawnie: <b>${all[0]}</b> ${speakBtn(firstVariant(ex.answers[0]))}` };
-        const ok = matches(v, ex.answers);
-        return { ok, given: v, extra: ok ? ` <b>${esc(v.charAt(0).toUpperCase() + v.slice(1))}${end}</b> ${speakBtn(v)}${all.length > 1 ? `<div class="muted">Też poprawnie: ${all.join(" · ")}</div>` : ""}` : diffHtml(v + end, ex.answers) };
+        const ok = matches(v, ex.answers), errs = ok ? [] : errClassify(v, ex.answers);
+        return { ok, given: v, errs, extra: ok ? ` <b>${esc(v.charAt(0).toUpperCase() + v.slice(1))}${end}</b> ${speakBtn(v)}${all.length > 1 ? `<div class="muted">Też poprawnie: ${all.join(" · ")}</div>` : ""}` : diffHtml(v + end, ex.answers) + errTagsHtml(errs) };
       };
       ctl.lock = () => { card.querySelectorAll(".o-chip").forEach((c) => { c.disabled = true; }); };
       ctl.answered = () => !!line.querySelector(".o-chip");
@@ -1491,7 +1694,7 @@
     const finishAll = () => {
       const p = Math.round((correct / total) * 100);
       const msg = p === 100 ? "Perfekcyjnie! 🎉" : p >= 80 ? "Bardzo dobrze! 👏" : p >= 50 ? "Nieźle — przejrzyj błędy i spróbuj jeszcze raz." : "Warto wrócić do teorii i powtórzyć ćwiczenia.";
-      resultEl.innerHTML = `<div class="card result-banner"><b>${correct} / ${total} (${p}%)</b><div>${msg}</div></div>`;
+      resultEl.innerHTML = `<div class="card result-banner"><b>${correct} / ${total} (${p}%)</b><div>${msg}</div>${errSummaryHtml(ctls)}</div>`;
       if (opts.key) { saveScore(opts.key, correct, total); }
       if (opts.onDone) opts.onDone(correct, total, ctls);
     };
@@ -2722,6 +2925,8 @@
     }).catch(() => {});
   }
   initOffline();
+  // Słowniki do opisu błędów (ok. 0,3 s) budujemy, gdy przeglądarka nic nie robi – nie przy pierwszym „Sprawdź”.
+  if ("requestIdleCallback" in window) requestIdleCallback(() => errDicts(), { timeout: 8000 }); else setTimeout(errDicts, 3000);
   window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) $("#search").value = ""; route(); });
 
   // Udostępnione do testów automatycznych (tools/).
