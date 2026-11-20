@@ -54,7 +54,7 @@
     "Przymiotniki i przysłówki", "Przyimki", "Czasowniki modalne", "Tryby warunkowe",
     "Konstrukcje zdaniowe", "Słownictwo i łączniki",
   ];
-  const TYPE_LABEL = { choice: "wybór", gap: "luka", write: "pisanie zdania", order: "układanie zdania", dictation: "dyktando" };
+  const TYPE_LABEL = { choice: "wybór", gap: "luka", write: "pisanie zdania", order: "układanie zdania", dictation: "dyktando", finderr: "znajdź błąd" };
 
   // ---------- Dane ----------
   const PRACTICE = window.PRACTICE || {};
@@ -115,10 +115,38 @@
       l.dict.push({ type: "dictation", say: t, answers: [t], pl: e.pl || "", explain: e.pl ? `<span class="d-pl">Po polsku: ${e.pl}</span>` : "" });
     }));
   });
+  // Znajdź błąd: zadania z sekcji „mistakes” (pary wrong / right / why; błędne miejsce w <b>…</b> – każda z 552 par
+  // je ma, więc nie trzeba klikać „między słowami”). Błędne zdanie = pierwszy wariant przed „ / ”; końcowy dopisek
+  // w nawiasie (po polsku, np. „(przez telefon)”) → podpowiedź pod zdaniem. Poprawne odpowiedzi: pole fix (pełne zdania,
+  // składnia jak w answers: {a|b}, (opcjonalne)), a bez niego warianty z right rozdzielone „ / ” (przy kilku błędnych
+  // wariantach – poprawny o tym samym numerze). fix jest potrzebne, gdy right ma warianty częściowe („I've got / I have
+  // a new phone.”) albo gubi kontekst zdania. Każda para daje dwa zadania: bad (zdanie z błędem) i good (to samo zdanie
+  // poprawnie – do „Tu nie ma błędu”); w rundzie ok. 20% to good.
+  const untag = (s) => String(s || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
+  const FE_ALT = /\s+\/\s+/;
+  PATH.forEach((l) => {
+    l.finds = [];
+    l.sections.filter((s) => s.type === "mistakes").forEach((s) => (s.items || []).forEach((m) => {
+      let w = String(m.wrong || "").trim(), note = "";
+      const pm = w.match(/\s*\(([^()]*)\)$/);
+      if (pm) { note = pm[1].trim(); w = w.slice(0, pm.index).trim(); }
+      const ws = w.split(FE_ALT), rs = String(m.right || "").split(FE_ALT).map(untag);
+      if (ws.length > 1) note = ""; // dopisek dotyczył ostatniego wariantu
+      if (!/<b>/.test(ws[0])) return;
+      const answers = Array.isArray(m.fix) && m.fix.length ? m.fix.slice() : ws.length > 1 && rs.length === ws.length ? [rs[0]] : rs;
+      const model = expandAnswer(answers[0])[0];
+      const common = { type: "finderr", why: m.why || "", wrongHtml: m.wrong, rightHtml: m.right };
+      l.finds.push({
+        bad: { ...common, q: untag(ws[0]), html: ws[0], note, answers, model },
+        good: { ...common, ok: true, q: model, html: model, note: "", answers: [model], model },
+      });
+    }));
+  });
   const TASKS = new Map(); // klucz → { ex, lesson, src, instr }
   const KEY_OF = new WeakMap(); // obiekt zadania → klucz
   PATH.forEach((l) => {
-    const srcs = [["e", l.exercises || [], ""], ...l.practice.map((p, i) => ["p" + i, p.items || [], p.instruction || ""]), ["t", l.test, ""], ["d", l.dict, ""]];
+    const srcs = [["e", l.exercises || [], ""], ...l.practice.map((p, i) => ["p" + i, p.items || [], p.instruction || ""]), ["t", l.test, ""], ["d", l.dict, ""],
+      ["f", l.finds.flatMap((p) => [p.bad, p.good]), ""]];
     for (const [src, items, instr] of srcs) items.forEach((ex) => {
       const base = `${l.id}~${src}~${hashStr([ex.type, ex.q || "", (ex.options || []).join("|"), JSON.stringify(ex.answers ?? ex.answer ?? "")].join("#"))}`;
       let k = base, n = 2;
@@ -533,6 +561,14 @@
     const g = new Set([...variants(given)].map(spellFoldStr)); return [...variants(expected)].some((v) => g.has(spellFoldStr(v)));
   };
   const matches = (given, answers) => answers.some((a) => expandAnswer(a).some((e) => matchOne(given, e)));
+  // Znajdź błąd – sprawdzanie poprawki. Gdy matches() przyjmuje samo błędne zdanie (różnica tylko w przecinkach albo
+  // w skrócie: „Yes, I'm.” → „Yes, I am.”, „I amn't” = „am not”, „can not” = „cannot”), porównujemy dokładnie:
+  // znak po znaku, bez wielkości liter, odstępów i kropki na końcu (7 par). Wynik zapamiętany w zadaniu (ex.strict).
+  const feStrictForm = (s) => String(s).toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, " ").replace(/\s+([,.!?;:…])/g, "$1").replace(/[\s.!?…]+$/, "").trim();
+  const feIsStrict = (ex) => { if (ex.strict === undefined) ex.strict = matches(ex.q, ex.answers); return ex.strict; };
+  const feMatch = (given, ex) => feIsStrict(ex)
+    ? ex.answers.some((a) => expandAnswer(a).some((e) => feStrictForm(e) === feStrictForm(given)))
+    : matches(given, ex.answers);
 
   // Różnice słowo po słowie (LCS) – pokazuje, czego brakuje, a co jest zbędne.
   function lcs(a, b) {
@@ -1568,7 +1604,7 @@
   const cmpExample = (e) => typeof e === "string"
     ? `<li>${speakBtn(e)}<span>${e}</span></li>`
     : `<li>${speakBtn(e.en)}<span class="cmp-txt"><span>${e.en}</span><span class="ex-pl">${e.pl}</span></span></li>`;
-  function renderSection(s, idx) {
+  function renderSection(s, idx, l) {
     const id = `s-${idx}-${slug(s.title || s.type)}`;
     const h = (t) => (t ? `<h2 id="${id}">${t}</h2>` : `<span id="${id}"></span>`);
     switch (s.type) {
@@ -1598,7 +1634,7 @@
           <div class="card mistake">
             <div class="mistake-row"><span class="m-icon" style="color:var(--bad)">${icon("x")}</span><span class="wrong">${m.wrong}</span></div>
             <div class="mistake-row"><span class="m-icon" style="color:var(--ok)">${icon("check")}</span><span class="right">${m.right}</span>${speakBtn(m.right)}</div>
-            <div class="why">${m.why}</div></div>`).join("")}</div></section>`;
+            <div class="why">${m.why}</div></div>`).join("")}</div>${l && l.finds.length >= FE_MIN ? `<a class="btn small fe-link" href="#/lesson/${l.id}/find">${icon("search")} Poćwicz: znajdź błąd w zdaniu →</a>` : ""}</section>`;
       case "compare":
         return `<section class="block">${h(s.title)}<div class="compare">${(s.items || []).map((c) => `
           <div class="card compare-col"><h3>${c.label}</h3><div class="prose">${c.html}</div>
@@ -1634,6 +1670,16 @@
         <div class="w-wrap"><textarea class="w-input" rows="1" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Zapisz po angielsku to, co słyszysz…" aria-label="Twoja odpowiedź"></textarea></div>
         <div class="gap-actions"></div><div class="fb"></div></div>`;
     }
+    if (ex.type === "finderr") {
+      let first = true;
+      const sent = feParse(ex.html).toks.map((x, k) => x.word
+        ? `<button type="button" class="fe-w" data-k="${k}" tabindex="${first ? ((first = false), 0) : -1}">${esc(x.t)}</button>`
+        : `<span class="fe-p">${esc(x.t)}</span>`).join(" ");
+      return `<div class="card exercise finderr" data-i="${i}">${src}${task}<div class="ex-q">${num}<div class="fe-sent" role="group" aria-label="Zdanie – wybierz słowo z błędem">${sent}</div></div>
+        ${ex.note ? `<div class="fe-note">(${esc(ex.note)})</div>` : ""}
+        <div class="w-wrap fe-fix" hidden><div class="fe-lbl">${icon("check")} Tak, tu jest błąd. Popraw zdanie:</div><textarea class="w-input" rows="1" autocomplete="off" autocapitalize="sentences" spellcheck="false" aria-label="Poprawione zdanie"></textarea></div>
+        <div class="gap-actions"><button type="button" class="btn small fe-none">Tu nie ma błędu</button></div><div class="fb"></div></div>`;
+    }
     if (ex.type === "order") {
       return `<div class="card exercise order" data-i="${i}">${src}${task}<div class="ex-q">${num}<div class="w-prompt">${ex.q || "Ułóż zdanie z podanych wyrazów."}</div></div>${hint}
         <div class="o-line" aria-label="Twoje zdanie"><span class="o-placeholder">Klikaj wyrazy w kolejności…</span></div>
@@ -1648,6 +1694,31 @@
     let toks = ex.words ? ex.words.slice() : ans.replace(/[.?!]+$/, "").split(/\s+/);
     if (!ex.words && !ex.keepCase && toks.length && !/^I(\b|')/.test(toks[0])) toks[0] = toks[0].charAt(0).toLowerCase() + toks[0].slice(1);
     return { toks: shuffle(toks.concat(ex.extra || [])), end };
+  }
+
+  // Znajdź błąd: zdanie z <b>…</b> → tekst bez znaczników (pojedyncze spacje), tokeny (kawałki między spacjami;
+  // interpunkcja zostaje przy słowie, np. „film,” – tak da się wskazać zbędny przecinek), bold = token ma choć jeden
+  // znak w <b>, sel = pierwszy pogrubiony fragment w tekście (zaznaczany w polu poprawki).
+  function feParse(html) {
+    let raw = "", rawB = [], b = false;
+    String(html || "").replace(/<\/?b>|<[^>]*>|[^<]+/g, (m) => {
+      if (m === "<b>") b = true; else if (m === "</b>") b = false;
+      else if (m[0] !== "<") for (let i = 0; i < m.length; i++) { raw += m[i]; rawB.push(b); }
+      return m;
+    });
+    let text = "";
+    const fl = [];
+    for (let i = 0; i < raw.length; i++) {
+      const sp = /\s/.test(raw[i]);
+      if (sp && (!text || text.endsWith(" "))) continue;
+      text += sp ? " " : raw[i]; fl.push(rawB[i]);
+    }
+    while (text.endsWith(" ")) { text = text.slice(0, -1); fl.pop(); }
+    const toks = [];
+    text.replace(/\S+/g, (t, s) => { toks.push({ t, s, bold: fl.slice(s, s + t.length).some(Boolean), word: /[\p{L}\p{N}]/u.test(t) }); return t; });
+    let a = fl.findIndex((x, i) => x && text[i] !== " "), sel = null;
+    if (a >= 0) { let e = a; while (e < text.length && fl[e]) e++; while (e > a && text[e - 1] === " ") e--; sel = [a, e]; }
+    return { text, toks, sel };
   }
 
   function makeController(card, ex, mode, report) {
@@ -1667,7 +1738,7 @@
       ctl.lock();
       if (actions) actions.innerHTML = "";
       show(res.ok, res.extra);
-      if ((ex.type === "write" || ex.type === "dictation") && !res.ok && res.given) {
+      if ((ex.type === "write" || ex.type === "dictation" || res.canAccept) && !res.ok && res.given) {
         const b = document.createElement("button");
         b.className = "btn small accept"; b.innerHTML = icon("check") + " Moja odpowiedź też jest poprawna";
         b.title = "Automat zna tylko podane warianty. Jeśli jesteś pewien/pewna, że Twoje zdanie jest poprawne – zalicz je.";
@@ -1786,6 +1857,88 @@
         actions.querySelector(".check").addEventListener("click", () => { if (ta.value.trim()) finish(ctl.evaluate()); else ta.focus(); });
         actions.querySelector(".giveup").addEventListener("click", () => { ta.value = ""; finish(ctl.evaluate()); });
       }
+      return ctl;
+    }
+
+    if (ex.type === "finderr") {
+      // Dwa kroki: 1) kliknięcie słowa (każde słowo z <b> się liczy) albo „Tu nie ma błędu”, 2) poprawienie całego zdania
+      // w polu wypełnionym błędnym zdaniem (zaznaczony pogrubiony fragment – wystarczy pisać). Źle wskazane miejsce kończy
+      // zadanie od razu (z pokazaniem błędu). Zawsze sprawdzane od razu – także w trybie „deferred” (tam tych zadań nie ma).
+      const { toks, text, sel } = feParse(ex.html);
+      const btns = [...card.querySelectorAll(".fe-w")], sentEl = card.querySelector(".fe-sent");
+      const fixBox = card.querySelector(".fe-fix"), ta = fixBox.querySelector(".w-input");
+      const isTarget = (b) => !ex.ok && toks[+b.dataset.k].bold;
+      let stage = 0, picked = null, viaKey = false; // stage: 0 – szukanie, 1 – poprawianie
+      const why = () => (ex.why ? `<div class="fe-why">${icon("bulb")} ${ex.why}</div>` : "");
+      const accepted = () => {
+        const all = ex.answers.map((a) => esc(displayAnswer(a)));
+        return all.length > 1 || expandAnswer(ex.answers[0]).length > 1 ? `<div class="muted">Wszystkie akceptowane: ${all.join(" · ")}</div>` : "";
+      };
+      const model = (lead) => `${lead ? " " + lead : ""}<div class="w-correct">Poprawnie: <b>${esc(ex.model)}</b> ${speakBtn(ex.model)}</div>${accepted()}`;
+      const typical = () => `<div class="fe-typical"><span class="d-lbl">Typowy błąd:</span> <span class="fe-bad">${ex.wrongHtml}</span></div>`;
+      // Klawiaturą: strzałki / Home / End przechodzą między słowami (jedno słowo w kolejności Tab), Enter wybiera.
+      sentEl.addEventListener("keydown", (e) => {
+        const k = btns.indexOf(document.activeElement);
+        if (k < 0) return;
+        const n = { ArrowRight: k + 1, ArrowDown: k + 1, ArrowLeft: k - 1, ArrowUp: k - 1, Home: 0, End: btns.length - 1 }[e.key];
+        if (n === undefined) return;
+        e.preventDefault();
+        const to = btns[Math.max(0, Math.min(btns.length - 1, n))];
+        btns.forEach((b) => { b.tabIndex = b === to ? 0 : -1; });
+        to.focus();
+      });
+      const nextCard = () => { if (!viaKey) return; let n = card.nextElementSibling; while (n && !n.querySelector(".fe-w:not(:disabled), textarea:not(:disabled), input:not(:disabled)")) n = n.nextElementSibling; if (n) n.querySelector(".fe-w[tabindex='0'], textarea, input").focus(); };
+      const startFix = () => {
+        stage = 1;
+        btns.forEach((b) => { if (isTarget(b)) b.classList.add("found"); });
+        fixBox.hidden = false;
+        ta.value = text; grow(); ta.focus();
+        if (sel) ta.setSelectionRange(sel[0], sel[1]);
+        actions.innerHTML = `<button type="button" class="btn small check">Sprawdź</button><button type="button" class="btn small giveup">Pokaż odpowiedź</button>`;
+        actions.querySelector(".check").addEventListener("click", () => { if (ta.value.trim()) finish(ctl.evaluate()); else ta.focus(); });
+        actions.querySelector(".giveup").addEventListener("click", () => finish({ ok: false, given: null, extra: model() + why() }));
+      };
+      const grow = () => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; };
+      ta.addEventListener("input", grow);
+      ta.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" && !e.shiftKey) { e.preventDefault(); if (ta.value.trim()) { viaKey = true; finish(ctl.evaluate()); nextCard(); } }
+      });
+      btns.forEach((b) => b.addEventListener("click", (e) => {
+        if (done || stage) return;
+        picked = b; viaKey = e.detail === 0;
+        if (isTarget(b)) { startFix(); return; }
+        b.classList.add("miss");
+        finish(ex.ok ? { ok: false, given: b.textContent, extra: " To zdanie jest poprawne." + typical() + why() }
+          : { ok: false, given: b.textContent, extra: model("Błąd jest w innym miejscu – zaznaczonym w zdaniu.") + why() });
+        nextCard();
+      }));
+      card.querySelector(".fe-none").addEventListener("click", (e) => {
+        if (done || stage) return;
+        picked = "none"; viaKey = e.detail === 0;
+        finish(ex.ok ? { ok: true, given: "none", extra: " To zdanie jest poprawne." + typical() + why() }
+          : { ok: false, given: "none", extra: model("W tym zdaniu jest błąd – zaznaczony w zdaniu.") + why() });
+        nextCard();
+      });
+      ctl.evaluate = () => {
+        if (stage === 1) {
+          const v = ta.value.trim();
+          if (!v) return { ok: false, given: null, extra: model() + why() };
+          const ok = feMatch(v, ex), strict = feIsStrict(ex), errs = ok || strict ? [] : errClassify(v, ex.answers);
+          const extra = ok ? ` ${speakBtn(v)}${(() => { const o = ex.answers.filter((a) => !feMatch(v, { ...ex, answers: [a] })).map((a) => esc(displayAnswer(a))); return o.length ? `<div class="muted">Inne poprawne wersje: ${o.join(" · ")}</div>` : ""; })()}`
+            : strict ? model("Tu liczy się każdy znak: przecinki i formy skrócone (I'm / I am).")
+            : diffHtml(v, ex.answers) + errTagsHtml(errs) + accepted();
+          return { ok, given: v, extra: extra + why(), errs, canAccept: true };
+        }
+        // Tylko „Zakończ i sprawdź” w trybie deferred: bez odpowiedzi = pominięte.
+        return { ok: false, given: null, extra: (ex.ok ? " To zdanie jest poprawne." + typical() : model()) + why() };
+      };
+      ctl.lock = () => {
+        btns.forEach((b) => { b.disabled = true; if (isTarget(b) && stage === 0) b.classList.add("target"); });
+        if (ex.ok && ctl.result && ctl.result.ok) sentEl.classList.add("fe-ok");
+        ta.disabled = true;
+        if (stage === 1) ta.classList.add(ctl.result && ctl.result.ok ? "ok" : "bad");
+      };
+      ctl.answered = () => picked !== null;
       return ctl;
     }
 
@@ -2150,6 +2303,7 @@
     { id: "", label: icon("book-open") + " Lekcja" },
     { id: "vocab", label: icon("type") + " Słownictwo", count: (l) => (l.vocab && l.vocab.items || []).length },
     { id: "practice", label: icon("pen") + " Ćwiczenia", count: (l) => (l.exercises || []).length + practiceCount(l) },
+    { id: "find", label: icon("search") + " Znajdź błąd", count: (l) => (l.finds.length >= FE_MIN ? l.finds.length : 0) },
     { id: "test", label: icon("test") + " Test", count: (l) => l.test.length },
     { id: "dictation", label: icon("headphones") + " Dyktando", count: (l) => l.dict.length },
     { id: "speaking", label: icon("mic") + " Wymowa", count: (l) => l.dict.length },
@@ -2167,6 +2321,7 @@
     let body = "";
     if (tab === "vocab" && l.vocab) body = renderLessonVocab(l);
     else if (tab === "practice") body = renderLessonPractice(l);
+    else if (tab === "find" && l.finds.length >= FE_MIN) body = renderLessonFind(l);
     else if (tab === "test" && l.test.length) body = renderLessonTest(l);
     else if (tab === "dictation" && l.dict.length) body = renderLessonDictation(l);
     else if (tab === "speaking" && l.dict.length) body = renderLessonSpeaking(l);
@@ -2215,7 +2370,7 @@
       </details></aside>` : ""}
       <div class="lesson-main">
       ${prep}
-      ${l.sections.map(renderSection).join("")}
+      ${l.sections.map((s, i) => renderSection(s, i, l)).join("")}
       ${exercisesShell("Szybki sprawdzian", { id: "exercises" })}
       ${nPractice || l.test.length ? `<div class="card next-steps"><b>Co dalej?</b>
         ${nPractice ? `<a class="btn" href="#/lesson/${l.id}/practice">${icon("pen")} Więcej ćwiczeń (${nPractice})</a>` : ""}
@@ -2288,6 +2443,24 @@
         ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}</p>` : ""}
       </div>
       <div id="testBox">${exercisesShell("Pytania", { h3: true, retryLabel: "Rozwiąż jeszcze raz" })}</div>
+    </section>`;
+  }
+
+  // ---------- Znajdź błąd (zakładka lekcji, trening) ----------
+  const FE_MIN = 5, FE_ROUND = 10, FE_GOOD = 0.2;
+  // Runda: n różnych par, z czego ok. 20% jako zdanie poprawne (good) – żeby nie klikać na ślepo „jakiegoś” słowa.
+  const fePairs = (lessons) => lessons.flatMap((l) => l.finds.map((p) => ({ ...p, lesson: l })));
+  function feRound(pairs, n) {
+    const xs = shuffle(pairs).slice(0, n), nGood = Math.round(xs.length * FE_GOOD);
+    return shuffle(xs.map((p, i) => ({ ex: i < nGood ? p.good : p.bad, lesson: p.lesson })));
+  }
+  const feIntro = (more) => `<div class="ex-intro">Kliknij <b>słowo, w którym jest błąd</b>, a potem popraw zdanie – pole wypełni się tym zdaniem z zaznaczonym błędnym fragmentem, więc wystarczy wpisać poprawną wersję. Mniej więcej co piąte zdanie jest poprawne – wtedy kliknij <b>Tu nie ma błędu</b>.<span class="kbd-hint"> Klawiatura: <kbd>←</kbd> <kbd>→</kbd> – wybór słowa, <kbd>Enter</kbd> – zatwierdzenie.</span>${more || ""}</div>`;
+  function renderLessonFind(l) {
+    const s = state.scores[l.id + "::err"];
+    return `<section class="block">
+      <h2>${icon("search")} Znajdź błąd</h2>
+      <p class="muted-p">Zdania z części „Typowe błędy” tej lekcji (${l.finds.length}) – za każdym razem ${Math.min(FE_ROUND, l.finds.length)} losowych. Po odpowiedzi zobaczysz poprawne zdanie i krótkie wyjaśnienie.${s ? ` Najlepszy wynik: ${scorePill(s)}` : ""}</p>
+      <div id="feBox">${exercisesShell("Znajdź i popraw błąd", { h3: true, retryLabel: "Nowe zdania" })}</div>
     </section>`;
   }
 
@@ -2373,6 +2546,14 @@
       const box = $("#dictBox").firstElementChild;
       box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro());
       const run = () => renderExercises(box, shuffle(l.dict).slice(0, DICT_ROUND).map((ex) => ({ ex })), { key: l.id + "::dict" });
+      run();
+      box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+      return;
+    }
+    if (tab === "find" && l.finds.length >= FE_MIN) {
+      const box = $("#feBox").firstElementChild;
+      box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", feIntro());
+      const run = () => renderExercises(box, feRound(fePairs([l]), FE_ROUND).map(({ ex }) => ({ ex })), { key: l.id + "::err" });
       run();
       box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
       return;
@@ -2469,7 +2650,7 @@
       </div>`;
   }
   function bindSetup(cfg, pool, start) {
-    const info = () => { $("#pInfo").textContent = `Dostępnych pytań: ${pool().length}` + (cfg.src === "dictation" ? ` (${reachLabel()})` : ""); };
+    const info = () => { $("#pInfo").textContent = `Dostępnych pytań: ${pool().length}` + (REACH_SRC.has(cfg.src) ? ` (${reachLabel()})` : ""); };
     document.querySelectorAll(".practice-setup .chips").forEach((box) => box.addEventListener("click", (e) => {
       const b = e.target.closest(".chip"); if (!b) return;
       const f = box.dataset.f, v = b.dataset.v;
@@ -2480,8 +2661,9 @@
     $("#pStart").addEventListener("click", start);
     info();
   }
-  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań", dictation: icon("headphones") + " Dyktando" };
-  // Dyktando w treningu: tylko lekcje do bieżącej włącznie (pierwsza nieprzerobiona na ścieżce) – żeby nie dyktować zdań z gramatyką, której jeszcze nie było.
+  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań", dictation: icon("headphones") + " Dyktando", finderr: icon("search") + " Znajdź błąd" };
+  // Dyktando i „Znajdź błąd” w treningu: tylko lekcje do bieżącej włącznie (pierwsza nieprzerobiona na ścieżce) – żeby nie dawać zdań z gramatyką, której jeszcze nie było.
+  const REACH_SRC = new Set(["dictation", "finderr"]);
   const reachIdx = () => { const i = PATH.findIndex((l) => !state.done[l.id]); return i < 0 ? PATH.length - 1 : i; };
   const reachLabel = () => reachIdx() ? `lekcje 1–${reachIdx() + 1}` : "lekcja 1";
   function renderPractice() {
@@ -2492,19 +2674,24 @@
     </div>`;
   }
   function bindPractice() {
-    const pool = () => practiceCfg.src === "dictation"
-      ? lessonPool(practiceCfg).filter((l) => PATH.indexOf(l) <= reachIdx()).flatMap((l) => l.dict.map((ex) => ({ ex, lesson: l })))
+    const reachable = () => lessonPool(practiceCfg).filter((l) => PATH.indexOf(l) <= reachIdx());
+    // Dla „Znajdź błąd” pula to pary (każda da zdanie z błędem albo bez – feRound).
+    const pool = () => practiceCfg.src === "dictation" ? reachable().flatMap((l) => l.dict.map((ex) => ({ ex, lesson: l })))
+      : practiceCfg.src === "finderr" ? fePairs(reachable())
       : lessonPool(practiceCfg).flatMap((l) => [
       ...(l.exercises || []).map((ex) => ({ ex, lesson: l })),
       ...l.practice.flatMap((p) => (p.items || []).map((ex) => ({ ex: withTask(ex, ex.task || p.instruction), lesson: l }))),
     ]).filter(({ ex }) => practiceCfg.src === "all" || (practiceCfg.src === "choice" ? ["choice", "gap"].includes(ex.type) : ex.type === practiceCfg.src));
     const start = () => {
-      const items = shuffle(pool()).slice(0, practiceCfg.count);
+      const fe = practiceCfg.src === "finderr";
+      const items = fe ? feRound(pool(), practiceCfg.count) : shuffle(pool()).slice(0, practiceCfg.count);
       const box = $("#pBox");
       const dict = practiceCfg.src === "dictation", cur = PATH[reachIdx()];
-      if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.${dict ? ` Dyktando obejmuje lekcje do bieżącej włącznie (teraz: ${lessonNo(cur)}. ${esc(cur.title)}).` : ""}</div>`; return; }
+      if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.${dict || fe ? ` ${dict ? "Dyktando" : "„Znajdź błąd”"} obejmuje lekcje do bieżącej włącznie (teraz: ${lessonNo(cur)}. ${esc(cur.title)}).` : ""}</div>`; return; }
       box.innerHTML = exercisesShell("Pytania", { retryLabel: "Nowe losowanie" });
-      if (dict) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro(` Zdania z lekcji do bieżącej włącznie (${reachLabel()}, teraz: <a href="#/lesson/${cur.id}">${esc(cur.title)}</a>).`));
+      const reachNote = ` Zdania z lekcji do bieżącej włącznie (${reachLabel()}, teraz: <a href="#/lesson/${cur.id}">${esc(cur.title)}</a>).`;
+      if (dict) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro(reachNote));
+      if (fe) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", feIntro(reachNote));
       renderExercises(box.firstElementChild, items, { showSource: true });
       box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
       box.scrollIntoView();
@@ -2716,7 +2903,7 @@
   const SESSION_MAX = 20;
   const zadan = (n) => `${n} ${n === 1 ? "zadanie" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "zadania" : "zadań"}`;
   let mistakesCfg = { level: "", lesson: "" };
-  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
+  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : x.src === "f" ? "typowe błędy z lekcji" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
   const dueLabel = (m) => {
     const d = Math.round((Date.parse(m.due) - Date.parse(today())) / DAY);
     return d <= 0 ? "<b>na dziś</b>" : d === 1 ? "jutro" : `za ${d} dni`;
@@ -2754,7 +2941,7 @@
       return `<div class="card m-group">
         <div class="m-head"><div class="m-title"><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}<span class="muted">${xs.length} zad.${nDue ? ` · ${nDue} na dziś` : ""}</span></div>
           <div class="m-actions"><button class="btn small" data-mrun="${l.id}">Ćwicz teraz</button><a class="btn small" href="#/lesson/${l.id}" title="Teoria i ćwiczenia z tej lekcji">Powtórz lekcję →</a></div></div>
-        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${x.ex.type === "dictation" ? icon("headphones") + " " : ""}${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
+        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${x.ex.type === "dictation" ? icon("headphones") + " " : x.ex.type === "finderr" ? icon("search") + " " : ""}${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
           <span class="m-meta">${srcLabel(x)} · ${TYPE_LABEL[x.ex.type]} · pudełko ${x.m.box}/${BOX_DAYS.length} · powtórka ${dueLabel(x.m)}${x.m.wrong > 1 ? ` · błędy: ${x.m.wrong}` : ""}</span></li>`; }).join("")}</ul>
       </div>`;
     }).join("");

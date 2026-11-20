@@ -567,7 +567,8 @@ window.LESSONS.push({
         {
           "wrong": "I <b>live</b> here for ten years.",
           "right": "I<b>'ve lived</b> / I<b>'ve been living</b> here for ten years.",
-          "why": "Okres trwający do teraz (for/since) → Present Perfect (Continuous)."
+          "why": "Okres trwający do teraz (for/since) → Present Perfect (Continuous).",
+          "fix": ["I've lived here for ten years.","I've been living here for ten years."]
         },
         {
           "wrong": "I <b>have seen</b> him yesterday.",

@@ -347,9 +347,10 @@ window.LESSONS.push({
           "why": "O sobie i o stanach nie używamy wish + would."
         },
         {
-          "wrong": "I wish you <b>will pass</b> your exam.",
+          "wrong": "I <b>wish</b> you <b>will pass</b> your exam.",
           "right": "I <b>hope</b> you <b>pass</b> your exam.",
-          "why": "Realne życzenie na przyszłość → hope, nie wish."
+          "why": "Realne życzenie na przyszłość → hope, nie wish.",
+          "fix": ["I hope you {pass|will pass} your exam."]
         },
         {
           "wrong": "It's time we <b>go</b> home.",

@@ -476,7 +476,8 @@ window.LESSONS.push({
         {
           "wrong": "Do you like jazz? – Yes, I <b>like</b>.",
           "right": "Yes, I <b>like it</b>. / Yes, I <b>do</b>.",
-          "why": "Like wymaga dopełnienia (it/them) albo krótkiej odpowiedzi z do."
+          "why": "Like wymaga dopełnienia (it/them) albo krótkiej odpowiedzi z do.",
+          "fix": ["Do you like jazz? – Yes, I {like it|do}."]
         },
         {
           "wrong": "He's a friend of <b>me</b>.",

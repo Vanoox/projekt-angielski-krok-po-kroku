@@ -554,7 +554,8 @@ window.LESSONS.push({
         {
           "wrong": "I don't like it. – <b>So do I.</b>",
           "right": "I don't like it. – <b>Neither do I.</b> / <b>Me neither.</b>",
-          "why": "Na zdanie przeczące reagujemy przez neither/nor."
+          "why": "Na zdanie przeczące reagujemy przez neither/nor.",
+          "fix": ["I don't like it. – {Neither do I|Me neither}."]
         },
         {
           "wrong": "I can't drive. – <b>Neither can't I.</b>",

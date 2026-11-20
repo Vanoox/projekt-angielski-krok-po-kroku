@@ -379,12 +379,14 @@ window.LESSONS.push({
         {
           "wrong": "I<b>'ll see</b> the doctor at 10 tomorrow. I made an appointment last week.",
           "right": "I<b>'m seeing</b> the doctor at 10 tomorrow.",
-          "why": "Wizyta była umówiona wcześniej, więc to ustalenie, nie decyzja teraz."
+          "why": "Wizyta była umówiona wcześniej, więc to ustalenie, nie decyzja teraz.",
+          "fix": ["I'm seeing the doctor at 10 tomorrow. I made an appointment last week."]
         },
         {
           "wrong": "It<b>'s raining</b> tomorrow.",
           "right": "It<b>'s going to rain</b> / It<b>'ll rain</b> tomorrow.",
-          "why": "Pogody nie da się „ustalić” – Present Continuous nie pasuje do przewidywań."
+          "why": "Pogody nie da się „ustalić” – Present Continuous nie pasuje do przewidywań.",
+          "fix": ["It's going to rain tomorrow.","It'll rain tomorrow."]
         },
         {
           "wrong": "We <b>are flying</b> to Rome one day.",

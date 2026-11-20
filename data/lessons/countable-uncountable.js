@@ -424,7 +424,8 @@ window.LESSONS.push({
         {
           "wrong": "Can you give me <b>an advice</b>?",
           "right": "Can you give me <b>some advice</b> / <b>a piece of advice</b>?",
-          "why": "Advice jest niepoliczalne – bez a/an i bez -s."
+          "why": "Advice jest niepoliczalne – bez a/an i bez -s.",
+          "fix": ["Can you give me {some advice|a piece of advice}?"]
         },
         {
           "wrong": "Thank you for the <b>informations</b>.",
@@ -459,7 +460,8 @@ window.LESSONS.push({
         {
           "wrong": "Can you buy <b>a bread</b>?",
           "right": "Can you buy <b>some bread</b> / <b>a loaf of bread</b>?",
-          "why": "Bread jest niepoliczalne – liczymy bochenki (a loaf) lub kromki (a slice)."
+          "why": "Bread jest niepoliczalne – liczymy bochenki (a loaf) lub kromki (a slice).",
+          "fix": ["Can you buy {some bread|a loaf of bread}?"]
         },
         {
           "wrong": "We had <b>a terrible weather</b>.",

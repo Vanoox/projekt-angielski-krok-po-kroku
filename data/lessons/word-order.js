@@ -415,7 +415,7 @@ window.LESSONS.push({
           "why": "Zaimek (it, them) stoi między czasownikiem a partykułą phrasal verbu."
         },
         {
-          "wrong": "I think he <b>isn't</b> right.",
+          "wrong": "I <b>think</b> he <b>isn't</b> right.",
           "right": "I <b>don't think</b> he's right.",
           "why": "Po think przeczenie stawiamy zwykle w pierwszej części zdania."
         },

@@ -620,7 +620,8 @@ window.LESSONS.push({
         {
           "wrong": "Can you give me <b>an</b> advice?",
           "right": "Can you give me <b>some</b> advice / <b>a piece of</b> advice?",
-          "why": "Advice jest niepoliczalne – nie łączy się z a/an."
+          "why": "Advice jest niepoliczalne – nie łączy się z a/an.",
+          "fix": ["Can you give me {some advice|a piece of advice}?"]
         },
         {
           "wrong": "We have <b>the</b> dinner at seven.",

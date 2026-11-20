@@ -416,7 +416,8 @@ window.LESSONS.push({
         {
           "wrong": "She<b>'s working</b> in a bank. She's been there for 20 years.",
           "right": "She <b>works</b> in a bank.",
-          "why": "Stała sytuacja (od 20 lat) → Present Simple."
+          "why": "Stała sytuacja (od 20 lat) → Present Simple.",
+          "fix": ["She works in a bank. She's been there for 20 years."]
         },
         {
           "wrong": "I<b>'m thinking</b> you're right.",
@@ -431,7 +432,8 @@ window.LESSONS.push({
         {
           "wrong": "We <b>have</b> lunch now, can I call you later?",
           "right": "We<b>'re having</b> lunch now.",
-          "why": "Have lunch = jeść (czynność) – może być w formie ciągłej i tu opisuje teraz."
+          "why": "Have lunch = jeść (czynność) – może być w formie ciągłej i tu opisuje teraz.",
+          "fix": ["We're having lunch now, can I call you later?"]
         },
         {
           "wrong": "Listen! Somebody <b>sings</b>.",

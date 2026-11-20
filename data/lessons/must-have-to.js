@@ -517,12 +517,14 @@ window.LESSONS.push({
         {
           "wrong": "Must I pay now? – No, you <b>mustn't</b>.",
           "right": "Must I pay now? – No, you <b>don't have to</b>. / No, you <b>needn't</b>.",
-          "why": "Przecząca odpowiedź na Must I…? to „nie musisz”, a nie „nie wolno ci”."
+          "why": "Przecząca odpowiedź na Must I…? to „nie musisz”, a nie „nie wolno ci”.",
+          "fix": ["Must I pay now? – No, you {don't have to|needn't}."]
         },
         {
           "wrong": "When I was a child, I <b>mustn't</b> go out alone.",
           "right": "When I was a child, I <b>wasn't allowed to / couldn't</b> go out alone.",
-          "why": "Mustn't nie ma formy przeszłej – zakaz w przeszłości: wasn't allowed to / couldn't."
+          "why": "Mustn't nie ma formy przeszłej – zakaz w przeszłości: wasn't allowed to / couldn't.",
+          "fix": ["When I was a child, I {wasn't allowed to|couldn't} go out alone."]
         },
         {
           "wrong": "<b>Do</b> I <b>must</b> show my passport?",

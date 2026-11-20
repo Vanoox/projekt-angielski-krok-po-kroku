@@ -317,12 +317,14 @@ window.LESSONS.push({
         {
           "wrong": "It was difficult, but finally I <b>could</b> open the door.",
           "right": "It was difficult, but finally I <b>was able to / managed to</b> open the door.",
-          "why": "Jednorazowy sukces w konkretnej sytuacji → was able to / managed to, nie could."
+          "why": "Jednorazowy sukces w konkretnej sytuacji → was able to / managed to, nie could.",
+          "fix": ["It was difficult, but finally I {was able to|managed to} open the door."]
         },
         {
           "wrong": "I <b>can not</b> understand.",
           "right": "I <b>can't / cannot</b> understand.",
-          "why": "Cannot piszemy łącznie; najczęściej w skrócie can't."
+          "why": "Cannot piszemy łącznie; najczęściej w skrócie can't.",
+          "fix": ["I can't understand.","I cannot understand."]
         },
         {
           "wrong": "I <b>know to</b> swim.",
@@ -332,12 +334,14 @@ window.LESSONS.push({
         {
           "wrong": "<b>May</b> you help me?",
           "right": "<b>Could / Can</b> you help me?",
-          "why": "May używamy tylko w pytaniach o pozwolenie dla siebie (May I / May we). Prosząc kogoś o coś: Can / Could you…?"
+          "why": "May używamy tylko w pytaniach o pozwolenie dla siebie (May I / May we). Prosząc kogoś o coś: Can / Could you…?",
+          "fix": ["{Could|Can} you help me?"]
         },
         {
           "wrong": "Could I open the window? – Yes, you <b>could</b>.",
           "right": "Could I open the window? – Yes, you <b>can</b>. / Of course.",
-          "why": "Could w prośbie to grzeczność, nie przeszłość – pozwolenie dajemy przez can."
+          "why": "Could w prośbie to grzeczność, nie przeszłość – pozwolenie dajemy przez can.",
+          "fix": ["Could I open the window? – Yes, you can.","Could I open the window? – Of course."]
         },
         {
           "wrong": "Can you <b>borrow</b> me your pen?",

@@ -522,6 +522,29 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
 .w-input:focus { outline: none; background: var(--surface-2); }
 .w-input.ok { border-color: var(--ok); background: var(--ok-soft); }
 .w-input.bad { border-color: var(--bad); background: var(--bad-soft); }
+
+/* znajdź błąd: słowa zdania jako przyciski (zawijają się jak zwykły tekst) */
+.fe-sent { font-weight: 500; }
+.fe-w {
+  font: inherit; color: inherit; background: none; border: 0; border-bottom: 2px dotted color-mix(in srgb, var(--text-3) 60%, transparent);
+  border-radius: 4px; padding: 0 2px; margin: 0 -1px; line-height: 1.45; cursor: pointer; touch-action: manipulation;
+}
+.fe-w:hover:not(:disabled) { background: var(--accent-soft); color: var(--accent); border-bottom-color: var(--accent); }
+.fe-w:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+.fe-w:disabled { cursor: default; border-bottom-color: transparent; }
+.fe-w.found { background: var(--warn-soft); color: var(--warn); border-bottom: 2px solid var(--warn); }
+.fe-w.target { background: var(--bad-soft); color: var(--bad); border-bottom: 2px solid var(--bad); }
+.fe-w.miss { text-decoration: line-through; color: var(--text-3); }
+.fe-sent.fe-ok .fe-w { color: var(--ok); }
+.fe-p { color: var(--text-2); }
+.fe-note { font-size: 13.5px; color: var(--text-3); margin: 0 0 0 32px; }
+.fe-lbl { font-size: 13.5px; font-weight: 600; color: var(--warn); margin-bottom: 4px; }
+.fe-why { margin-top: 6px; color: var(--text-2); }
+.fe-why .ic { color: var(--tip); }
+.fe-typical { margin-top: 4px; display: flex; flex-wrap: wrap; align-items: baseline; gap: 0 4px; }
+.fe-bad { color: var(--bad); text-decoration: line-through; text-decoration-thickness: 1px; }
+.fe-bad b { color: var(--bad); }
+.fe-link { margin-top: 10px; }
 /* wymowa z mikrofonem */
 .ex-btns { display: flex; flex-direction: column; gap: 2px; grid-row: span 2; }
 .ex > .pr-out { grid-column: 2; }
@@ -659,7 +682,7 @@ a.level-test:hover { text-decoration: none; }
 }
 @media (max-width: 640px) {
   .top-link .tl-txt { display: none; }
-  .ex-task, .ex-hint, .w-wrap, .o-line, .o-bank { margin-left: 0; }
+  .ex-task, .ex-hint, .w-wrap, .o-line, .o-bank, .fe-note { margin-left: 0; }
   .f-pl { margin-left: 0; }
   .d-lbl { min-width: 0; width: 100%; }
   .v-progress { margin-left: 0; }

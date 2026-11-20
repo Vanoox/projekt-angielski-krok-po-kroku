@@ -429,7 +429,8 @@ window.LESSONS.push({
         {
           "wrong": "I <b>amn't</b> tired.",
           "right": "I<b>'m not</b> tired.",
-          "why": "Skrót „amn't” nie istnieje."
+          "why": "Skrót „amn't” nie istnieje.",
+          "fix": ["{I'm|I am} not tired."]
         },
         {
           "wrong": "I<b>'m agree</b> with you.",

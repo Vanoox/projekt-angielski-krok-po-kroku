@@ -390,7 +390,8 @@ window.LESSONS.push({
         {
           "wrong": "It <b>can</b> rain later.",
           "right": "It <b>may / might / could</b> rain later.",
-          "why": "Możliwość w konkretnej sytuacji wyrażamy przez may/might/could, nie can."
+          "why": "Możliwość w konkretnej sytuacji wyrażamy przez may/might/could, nie can.",
+          "fix": ["It {may|might|could} rain later."]
         },
         {
           "wrong": "He <b>must have went</b> home.",
@@ -415,7 +416,8 @@ window.LESSONS.push({
         {
           "wrong": "<b>May</b> it be true?",
           "right": "<b>Could / Can</b> it be true?",
-          "why": "W pytaniach o przypuszczenie używamy could / can (albo Do you think it might…?), nie may."
+          "why": "W pytaniach o przypuszczenie używamy could / can (albo Do you think it might…?), nie may.",
+          "fix": ["{Could|Can} it be true?"]
         },
         {
           "wrong": "He <b>mustn't have seen</b> me.",

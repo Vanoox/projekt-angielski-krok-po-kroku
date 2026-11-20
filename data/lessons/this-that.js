@@ -296,7 +296,8 @@ window.LESSONS.push({
         {
           "wrong": "Hello, <b>I am</b> Tom. (przez telefon)",
           "right": "Hello, <b>this is</b> Tom. / <b>It's</b> Tom.",
-          "why": "Przez telefon przedstawiamy się zwrotem this is / it's."
+          "why": "Przez telefon przedstawiamy się zwrotem this is / it's.",
+          "fix": ["Hello, this is Tom.","Hello, it's Tom."]
         },
         {
           "wrong": "<b>Those</b> book is interesting.",

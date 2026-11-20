@@ -340,7 +340,8 @@ window.LESSONS.push({
         {
           "wrong": "Can I give you <b>an advice</b>?",
           "right": "Can I give you <b>some advice</b> / <b>a piece of advice</b>?",
-          "why": "Advice jest niepoliczalne – bez a/an i bez liczby mnogiej."
+          "why": "Advice jest niepoliczalne – bez a/an i bez liczby mnogiej.",
+          "fix": ["Can I give you {some advice|a piece of advice}?"]
         },
         {
           "wrong": "Why not <b>to ask</b> him? / Why don't you <b>to ask</b> him?",

@@ -304,7 +304,8 @@ window.LESSONS.push({
         {
           "wrong": "There were <b>much</b> people at the concert.",
           "right": "There were <b>a lot of</b> / <b>many</b> people at the concert.",
-          "why": "People jest policzalne (l.mn.) – many albo a lot of, nie much."
+          "why": "People jest policzalne (l.mn.) – many albo a lot of, nie much.",
+          "fix": ["There were {a lot of|many} people at the concert."]
         },
         {
           "wrong": "How <b>many</b> money do you need?",

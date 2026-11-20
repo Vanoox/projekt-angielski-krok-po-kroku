@@ -161,6 +161,13 @@ for (const l of lessons) {
       for (const r of s.rows || []) if (r.length !== s.headers.length) se(`wiersz ma ${r.length} kolumn zamiast ${s.headers.length}`);
     }
     if (s.type === "mistakes" && !(s.items || []).every((m) => m.wrong && m.right && m.why)) se("każdy błąd potrzebuje wrong/right/why");
+    // „Znajdź błąd” (app.js) bierze pierwszy wariant wrong (przed „ / ”) i każe kliknąć słowo z <b>…</b>; fix = pełne poprawne zdania.
+    if (s.type === "mistakes") for (const m of s.items || []) {
+      const w0 = String(m.wrong || "").replace(/\s*\([^()]*\)$/, "").split(/\s+\/\s+/)[0];
+      if (m.wrong && !/<b>[^<]*\S[^<]*<\/b>/.test(w0)) se(`wrong bez <b>…</b> w pierwszym wariancie (zadanie „Znajdź błąd” go pominie): ${strip(m.wrong)}`);
+      if ("fix" in m && !(Array.isArray(m.fix) && m.fix.length && m.fix.every((f) => typeof f === "string" && f.trim() && !/<[^>]+>|\s\/\s/.test(f))))
+        se(`fix musi być niepustą listą pełnych zdań (bez znaczników HTML i „ / ” – warianty jako {a|b}): ${strip(m.wrong)}`);
+    }
     if (s.type === "compare") {
       if (!(s.items || []).every((c) => c.label && c.html)) se("każda kolumna potrzebuje label i html");
       for (const c of s.items || []) for (const e of c.examples || []) {

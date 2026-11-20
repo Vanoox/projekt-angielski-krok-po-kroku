@@ -478,7 +478,8 @@ window.LESSONS.push({
         {
           "wrong": "I like the job, <b>however</b> the pay is low.",
           "right": "I like the job. <b>However,</b> the pay is low.",
-          "why": "However zaczyna nowe zdanie (lub stoi po średniku) i ma po sobie przecinek."
+          "why": "However zaczyna nowe zdanie (lub stoi po średniku) i ma po sobie przecinek.",
+          "fix": ["I like the job. However, the pay is low.","I like the job; however, the pay is low.","I like the job, but the pay is low."]
         },
         {
           "wrong": "<b>In spite</b> the rain, we had fun.",

@@ -1104,7 +1104,8 @@ window.LESSONS.push({
         {
           "wrong": "I <b>seen</b> that film.",
           "right": "I <b>saw</b> / I<b>'ve seen</b> that film.",
-          "why": "Seen to III forma – wymaga have. Sama II forma to saw."
+          "why": "Seen to III forma – wymaga have. Sama II forma to saw.",
+          "fix": ["I saw that film.","I've seen that film."]
         },
         {
           "wrong": "He <b>buyed</b> a car.",

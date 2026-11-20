@@ -265,7 +265,8 @@ window.LESSONS.push({
         {
           "wrong": "<b>I'm having</b> a new phone.",
           "right": "I<b>'ve got</b> / I <b>have</b> a new phone.",
-          "why": "Posiadanie to stan – nie używamy formy ciągłej."
+          "why": "Posiadanie to stan – nie używamy formy ciągłej.",
+          "fix": ["I've got a new phone.","I have a new phone."]
         },
         {
           "wrong": "I <b>have</b> 30 years.",
@@ -275,7 +276,8 @@ window.LESSONS.push({
         {
           "wrong": "He <b>have got</b> two sisters.",
           "right": "He <b>has got</b> (He's got) two sisters.",
-          "why": "He/she/it → has got."
+          "why": "He/she/it → has got.",
+          "fix": ["He has got two sisters."]
         }
       ]
     }

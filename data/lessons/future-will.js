@@ -354,7 +354,7 @@ window.LESSONS.push({
           "why": "Propozycję „Czy mam…?” wyrażamy przez Shall I…?"
         },
         {
-          "wrong": "I think he <b>won't</b> come.",
+          "wrong": "I <b>think</b> he <b>won't</b> come.",
           "right": "I <b>don't think</b> he'll come.",
           "why": "Wersja z won't nie jest niegramatyczna, ale po angielsku przeczenie zwykle przenosimy do think – I don't think… brzmi dużo naturalniej."
         },

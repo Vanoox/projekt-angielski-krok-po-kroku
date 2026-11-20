@@ -402,7 +402,8 @@ window.LESSONS.push({
         {
           "wrong": "<b>Give</b> me water.",
           "right": "<b>Can I have</b> some water, <b>please</b>?",
-          "why": "Prośba w formie samego rozkazu brzmi niegrzecznie – użyj Can/Could… please."
+          "why": "Prośba w formie samego rozkazu brzmi niegrzecznie – użyj Can/Could… please.",
+          "fix": ["{Can|Could} I have some water, please?","{Can|Could} you give me some water, please?"]
         },
         {
           "wrong": "Close <b>please</b> the door.",

@@ -485,12 +485,14 @@ window.LESSONS.push({
         {
           "wrong": "She <b>said me</b> that she was tired.",
           "right": "She <b>told me</b> that she was tired. / She <b>said</b> that…",
-          "why": "Say nie przyjmuje osoby bez to. Z osobą używamy tell."
+          "why": "Say nie przyjmuje osoby bez to. Z osobą używamy tell.",
+          "fix": ["She told me that she was tired.","She said that she was tired."]
         },
         {
           "wrong": "He <b>told</b> that he was busy.",
           "right": "He <b>said</b> that he was busy. / He <b>told me</b> that…",
-          "why": "Po tell musi stać osoba (komu?)."
+          "why": "Po tell musi stać osoba (komu?).",
+          "fix": ["He said that he was busy.","He told me that he was busy."]
         },
         {
           "wrong": "She asked me where <b>did I live</b>.",

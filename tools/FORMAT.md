@@ -53,8 +53,15 @@ Pola `html` mogą zawierać proste tagi: `<p> <b> <em> <ul> <ol> <li> <br> <code
 { type: "warning", title: "Uwaga – pułapka dla Polaków", html: "<p>…</p>" }  // pomarańczowa ramka
 
 { type: "mistakes", title: "Typowe błędy", items: [
-    { wrong: "She <b>work</b> in a bank.", right: "She <b>works</b> in a bank.", why: "W 3. osobie l.poj. dodajemy -s." }
+    { wrong: "She <b>work</b> in a bank.", right: "She <b>works</b> in a bank.", why: "W 3. osobie l.poj. dodajemy -s." },
+    { wrong: "<b>I'm having</b> a new phone.", right: "I<b>'ve got</b> / I <b>have</b> a new phone.", why: "…", fix: ["I've got a new phone.", "I have a new phone."] }
 ]}
+// Te pary są też zadaniami „Znajdź błąd” (zakładka lekcji, trening): uczeń klika słowo z <b>…</b> w wrong i poprawia całe zdanie.
+// – W wrong pogrub całe błędne miejsce (każde pogrubione słowo zalicza wskazanie). Przy kilku wariantach „A / B” zadanie
+//   bierze pierwszy; końcowy dopisek w nawiasie, np. „(przez telefon)”, pokazuje się jako podpowiedź pod zdaniem.
+// – Poprawne odpowiedzi: warianty z right rozdzielone „ / ”. Gdy to nie są pełne zdania („I've got / I have a new phone.”)
+//   albo right gubi część zdania z wrong (kontekst, drugie zdanie), dodaj fix: pełne zdania, składnia jak w answers
+//   ({a|b} – alternatywy, (słowo) – opcjonalne). Pierwszy wariant fix to wzór pokazywany uczniowi.
 
 { type: "compare", title: "Present Simple vs Present Continuous", items: [
     { label: "Present Simple", html: "<p>stałe sytuacje, nawyki</p>", examples: ["I <b>work</b> in London."] },
