@@ -1,6 +1,6 @@
 window.PRACTICE = window.PRACTICE || {};
 window.PRACTICE["present-perfect"] = {
-  requires: ["past-simple", "irregular-verbs"],
+  requires: ["past-simple", "present-simple"],
 
   vocab: {
     intro: "Słowa-sygnały Present Perfect (ever, never, just, already, yet, since, for…) oraz czasowniki, które najczęściej pojawiają się w tym czasie – razem z ich III formą.",
@@ -31,6 +31,17 @@ window.PRACTICE["present-perfect"] = {
       { en: "meet", pl: "poznać, spotkać", note: "meet – met – met" },
       { en: "get engaged / get married", pl: "zaręczyć się / pobrać się" },
       { en: "arrive", pl: "przyjechać, przybyć, dotrzeć", note: "arrive in + miasto/kraj, arrive at + budynek/stacja" },
+      // --- słowa z ćwiczeń ---
+      { en: "exam / project / report", pl: "egzamin / projekt / raport" },
+      { en: "parcel", pl: "paczka" },
+      { en: "guest", pl: "gość" },
+      { en: "passport", pl: "paszport" },
+      { en: "ghost", pl: "duch" },
+      { en: "snail", pl: "ślimak" },
+      { en: "golf", pl: "golf" },
+      { en: "truck / helicopter", pl: "ciężarówka / helikopter" },
+      { en: "reply", pl: "odpowiadać" },
+      { en: "awake", pl: "obudzony, nieśpiący" },
     ],
   },
 
@@ -61,7 +72,7 @@ window.PRACTICE["present-perfect"] = {
         { type: "gap", q: "Hurry up! The film ___ (start).", answers: ["has started", "'s started"], explain: "The film = it → has started. Świeże wydarzenie ważne teraz." },
         { type: "gap", q: "We ___ (book) a table for eight o'clock.", answers: ["have booked", "'ve booked"], explain: "We → have + booked (regularny: -ed)." },
         { type: "gap", q: "Somebody ___ (take) my umbrella!", answers: ["has taken", "'s taken"], explain: "Somebody łączy się z czasownikiem w l.poj. → has; take – took – taken." },
-        { type: "gap", q: "Wow, you ___ (grow)! You're taller than me now.", answers: ["have grown", "'ve grown"], explain: "You → have; grow – grew – grown. Skutek widać teraz." },
+        { type: "gap", q: "Wow, you ___ (grow)! You're very tall now.", answers: ["have grown", "'ve grown"], explain: "You → have; grow – grew – grown. Skutek widać teraz." },
         { type: "gap", q: "The kids ___ (break) the window with their ball.", answers: ["have broken", "'ve broken"], explain: "The kids = they → have; break – broke – broken." },
         { type: "gap", q: "Good news – my sister ___ (pass) her driving test!", answers: ["has passed", "'s passed"], explain: "Świeża wiadomość bez podanego czasu → Present Perfect; she → has." },
       ],
@@ -87,14 +98,14 @@ window.PRACTICE["present-perfect"] = {
       instruction: "Wybierz albo wpisz właściwe słowo. Pamiętaj: <b>ever, never, just, already</b> stoją przed III formą, <b>yet</b> – na końcu zdania, <b>still</b> – przed haven't/hasn't.",
       items: [
         { type: "choice", q: "Have you ___ eaten snails?", options: ["yet", "ever", "for"], answer: 1, explain: "Pytanie o doświadczenie życiowe – ever (kiedykolwiek) przed III formą." },
-        { type: "choice", q: "I've ___ been to Africa, but I'd love to go.", options: ["ever", "never", "yet"], answer: 1, explain: "„Nigdy nie byłem” → never z twierdzącym have. Ever w zdaniu twierdzącym tu nie pasuje." },
+        { type: "choice", q: "I've ___ been to Africa, but I want to go there.", options: ["ever", "never", "yet"], answer: 1, explain: "„Nigdy nie byłem” → never z twierdzącym have. Ever w zdaniu twierdzącym tu nie pasuje." },
         { type: "choice", q: "Don't sit there! I've ___ painted that chair.", options: ["just", "yet", "ever"], answer: 0, explain: "Just = przed chwilą – farba jeszcze nie wyschła." },
         { type: "choice", q: "Have you finished your coffee ___?", options: ["yet", "just", "ever"], answer: 0, explain: "„Już?” w pytaniu na końcu zdania → yet." },
         { type: "choice", q: "You don't need to buy bread. I've ___ bought some.", options: ["yet", "already", "ever"], answer: 1, explain: "Już (wcześniej niż ktoś się spodziewał) w zdaniu twierdzącym → already." },
         { type: "choice", q: "The guests are coming in ten minutes and I ___ cleaned the kitchen!", options: ["still haven't", "haven't still", "have still"], answer: 0, explain: "„Nadal nie” → still stoi przed haven't." },
         { type: "gap", q: "I haven't decided ___. (jeszcze nie)", answers: ["yet"], explain: "„Jeszcze nie” w przeczeniu, na końcu zdania → yet." },
         { type: "gap", q: "He's ___ left – you've missed him by a minute. (właśnie)", answers: ["just"], explain: "Just = właśnie, przed chwilą; stoi między has a III formą." },
-        { type: "gap", q: "This is the most beautiful place I've ___ seen. (kiedykolwiek)", answers: ["ever"], explain: "Po stopniu najwyższym: the most…/the best… I've ever + III forma." },
+        { type: "gap", q: "It's a beautiful place. Have you ___ been there? (kiedykolwiek)", answers: ["ever"], explain: "Pytanie o doświadczenie: Have you ever + III forma?" },
         { type: "gap", q: "We've ___ seen this film three times – let's watch something else. (już)", answers: ["already"], explain: "Już w zdaniu twierdzącym → already, między have a III formą." },
       ],
     },
@@ -201,7 +212,7 @@ window.PRACTICE["present-perfect"] = {
     { type: "write", task: "Przetłumacz", q: "Mój tata zgubił okulary. (nadal ich szuka)", answers: ["My {dad|father} has lost his glasses.", "My {dad|father}'s lost his glasses."], explain: "Skutek teraz → Present Perfect; dad = he → has." },
     { type: "write", task: "Przetłumacz", q: "Czy list już przyszedł?", answers: ["Has the letter {arrived|come} yet?", "Has the letter already {arrived|come}?"], explain: "„Już?” w pytaniu → yet na końcu zdania." },
     { type: "write", task: "Przetłumacz", q: "Nie widziałem go od poniedziałku.", answers: ["I haven't seen him since Monday."], explain: "Since + punkt w czasie (Monday)." },
-    { type: "write", task: "Przetłumacz", q: "To najlepsza książka, jaką kiedykolwiek czytałem.", answers: ["{This|It|That} is the best book (that) I've ever read.", "{This|It|That} is the best book (which) I've ever read."], explain: "Stopień najwyższy + I've ever + III forma." },
+    { type: "write", task: "Przetłumacz", q: "To świetna książka – czytałem ją dwa razy.", answers: ["{This|It|That} is a {great|brilliant|fantastic|wonderful} book – I've read it {twice|two times}."], explain: "Ile razy (do teraz) → Present Perfect: I've read it twice." },
     { type: "write", task: "Przetłumacz", q: "(Gdzie są dzieci?) Poszły do parku.", answers: ["They've gone to the park.", "The {children|kids} have gone to the park."], explain: "Są teraz w parku (nie wróciły) → have gone to." },
     { type: "write", task: "Zamień na pytanie", q: "She has visited her grandparents.", answers: ["Has she visited her grandparents?"], explain: "Has przed podmiotem, III forma bez zmian." },
     { type: "write", task: "Zamień na przeczenie", q: "We have finished the project.", answers: ["We haven't finished the project."], explain: "have → haven't." },

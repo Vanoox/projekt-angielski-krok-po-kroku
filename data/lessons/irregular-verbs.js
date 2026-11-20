@@ -1190,11 +1190,11 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "This book was ___ (write) by a Polish author.",
+      "q": "My grandfather has ___ (write) three books.",
       "answers": [
         "written"
       ],
-      "explain": "Strona bierna: was + III forma (written)."
+      "explain": "Present Perfect: has + III forma (written)."
     },
     {
       "type": "choice",

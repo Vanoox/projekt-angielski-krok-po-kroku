@@ -171,8 +171,8 @@ window.LESSONS.push({
           "note": "few = za mało, brzmi negatywnie"
         },
         {
-          "en": "There's <b>little</b> hope that they'll find him.",
-          "pl": "Jest niewielka nadzieja, że go znajdą."
+          "en": "There's <b>little</b> hope now.",
+          "pl": "Teraz jest niewielka nadzieja."
         },
         {
           "en": "<b>Very few</b> students passed the exam.",

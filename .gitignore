@@ -3,3 +3,6 @@ Thumbs.db
 node_modules/
 *.log
 .vscode/
+
+# Notatki robocze
+POSTEP.md

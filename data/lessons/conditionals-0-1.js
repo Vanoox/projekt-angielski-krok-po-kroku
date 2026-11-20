@@ -161,8 +161,8 @@ window.LESSONS.push({
           "pl": "Jeśli zrobi się zimniej, może spaść śnieg."
         },
         {
-          "en": "If you <b>feel</b> ill, you <b>should stay</b> in bed.",
-          "pl": "Jeśli źle się czujesz, powinieneś zostać w łóżku."
+          "en": "If you <b>feel</b> ill, <b>stay</b> in bed.",
+          "pl": "Jeśli źle się czujesz, zostań w łóżku."
         },
         {
           "en": "If you <b>see</b> Anna, <b>tell</b> her to call me.",
@@ -437,14 +437,14 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "If you're tired, you ___ go to bed.",
+      "q": "If you're tired, ___ to bed.",
       "options": [
-        "should",
-        "will to",
-        "are"
+        "go",
+        "will go",
+        "going"
       ],
       "answer": 0,
-      "explain": "W zdaniu głównym może być inny modalny, np. should."
+      "explain": "W zdaniu głównym może być tryb rozkazujący: go to bed."
     },
     {
       "type": "gap",

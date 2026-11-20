@@ -19,8 +19,8 @@ function cands(w) {
   if (/ing$/.test(w)) { const s = w.slice(0, -3); add(s); add(s + 'e'); if (/(.)\1$/.test(s)) add(s.slice(0, -1)); if (w.endsWith('ying')) add(s.slice(0, -1) + 'ie'); }
   if (/ier$/.test(w)) add(w.slice(0, -3) + 'y');
   if (/iest$/.test(w)) add(w.slice(0, -4) + 'y');
-  if (/er$/.test(w)) { add(w.slice(0, -2)); add(w.slice(0, -1)); if (/(.)\1er$/.test(w)) add(w.slice(0, -3)); }
-  if (/est$/.test(w)) { add(w.slice(0, -3)); add(w.slice(0, -2)); if (/(.)\1est$/.test(w)) add(w.slice(0, -4)); }
+  if (/er$/.test(w)) { add(w.slice(0, -2)); add(w.slice(0, -1)); add(w.slice(0, -2) + 'e'); if (/(.)\1er$/.test(w)) add(w.slice(0, -3)); }
+  if (/est$/.test(w)) { add(w.slice(0, -3)); add(w.slice(0, -2)); add(w.slice(0, -3) + 'e'); if (/(.)\1est$/.test(w)) add(w.slice(0, -4)); }
   if (/ily$/.test(w)) add(w.slice(0, -3) + 'y');
   if (/ly$/.test(w)) { add(w.slice(0, -2)); add(w.slice(0, -2) + 'le'); }
   if (/n't$/.test(w)) add(w.slice(0, -3));

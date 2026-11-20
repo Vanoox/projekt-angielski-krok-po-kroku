@@ -225,7 +225,7 @@ window.LESSONS.push({
           "pl": "Tu nie ma gdzie zaparkować."
         },
         {
-          "en": "I've looked <b>everywhere</b> for my phone.",
+          "en": "I looked <b>everywhere</b> for my phone.",
           "pl": "Szukałem telefonu wszędzie."
         },
         {
@@ -246,7 +246,7 @@ window.LESSONS.push({
           "pl": "Nie chcę tego. Ma pan coś innego?"
         },
         {
-          "en": "<b>Everyone else</b> has gone home.",
+          "en": "<b>Everyone else</b> went home.",
           "pl": "Wszyscy inni poszli do domu."
         }
       ]

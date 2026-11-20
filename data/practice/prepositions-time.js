@@ -34,6 +34,18 @@ window.PRACTICE["prepositions-time"] = {
       { en: "at last", pl: "nareszcie" },
       { en: "deadline", pl: "termin (ostateczny)", ex: "The deadline is Friday – send it by Friday.", exPl: "Termin mija w piątek – wyślij to najpóźniej w piątek." },
       { en: "appointment", pl: "umówiona wizyta, spotkanie", ex: "I've got a dentist appointment on Monday.", exPl: "W poniedziałek mam wizytę u dentysty.", note: "nie: apartment!" },
+      // --- słowa z ćwiczeń ---
+      { en: "return", pl: "zwracać, wracać" },
+      { en: "join", pl: "dołączyć" },
+      { en: "receive", pl: "otrzymywać" },
+      { en: "hunt", pl: "polować" },
+      { en: "fireworks", pl: "fajerwerki" },
+      { en: "burglar", pl: "włamywacz" },
+      { en: "owl", pl: "sowa" },
+      { en: "age", pl: "wiek", note: "at the age of 10 = w wieku 10 lat" },
+      { en: "special", pl: "specjalny, wyjątkowy" },
+      { en: "sleepy", pl: "śpiący" },
+      { en: "exactly", pl: "dokładnie" },
     ],
   },
 

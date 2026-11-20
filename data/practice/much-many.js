@@ -25,6 +25,18 @@ window.PRACTICE["much-many"] = {
       { en: "petrol (BrE) / gas (AmE)", pl: "benzyna" },
       { en: "flour", pl: "mąka" },
       { en: "sweets (BrE) / candy (AmE)", pl: "słodycze, cukierki", note: "sweets – policzalne (too many sweets), candy – zwykle niepoliczalne (too much candy)" },
+      // --- słowa z ćwiczeń ---
+      { en: "add / bring / earn", pl: "dodawać / przynosić / zarabiać" },
+      { en: "prepare", pl: "przygotowywać" },
+      { en: "hope / truth / happiness", pl: "nadzieja / prawda / szczęście", note: "niepoliczalne" },
+      { en: "energy", pl: "energia" },
+      { en: "meal / omelette", pl: "posiłek / omlet" },
+      { en: "wardrobe / spoon", pl: "szafa / łyżka" },
+      { en: "area / stage", pl: "obszar, okolica / scena; etap" },
+      { en: "sick / exhausted", pl: "chory / wyczerpany" },
+      { en: "shy / lonely", pl: "nieśmiały / samotny" },
+      { en: "almost", pl: "prawie" },
+      { en: "unfortunately", pl: "niestety" },
     ],
   },
 
@@ -69,7 +81,7 @@ window.PRACTICE["much-many"] = {
         { type: "choice", q: "I need ___ help with my homework.", options: ["a few", "a little", "few"], answer: 1, explain: "Help – niepoliczalne, sens pozytywny → a little." },
         { type: "choice", q: "We've got ___ eggs, so let's make an omelette.", options: ["a few", "few", "a little"], answer: 0, explain: "Eggs – policzalne; jest ich wystarczająco (so let's make…) → a few." },
         { type: "choice", q: "Very ___ people know the truth.", options: ["little", "few", "a few"], answer: 1, explain: "People – policzalne, sens negatywny → (very) few. Po very nie stawiamy a." },
-        { type: "choice", q: "I'm not very hungry – I'll just have ___ soup.", options: ["a little", "a few", "little"], answer: 0, explain: "Soup – niepoliczalne, trochę (i wystarczy) → a little." },
+        { type: "choice", q: "I'm not very hungry – I just want ___ soup.", options: ["a little", "a few", "little"], answer: 0, explain: "Soup – niepoliczalne, trochę (i wystarczy) → a little." },
         { type: "choice", q: "Unfortunately, there's ___ hope of finding the dog now.", options: ["a little", "little", "few"], answer: 1, explain: "Hope – niepoliczalne; „unfortunately” → sens negatywny (prawie żadnej) → little." },
         { type: "choice", q: "Very ___ tourists come here in winter – the hotels are empty.", options: ["a few", "few", "little"], answer: 1, explain: "Tourists – policzalne, sens negatywny → very few." },
         { type: "choice", q: "I speak ___ German – enough to order a meal.", options: ["little", "a little", "a few"], answer: 1, explain: "Niepoliczalne (język); „enough” → sens pozytywny → a little." },
@@ -140,7 +152,7 @@ window.PRACTICE["much-many"] = {
   ],
 
   test: [
-    { type: "write", task: "Przetłumacz", q: "Ile książek przeczytałeś w tym roku?", answers: ["How many books have you read this year?", "How many books did you read this year?"], explain: "Books – policzalne → how many." },
+    { type: "write", task: "Przetłumacz", q: "Ile książek przeczytałeś w tym roku?", answers: ["How many books did you read this year?", "How many books have you read this year?"], explain: "Books – policzalne → how many." },
     { type: "write", task: "Przetłumacz", q: "Nie piję dużo wody.", answers: ["I don't drink {much|a lot of} water."], explain: "Water – niepoliczalne; przeczenie → much." },
     { type: "write", task: "Przetłumacz", q: "Mamy kilka pytań.", answers: ["We have {a few|some|a couple of} questions.", "We've got {a few|some|a couple of} questions."], explain: "Questions – policzalne → a few." },
     { type: "write", task: "Przetłumacz", q: "Zostało trochę chleba.", answers: ["There's {a little|some|a bit of} bread left.", "We've got {a little|some|a bit of} bread left.", "We have {a little|some|a bit of} bread left."], explain: "Bread – niepoliczalne → a little / some." },

@@ -161,9 +161,9 @@ window.LESSONS.push({
           "pl": "Czy on kiedyś prowadził ciężarówkę? – Nie."
         },
         {
-          "en": "This is the best film I<b>'ve</b> ever <b>seen</b>.",
-          "pl": "To najlepszy film, jaki kiedykolwiek widziałem.",
-          "note": "po stopniu najwyższym często Present Perfect + ever"
+          "en": "It's a great film. I<b>'ve seen</b> it three times.",
+          "pl": "To świetny film. Widziałem go trzy razy.",
+          "note": "ile razy (do teraz) → Present Perfect"
         },
         {
           "en": "We<b>'ve</b> never <b>had</b> a dog.",
@@ -605,7 +605,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "Where's Anna? – She's ___ to the bank. She'll be back soon.",
+      "q": "Where's Anna? – She's ___ to the bank. She isn't here.",
       "options": [
         "been",
         "gone",

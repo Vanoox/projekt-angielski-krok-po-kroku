@@ -457,8 +457,8 @@ window.LESSONS.push({
       "title": "Przykłady: the + przymiotnik, instrumenty, stałe wyrażenia",
       "items": [
         {
-          "en": "We should help <b>the poor</b>.",
-          "pl": "Powinniśmy pomagać biednym."
+          "en": "Life is hard for <b>the poor</b>.",
+          "pl": "Biednym żyje się ciężko."
         },
         {
           "en": "<b>The elderly</b> often feel lonely.",
@@ -793,7 +793,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "We should do more to help ___.",
+      "q": "We want to help ___.",
       "options": [
         "the poors",
         "the poor",

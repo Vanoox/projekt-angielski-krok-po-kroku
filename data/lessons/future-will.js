@@ -455,7 +455,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "My car ___ start. I'll have to take the bus.",
+      "q": "My car ___ start. I'll take the bus.",
       "options": [
         "won't",
         "doesn't will",

@@ -26,6 +26,9 @@ window.PRACTICE["word-order"] = {
       { en: "wonder", pl: "zastanawiać się; ciekawe, czy…", ex: "I wonder what she's doing now.", exPl: "Ciekawe, co ona teraz robi." },
       { en: "turn on / turn off", pl: "włączać / wyłączać", note: "z zaimkiem: turn it on, turn them off" },
       { en: "pick up", pl: "podnosić; odbierać (kogoś)", note: "z zaimkiem: pick it up, pick her up" },
+      // --- słowa z ćwiczeń ---
+      { en: "necklace", pl: "naszyjnik" },
+      { en: "whether", pl: "czy" },
     ],
   },
 
