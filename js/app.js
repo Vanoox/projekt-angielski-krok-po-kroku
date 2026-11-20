@@ -29,6 +29,7 @@
     slow: '<path d="M2 20h14.5a5.5 5.5 0 0 0 5.5-5.5V9"/><path d="M10 20a7 7 0 1 1 7-7"/><path d="M10 16a3 3 0 1 1 3-3"/><path d="M22 9l-1-4M22 9l1.6-3.6"/>',
     rotate: '<path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
     volume: '<path d="M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+    voice: '<path d="M2 10v3M6 6v11M10 3v18M14 8v7M18 5v13M22 10v3"/>',
     list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
     type: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
     "book-open": '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
@@ -464,6 +465,38 @@
     .replace(/\bany more\b/g, "anymore").replace(/\ball right\b/g, "alright").replace(/\bokay\b/g, "ok")
     .replace(/\be-mail/g, "email").replace(/\bno-one\b/g, "no one").replace(/\bper cent\b/g, "percent")
     .replace(/\b(some|any|every)body\b/g, "$1one").replace(/\bnobody\b/g, "no one");
+  // ---------- Pisownia brytyjska i amerykańska ----------
+  // Obie pisownie są poprawne niezależnie od wybranego akcentu lektora: przy sprawdzaniu odpowiedzi (matchOne, diffHtml)
+  // i wymowy (prTokens) każde słowo sprowadzamy do jednej postaci (amerykańskiej). Słowa wypisane jawnie, a nie same
+  // reguły („-our → -or”, „-ise → -ize”), bo four/hour/your/tour i promise/advise/exercise/surprise piszemy tak samo.
+  const SP_OUR = "colour favour flavour neighbour behaviour humour honour labour harbour rumour tumour vapour odour armour savour endeavour vigour rigour clamour splendour valour parlour".split(" ");
+  const SP_RE = "cent theat met kilomet centimet millimet lit fib calib somb meag spect lust sab"; // centre(s/d) → center(s/ed)
+  const SP_ISE = "apolog recogn real organ critic memor priorit modern special marginal emphas summar sympath minim maxim categor final util social character civil standard mobil legal visual author custom optim ideal familiar normal personal popular public scrutin stabil symbol theor harmon hospital industrial jeopard legitim local monopol neutral penal privat rational revolution steril subsid econom agon antagon fantas patron colon global digit energ immun mesmer moistur vapor vandal"; // -ise(s/d/ing/ation/er) → -ize…
+  const SP_LL = "travel cancel label model fuel quarrel dial level signal total equal marvel counsel duel tunnel channel pedal shovel swivel grovel snorkel yodel funnel jewel"; // travelled → traveled
+  const SPELL = {};
+  ("grey gray greys grays greyer grayer greyest grayest greyish grayish mum mom mums moms tyre tire tyres tires cheque check cheques checks " +
+    "practise practice practises practices practised practiced practising practicing licence license licences licenses defence defense " +
+    "defences defenses offence offense offences offenses pretence pretense pyjamas pajamas aeroplane airplane aeroplanes airplanes " +
+    "storey story storeys stories programme program programmes programs catalogue catalog catalogues catalogs dialogue dialog dialogues dialogs " +
+    "analogue analog cosy cozy cosier cozier cosiest coziest cosiness coziness mould mold moulds molds mouldy moldy plough plow ploughs plows " +
+    "aluminium aluminum sceptical skeptical sceptic skeptic moustache mustache doughnut donut doughnuts donuts kerb curb yoghurt yogurt " +
+    "judgement judgment ageing aging manoeuvre maneuver manoeuvres maneuvers enrol enroll enrols enrolls enrolment enrollment fulfil fulfill " +
+    "fulfils fulfills fulfilment fulfillment skilful skillful skilfully skillfully wilful willful instalment installment jewellery jewelry " +
+    "analyse analyze analyses analyzes analysed analyzed analysing analyzing paralyse paralyze paralysed paralyzed")
+    .split(" ").forEach((w, i, a) => { if (i % 2 === 0) SPELL[w] = a[i + 1]; });
+  const SP_OUR_RE = new RegExp(`^(${SP_OUR.join("|")})(.*)$`), SP_RE_RE = new RegExp(`^(${SP_RE.replace(/ /g, "|")})re(s|d)?$`);
+  const SP_ISE_RE = new RegExp(`^(${SP_ISE.replace(/ /g, "|")})is(e|es|ed|ing|ation|ations|er|ers)$`);
+  const SP_LL_RE = new RegExp(`^(${SP_LL.replace(/ /g, "|")})l(ed|ing|er|ers|or|ors|ous)$`);
+  function spellFold(w) {
+    if (SPELL[w]) return SPELL[w];
+    let m;
+    if ((m = w.match(SP_OUR_RE))) return m[1].slice(0, -3) + "or" + m[2];
+    if ((m = w.match(SP_RE_RE))) return m[1] + "er" + (m[2] === "d" ? "ed" : m[2] || "");
+    if ((m = w.match(SP_ISE_RE))) return m[1] + "iz" + m[2];
+    if ((m = w.match(SP_LL_RE))) return m[1] + m[2];
+    return w;
+  }
+  const spellFoldStr = (s) => s.split(" ").map(spellFold).join(" ");
   const CONTR = { "won't": ["will not"], "can't": ["cannot", "can not"], "cannot": ["can not", "can't"], "shan't": ["shall not"], "let's": ["let us"],
     "'ll": ["will"], "'d": ["would", "had"], "'s": ["is", "has"], "'m": ["am"], "'re": ["are"], "'ve": ["have"] };
   // Po przeczeniu w szyku pytającym (didn't they, isn't it) nie wolno rozwijać: „did not they” jest niegramatyczne.
@@ -497,7 +530,7 @@
   const NOTHING = new Set(["", "0", "x", "ø", "∅", "brak", "nic", "none", "no article"]);
   const matchOne = (given, expected) => {
     if (normalize(expected) === "") return NOTHING.has(normalize(given));
-    const g = variants(given); return [...variants(expected)].some((v) => g.has(v));
+    const g = new Set([...variants(given)].map(spellFoldStr)); return [...variants(expected)].some((v) => g.has(spellFoldStr(v)));
   };
   const matches = (given, answers) => answers.some((a) => expandAnswer(a).some((e) => matchOne(given, e)));
 
@@ -513,14 +546,14 @@
     return { n: dp[0][0], inA, inB };
   }
   function diffHtml(given, answers) {
-    const gRaw = given.trim().split(/\s+/), gN = gRaw.map((w) => normalize(w));
+    const gRaw = given.trim().split(/\s+/), gN = gRaw.map((w) => spellFoldStr(normalize(w)));
     let best = null;
     // Jeśli uczeń nie używał skrótów, porównujemy z pełną formą wzorca (has not ↔ hasn't), żeby nie zaznaczać fałszywych różnic.
     const fullForm = (s) => { const t = s.split(/\s+/); return t.map((w, i) => { const v = tokenVariants(normalize(w), normalize(t[i + 1] || "")); if (!/'/.test(w) || v.length < 2) return w; const f = v[v.length - 1]; return /^[A-Z]/.test(w) ? f.charAt(0).toUpperCase() + f.slice(1) : f; }).join(" "); };
     const useFull = !/['’]/.test(given);
     for (const a of answers) for (const e0 of expandAnswer(a)) {
       const e = useFull ? fullForm(e0) : e0;
-      const eRaw = e.split(/\s+/), eN = eRaw.map((w) => normalize(w));
+      const eRaw = e.split(/\s+/), eN = eRaw.map((w) => spellFoldStr(normalize(w)));
       const r = lcs(gN, eN);
       const score = r.n * 2 - eN.length - gN.length;
       if (!best || score > best.score) best = { score, eRaw, r };
@@ -653,7 +686,10 @@
   function errClassify(given, answers) {
     // Warianty od pełnych form (did not) – przy remisie wygrywają one, a nie skróty.
     const toks = (s) => [...variants(s)].slice(0, 8).reverse().map((v) => (v ? v.split(" ") : []));
-    const gv = toks(given), ev = answers.flatMap((a) => expandAnswer(a).flatMap(toks));
+    const ev = answers.flatMap((a) => expandAnswer(a).flatMap(toks));
+    // Słowo w innej pisowni (color ↔ colour) zamieniamy na słowo ze wzorca – to nie jest błąd.
+    const spell = new Map(ev.flat().map((w) => [spellFold(w), w]));
+    const gv = toks(given).map((t) => t.map((w) => spell.get(spellFold(w)) || w));
     const sorted = (t) => t.slice().sort().join(" ");
     // Najbliższy wzorzec: odległość edycyjna na słowach, podobne słowo (literówka, inna forma, ten sam rodzaj) = pół błędu,
     // te same słowa w innej kolejności = jeden błąd. Przy remisie – dłuższy wzorzec (z opcjonalnymi słowami).
@@ -730,13 +766,49 @@
     }).join("")}</ul></div>`;
   }
 
-  // ---------- Wymowa (Web Speech API) ----------
-  let voice = null;
+  // ---------- Lektor (synteza mowy, Web Speech API) i ustawienia głosu ----------
+  // eng-voice = { accent: "GB" | "US", voice: id wybranego głosu ("" = automatycznie), rate: tempo }.
+  // Zostaje na tym urządzeniu (KEEP_LOCAL) – głosy są inne w każdym systemie i przeglądarce. Zapisany głos, którego tu
+  // nie ma (np. po „Zastąp” kopią z innego urządzenia), zastępuje najlepszy głos wybranego akcentu – zapis zostaje.
+  const ACCENTS = { GB: { name: "brytyjski", lang: "en-GB" }, US: { name: "amerykański", lang: "en-US" } };
+  const RATE_CHOICES = [{ r: 0.7, name: "Bardzo wolno" }, { r: 0.8, name: "Wolno" }, { r: 0.92, name: "Normalnie" }, { r: 1.1, name: "Szybko" }];
+  const RATE_DEFAULT = 0.92, SLOWER = 0.75; // „Wolniej” w dyktandzie = wybrane tempo × 0,75
+  function loadVoiceCfg() {
+    const v = store.get("voice", null) || {};
+    return {
+      accent: ["GB", "US"].includes(v.accent) ? v.accent : "GB",
+      voice: typeof v.voice === "string" ? v.voice : "",
+      rate: RATE_CHOICES.some((c) => c.r === v.rate) ? v.rate : RATE_DEFAULT,
+    };
+  }
+  let voiceCfg = loadVoiceCfg(), voice = null;
+  const vLang = (v) => String(v.lang || "").replace("_", "-").toLowerCase();
+  const isEnVoice = (v) => /^en(-|$)/.test(vLang(v));
+  const voiceId = (v) => v.voiceURI || v.name;
+  const allVoices = () => ("speechSynthesis" in window ? speechSynthesis.getVoices() : []);
+  const accentVoices = (acc) => allVoices().filter((v) => vLang(v) === ACCENTS[acc].lang.toLowerCase());
+  // Głosy „naturalne” (Edge: Online (Natural), Chrome: Google, Apple: Premium/Enhanced) brzmią dużo lepiej niż zwykłe.
+  const voiceRank = (v) => (/natural|online|neural|google|premium|enhanced/i.test(v.name) ? 1 : 0);
+  const bestVoice = (vs) => vs.slice().sort((a, b) => voiceRank(b) - voiceRank(a))[0] || null; // przy remisie – kolejność systemu
   function pickVoice() {
     if (!("speechSynthesis" in window)) return;
-    const vs = speechSynthesis.getVoices();
-    voice = vs.find((v) => v.lang === "en-GB" && /natural|online|google/i.test(v.name))
-      || vs.find((v) => v.lang === "en-GB") || vs.find((v) => /^en[-_]/i.test(v.lang)) || null;
+    const vs = accentVoices(voiceCfg.accent);
+    voice = (voiceCfg.voice && vs.find((v) => voiceId(v) === voiceCfg.voice)) || bestVoice(vs)
+      || bestVoice(accentVoices(voiceCfg.accent === "GB" ? "US" : "GB")) || bestVoice(allVoices().filter(isEnVoice)) || null;
+  }
+  // Płeć głosu – tylko z nazwy (Google UK English Female, Microsoft Ryan…); "" = nie wiadomo.
+  const V_FEMALE = new RegExp(`\\b(female|woman|${"libby sonia maisie hollie abbie bella olivia mia amy emma ava aria jenny michelle ana samantha karen moira tessa fiona serena kate susan hazel zira catherine natasha clara emily elizabeth nancy sara jane ashley cora monica joanna kendra kimberly salli ivy ruth danielle martha kathy victoria allison shelley sandy flo grandma ellie".replace(/ /g, "|")})\\b`, "i");
+  const V_MALE = new RegExp(`\\b(male|man|${"ryan thomas george alfie elliot ethan noah oliver guy davis tony jason brian christopher eric roger steffan andrew brandon daniel arthur alex fred tom aaron rishi lee gordon reed rocko eddy grandpa james william mark david liam matthew justin joey kevin stephen ralph albert bruce junior".replace(/ /g, "|")})\\b`, "i");
+  const voiceGender = (v) => { const n = String(v.name).split(" - ")[0]; return V_FEMALE.test(n) ? "f" : V_MALE.test(n) ? "m" : ""; };
+  // Drugi lektor (np. druga osoba w dialogu): inny głos angielski niż main – najpierw tego samego akcentu, potem o innej
+  // płci (gdy da się ją poznać po nazwie), potem „naturalny”. null = w urządzeniu jest tylko jeden głos angielski
+  // (wtedy obie osoby czyta ten sam głos – można je odróżnić np. wysokością: utterance.pitch).
+  function secondVoice(main) {
+    main = main || voice;
+    if (!main) return null;
+    const g = voiceGender(main);
+    const score = (v) => (vLang(v) === vLang(main) ? 4 : 0) + (!g || !voiceGender(v) ? 1 : voiceGender(v) !== g ? 2 : 0) + voiceRank(v);
+    return allVoices().filter((v) => isEnVoice(v) && voiceId(v) !== voiceId(main)).sort((a, b) => score(b) - score(a))[0] || null;
   }
   // Dyktando bez angielskiego głosu nie ma sensu – pokazujemy czytelny komunikat (aktualizowany, gdy przeglądarka doczyta głosy).
   function ttsProblem(failed) {
@@ -746,16 +818,17 @@
   }
   const ttsWarnHtml = (failed) => { const p = ttsProblem(failed); return p ? `<div class="callout warning"><h3>${icon("alert")} Brak głosu angielskiego</h3><div class="prose">${p}</div></div>` : ""; };
   const syncTtsWarn = (failed) => document.querySelectorAll(".tts-warn").forEach((el) => { el.innerHTML = ttsWarnHtml(failed); });
-  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = () => { pickVoice(); syncTtsWarn(); }; }
-  function speak(text, btn, rate, onFail) {
+  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = () => { pickVoice(); syncTtsWarn(); syncVoiceDlg(); }; }
+  // slower – mnożnik tempa (dyktando „Wolniej”: SLOWER); withVoice – inny głos niż wybrany (np. secondVoice()).
+  function speak(text, btn, slower, onFail, withVoice) {
     if (!("speechSynthesis" in window)) { alert("Twoja przeglądarka nie obsługuje odczytu na głos."); return; }
     speechSynthesis.cancel();
-    document.querySelectorAll(".speak.playing, .d-btn.playing").forEach((b) => b.classList.remove("playing"));
+    document.querySelectorAll(".speak.playing, .d-btn.playing, .vd-try.playing").forEach((b) => b.classList.remove("playing"));
     const say = stripTags(text).replace(/\s*\/\s*/g, ". ").replace(/[→=]/g, ". ").replace(/(^|\s)[–—](\s|$)/g, ". ");
-    const u = new SpeechSynthesisUtterance(say);
-    u.lang = voice ? voice.lang : "en-GB";
-    if (voice) u.voice = voice;
-    u.rate = rate || 0.92;
+    const u = new SpeechSynthesisUtterance(say), v = withVoice || voice;
+    u.lang = v ? v.lang : ACCENTS[voiceCfg.accent].lang;
+    if (v) u.voice = v;
+    u.rate = Math.max(0.5, voiceCfg.rate * (slower || 1));
     u.onend = () => { if (btn) btn.classList.remove("playing"); };
     u.onerror = (e) => { if (btn) btn.classList.remove("playing"); if (onFail && !/interrupted|canceled/.test(e.error || "")) onFail(e.error); };
     if (btn) btn.classList.add("playing");
@@ -763,6 +836,79 @@
   }
   // Uwaga: przekazuj tu wyłącznie tekst ANGIELSKI (tłumaczenia trzymamy w osobnych polach).
   const speakBtn = (text) => `<button class="speak" data-say="${esc(stripTags(text))}" title="Posłuchaj wymowy" aria-label="Posłuchaj">${icon("volume")}</button>`;
+
+  // ---------- Okienko „Ustawienia głosu” (przycisk w górnym pasku, link w dyktandzie i wymowie) ----------
+  // Zmiany zapisują się od razu (bez przycisku „Zapisz”). Lista głosów = głosy wybranego akcentu z tego urządzenia.
+  const VOICE_SAMPLE = "Hello! Nice to meet you. How are you today?";
+  const voiceLink = (what) => ("speechSynthesis" in window ? ` ${what} zmienisz w <button type="button" class="link-btn" data-voice-open>ustawieniach głosu</button>.` : "");
+  const voiceName = (v) => String(v.name).replace(/\s+-\s+English.*$/i, "").replace(/^Microsoft\s+/i, "").trim() || v.name;
+  const saveVoiceCfg = () => { store.set("voice", voiceCfg); pickVoice(); };
+  function voiceDlgHtml() {
+    const acc = ACCENTS[voiceCfg.accent], vs = accentVoices(voiceCfg.accent), auto = bestVoice(vs);
+    const cur = voiceCfg.voice && vs.some((v) => voiceId(v) === voiceCfg.voice) ? voiceCfg.voice : "";
+    const row = (id, name, sub, v) => `<li class="${id === cur ? "on" : ""}">
+        <label><input type="radio" name="vd-voice" value="${esc(id)}"${id === cur ? " checked" : ""}><span><span class="vd-name">${esc(name)}</span>${sub ? `<span class="vd-sub">${sub}</span>` : ""}</span></label>
+        ${v ? `<button type="button" class="btn small vd-try" data-try="${esc(id)}" aria-label="Posłuchaj: ${esc(name)}">${icon("volume")}<span class="vd-try-t"> Posłuchaj</span></button>` : ""}
+      </li>`;
+    const online = (v) => v.localService === false ? "wymaga internetu" : "";
+    let voices;
+    if (!allVoices().length) voices = `<p class="muted">${ttsProblem() || "Wczytywanie listy głosów…"}</p>`;
+    else if (!vs.length) voices = `<div class="callout warning vd-none"><div class="prose">W tym urządzeniu nie ma głosu z akcentem ${acc.name}m${voice ? ` – czytać będzie głos <b>${esc(voiceName(voice))}</b> (${esc(voice.lang)})` : ""}. Inne głosy można dodać w ustawieniach systemu (Windows: Ustawienia → Czas i język → Mowa, Android: Ustawienia → Zamiana tekstu na mowę) albo otworzyć stronę w innej przeglądarce.</div></div>`;
+    else voices = `<ul class="vd-voices">${row("", "Automatycznie", auto ? `najlepszy dostępny: ${esc(voiceName(auto))}` : "", null)}${vs.map((v) => row(voiceId(v), voiceName(v), online(v), v)).join("")}</ul>`;
+    return `<div class="vd-head"><h2 id="voiceDlgH">${icon("voice")} Ustawienia głosu</h2><button type="button" class="icon-btn vd-close" aria-label="Zamknij">${icon("x")}</button></div>
+      <div class="vd-body">
+        <section class="vd-sec"><h3>Akcent lektora</h3>
+          <div class="chips">${Object.entries(ACCENTS).map(([k, a]) => `<button type="button" class="chip ${k === voiceCfg.accent ? "active" : ""}" data-accent="${k}" aria-pressed="${k === voiceCfg.accent}">${a.name[0].toUpperCase() + a.name.slice(1)}</button>`).join("")}</div>
+          <p class="muted vd-note">Pisownia brytyjska i amerykańska (<i>colour / color, centre / center, realise / realize</i>) jest zawsze poprawna.${SR ? " Wymowa z mikrofonem rozpoznaje mowę z wybranym akcentem." : ""}</p>
+        </section>
+        <section class="vd-sec"><h3>Głos</h3>${voices}</section>
+        <section class="vd-sec"><h3>Tempo</h3>
+          <div class="chips">${RATE_CHOICES.map((c) => `<button type="button" class="chip ${c.r === voiceCfg.rate ? "active" : ""}" data-rate="${c.r}" aria-pressed="${c.r === voiceCfg.rate}">${c.name}</button>`).join("")}</div>
+          <p class="muted vd-note">„Wolniej” w dyktandzie czyta jeszcze wolniej niż wybrane tempo.</p>
+        </section>
+        <div class="vd-foot"><button type="button" class="btn primary vd-sample">${icon("play")} Posłuchaj przykładu</button></div>
+      </div>`;
+  }
+  // Przebudowa treści otwartego okienka z zachowaniem fokusu (np. po zmianie akcentu albo doczytaniu głosów).
+  function syncVoiceDlg() {
+    const d = document.getElementById("voiceDlg");
+    if (!d || !d.hasAttribute("open")) return;
+    const a = document.activeElement, key = a && d.contains(a) ? ["data-accent", "data-rate", "data-try"].find((k) => a.hasAttribute(k)) : null;
+    const sel = key ? `[${key}="${CSS.escape(a.getAttribute(key))}"]` : a && a.name === "vd-voice" ? `input[name="vd-voice"][value="${CSS.escape(a.value)}"]` : null;
+    const top = (d.querySelector(".vd-body") || {}).scrollTop || 0;
+    d.innerHTML = voiceDlgHtml();
+    d.querySelector(".vd-body").scrollTop = top;
+    const f = sel && d.querySelector(sel);
+    if (f) f.focus(); else if (!d.contains(document.activeElement)) d.querySelector(".vd-close").focus(); // fokus nie ucieka z okienka
+  }
+  const closeVoiceDlg = (d) => { if (d.close) d.close(); else { d.removeAttribute("open"); speechSynthesis.cancel(); } };
+  function openVoiceDlg() {
+    if (!("speechSynthesis" in window)) return;
+    let d = document.getElementById("voiceDlg");
+    if (!d) {
+      d = document.createElement("dialog");
+      d.id = "voiceDlg"; d.className = "voice-dlg"; d.setAttribute("aria-labelledby", "voiceDlgH");
+      document.body.appendChild(d);
+      d.addEventListener("click", (e) => {
+        if (e.target === d) { closeVoiceDlg(d); return; } // klik w tło poza okienkiem
+        const t = e.target.closest("button");
+        if (!t) return;
+        if (t.classList.contains("vd-close")) closeVoiceDlg(d);
+        else if (t.dataset.accent && t.dataset.accent !== voiceCfg.accent) { voiceCfg.accent = t.dataset.accent; voiceCfg.voice = ""; saveVoiceCfg(); syncVoiceDlg(); speak(VOICE_SAMPLE); }
+        else if (t.dataset.rate) { voiceCfg.rate = +t.dataset.rate; saveVoiceCfg(); syncVoiceDlg(); speak(VOICE_SAMPLE); }
+        else if (t.dataset.try) speak(VOICE_SAMPLE, t, 1, null, accentVoices(voiceCfg.accent).find((v) => voiceId(v) === t.dataset.try));
+        else if (t.classList.contains("vd-sample")) speak(VOICE_SAMPLE, t);
+      });
+      d.addEventListener("change", (e) => {
+        if (e.target.name !== "vd-voice") return;
+        voiceCfg.voice = e.target.value; saveVoiceCfg(); syncVoiceDlg(); speak(VOICE_SAMPLE);
+      });
+      d.addEventListener("close", () => { speechSynthesis.cancel(); });
+    }
+    d.innerHTML = voiceDlgHtml();
+    if (d.showModal) d.showModal(); else d.setAttribute("open", "");
+    const on = d.querySelector(".chip.active[data-accent]"); if (on) on.focus();
+  }
 
   // ---------- Wymowa z mikrofonem (rozpoznawanie mowy, Web Speech API) ----------
   // Chrome/Edge (także Android) i Safari; Firefox nie ma SpeechRecognition – wtedy przycisków mikrofonu nie ma.
@@ -792,11 +938,11 @@
   // Słowa, które brzmią tak samo – rozpoznawanie wybiera jedno z nich, więc nie liczymy tego jako błędu wymowy.
   const HOMO = {};
   ["to too two", "for four", "there their", "right write", "know no", "hear here", "by buy bye", "see sea", "one won",
-    "eight ate", "son sun", "wear where", "weather whether", "new knew", "hour our", "meet meat", "week weak", "its it's",
-    "mum mom", "grey gray", "programme program", "tyre tire", "cheque check", "practise practice", "licence license"]
+    "eight ate", "son sun", "wear where", "weather whether", "new knew", "hour our", "meet meat", "week weak", "its it's"]
     .forEach((g) => { const w = g.split(" "); w.forEach((x) => { HOMO[x] = w[0]; }); });
-  // Pisownia brytyjska i amerykańska (colour/color, realise/realize, centre/center) – też bez znaczenia.
-  const fold = (w) => HOMO[w] || w.replace(/our/g, "or").replace(/is(e|ed|es|ing|ation)$/, "iz$1").replace(/([^aeiou])re$/, "$1er");
+  // Pisownia brytyjska i amerykańska (colour/color, realise/realize, centre/center) – też bez znaczenia (spellFold,
+  // ta sama lista co przy sprawdzaniu odpowiedzi; rozpoznawanie en-US zwraca pisownię amerykańską).
+  const fold = (w) => { const s = spellFold(w); return HOMO[s] || s; };
   const PR_S_IS = new Set(["he", "she", "it", "that", "there", "what", "who", "where", "how", "here", "this"]);
   // Jedno słowo → tokeny do porównania: skróty = pełne formy (I'm = I am, can't = can not), liczby słownie (2 = two).
   function prTokens(word) {
@@ -886,7 +1032,7 @@
     if (navigator.onLine === false) { prMsg(btn, prError("offline")); return; }
     if ("speechSynthesis" in window) speechSynthesis.cancel(); // żeby mikrofon nie słyszał lektora
     const text = btn.dataset.pr, rec = new SR(), cur = { rec, btn, aborted: false, done: false };
-    rec.lang = "en-GB"; rec.interimResults = false; rec.maxAlternatives = 3; rec.continuous = false;
+    rec.lang = ACCENTS[voiceCfg.accent].lang; rec.interimResults = false; rec.maxAlternatives = 3; rec.continuous = false;
     rec.onresult = (e) => {
       const res = e.results[e.results.length - 1]; if (!res || cur.aborted) return;
       cur.done = true;
@@ -1079,6 +1225,7 @@
     "eng-srs": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
     "eng-srsNew": (v) => NEW_CHOICES.includes(v),
     "eng-goal": (v) => GOAL_CHOICES.includes(v),
+    "eng-voice": isObj, // pola sprawdza loadVoiceCfg (zły akcent / tempo → wartość domyślna)
     "eng-theme": (v) => v === "light" || v === "dark",
     "eng-activity": (v) => isObj(v) && Object.entries(v).every(([k, e]) => DAY_RE.test(k) && isObj(e) &&
       ["t", "ok", "w"].every((f) => e[f] === undefined || (Number.isFinite(e[f]) && e[f] >= 0))),
@@ -1112,9 +1259,9 @@
       return out;
     },
   };
-  // Ustawienia (poziomy w menu, tłumaczenia, motyw, limit nowych słówek, cel dzienny) przy łączeniu zostają takie, jak na tym urządzeniu –
+  // Ustawienia (poziomy w menu, tłumaczenia, motyw, limit nowych słówek, cel dzienny, głos lektora) przy łączeniu zostają takie, jak na tym urządzeniu –
   // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
-  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew", "eng-goal"];
+  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew", "eng-goal", "eng-voice"];
   // Klucze bez własnej reguły (eng-mistakes, eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
   // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
   // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
@@ -1271,7 +1418,7 @@
           <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
           <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Słówka w powtórkach", "srs")}${row("Zadania w „Moich błędach”", "mistakes")}${row("Dni nauki", "days")}</tbody>
         </table></div>
-        <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka i dni nauki. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
+        <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka i dni nauki. Ustawienia (motyw, poziomy w menu, cel dzienny, głos lektora) zostają z tego urządzenia.<br>
         <b>Zastąp</b> – postęp z tego urządzenia zostanie <b>usunięty</b> i zastąpiony kopią.</p>
         <div class="backup-actions">
           <button class="btn primary" type="button" data-act="merge">Połącz</button>
@@ -1290,6 +1437,7 @@
       Object.assign(state, loadState());
       migrateKnown(state);
       migrateActivity(state);
+      voiceCfg = loadVoiceCfg(); pickVoice();
       const t = localStorage.getItem("eng-theme");
       if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
       syncThemeColor();
@@ -1609,7 +1757,7 @@
           if (!done) ta.focus({ preventScroll: true });
         };
         card.querySelector(".d-play").addEventListener("click", (e) => play(e.currentTarget));
-        card.querySelector(".d-slow").addEventListener("click", (e) => play(e.currentTarget, 0.7));
+        card.querySelector(".d-slow").addEventListener("click", (e) => play(e.currentTarget, SLOWER));
         // Ctrl+spacja w polu – odtwórz jeszcze raz (bez odrywania rąk od klawiatury).
         ta.addEventListener("keydown", (e) => { if (e.key === " " && (e.ctrlKey || e.metaKey)) { e.preventDefault(); play(card.querySelector(".d-play")); } });
       }
@@ -2146,7 +2294,7 @@
   // ---------- Dyktando ----------
   const DICT_ROUND = 10;
   const dictIntro = (more) => `<div class="tts-warn">${ttsWarnHtml()}</div>
-    <div class="ex-intro">Kliknij <b>${icon("play")} Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>${icon("slow")} Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}</div>`;
+    <div class="ex-intro">Kliknij <b>${icon("play")} Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>${icon("slow")} Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}${voiceLink("Akcent, głos i tempo lektora")}</div>`;
   function renderLessonDictation(l) {
     const s = state.scores[l.id + "::dict"];
     return `<section class="block">
@@ -2168,7 +2316,7 @@
   }
   function renderLessonSpeaking(l) {
     const intro = SR
-      ? `Kliknij <b>${icon("mic")} Powiedz</b> i przeczytaj zdanie na głos po angielsku. Strona rozpozna, co mówisz, i pokaże słowa: <span class="pr-ok">zielone</span> – rozpoznane, <span class="pr-bad">czerwone</span> – nie. Wzoru możesz najpierw posłuchać (${icon("volume")}). Mów spokojnie, w cichym miejscu; przeglądarka zapyta o zgodę na mikrofon. Rozpoznawanie mowy potrzebuje internetu i czasem się myli, więc wynik to tylko wskazówka – nie trafia do „Moich błędów”.`
+      ? `Kliknij <b>${icon("mic")} Powiedz</b> i przeczytaj zdanie na głos po angielsku. Strona rozpozna, co mówisz, i pokaże słowa: <span class="pr-ok">zielone</span> – rozpoznane, <span class="pr-bad">czerwone</span> – nie. Wzoru możesz najpierw posłuchać (${icon("volume")}). Mów spokojnie, w cichym miejscu; przeglądarka zapyta o zgodę na mikrofon. Rozpoznawanie mowy potrzebuje internetu i czasem się myli, więc wynik to tylko wskazówka – nie trafia do „Moich błędów”.${voiceLink("Akcent (brytyjski albo amerykański)")}`
       : `Tutaj możesz posłuchać zdań (${icon("volume")}) i powtarzać je na głos – sprawdzanie wymowy zadziała po otwarciu strony w Chrome albo Edge.`;
     return `<section class="block pr-box">
       <h2>${icon("mic")} Wymowa</h2>
@@ -2887,6 +3035,9 @@
   });
   $("#menuBtn").addEventListener("click", () => document.body.classList.toggle("nav-open"));
   $("#backdrop").addEventListener("click", () => document.body.classList.remove("nav-open"));
+  // Ustawienia głosu: przycisk w pasku (bez syntezy mowy – ukryty) i linki [data-voice-open] w dyktandzie / wymowie.
+  if ("speechSynthesis" in window) $("#voiceBtn").addEventListener("click", openVoiceDlg); else $("#voiceBtn").hidden = true;
+  document.addEventListener("click", (e) => { if (e.target.closest("[data-voice-open]")) { e.preventDefault(); openVoiceDlg(); } });
   $("#themeBtn").addEventListener("click", () => {
     const dark = getComputedStyle(document.documentElement).colorScheme === "dark";
     const t = dark ? "light" : "dark";

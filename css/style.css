@@ -95,6 +95,7 @@ button { font: inherit; color: inherit; cursor: pointer; }
   display: grid; place-items: center; font-size: 18px;
 }
 .icon-btn:hover { background: var(--surface-2); }
+.icon-btn[hidden] { display: none; }
 
 /* ---------- Ikony SVG (icon() w app.js; dziedziczą kolor tekstu) ---------- */
 .ic { display: inline-block; width: 1.1em; height: 1.1em; vertical-align: -.15em; flex: none; }
@@ -996,4 +997,56 @@ a.level-test:hover { text-decoration: none; }
   .nc-title { font-size: 19px; }
   .hero-small { margin-top: 28px; padding-top: 22px; }
   .hero-small .btn { width: 100%; justify-content: center; }
+}
+
+/* ---------- Ustawienia głosu (okienko <dialog>, openVoiceDlg w app.js) ---------- */
+.link-btn { border: 0; background: none; padding: 0; font: inherit; color: var(--accent); cursor: pointer; text-decoration: underline; text-underline-offset: 2px; }
+.voice-dlg {
+  width: min(480px, calc(100vw - 32px)); max-height: calc(100vh - 32px); max-height: calc(100dvh - 32px);
+  padding: 0; border: 1px solid var(--border); border-radius: var(--radius);
+  background: var(--surface); color: var(--text); box-shadow: 0 12px 48px rgba(0, 0, 0, .28); overflow: hidden;
+}
+.voice-dlg[open] { display: flex; flex-direction: column; }
+.voice-dlg::backdrop { background: rgba(10, 12, 20, .45); }
+.vd-head { display: flex; align-items: center; justify-content: space-between; gap: 8px; padding: 12px 12px 12px 20px; border-bottom: 1px solid var(--border); flex: none; }
+.vd-head h2 { margin: 0; font-size: 19px; display: flex; align-items: center; gap: 8px; }
+.vd-head h2 .ic { color: var(--accent); }
+.vd-body { padding: 16px 20px 20px; overflow-y: auto; overscroll-behavior: contain; }
+.vd-sec + .vd-sec { margin-top: 20px; }
+.vd-sec h3 { margin: 0 0 8px; font-family: Inter, sans-serif; font-size: 13px; font-weight: 600; letter-spacing: .02em; text-transform: uppercase; color: var(--text-2); }
+.vd-sec .chips .chip { padding: 6px 14px; font-size: 14px; }
+.vd-note { margin: 8px 0 0; }
+.vd-voices { list-style: none; margin: 0; padding: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.vd-voices li { display: flex; align-items: center; gap: 10px; padding: 8px 10px 8px 12px; border-top: 1px solid var(--border); }
+.vd-voices li:first-child { border-top: 0; }
+.vd-voices li.on { background: var(--accent-soft); }
+.vd-voices label { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 10px; cursor: pointer; }
+.vd-voices input { margin: 3px 0 0; accent-color: var(--accent); flex: none; width: 16px; height: 16px; }
+.vd-name { display: block; font-weight: 500; overflow-wrap: anywhere; }
+.vd-sub { display: block; font-size: 12.5px; color: var(--text-3); }
+.vd-try { flex: none; display: inline-flex; align-items: center; gap: 4px; }
+.vd-try.playing { border-color: var(--accent); color: var(--accent); }
+.vd-none { padding: 10px 14px; font-size: 14px; }
+.vd-foot { margin-top: 20px; }
+.vd-foot .btn { display: inline-flex; align-items: center; gap: 6px; }
+@media (max-width: 640px) {
+  .vd-body { padding: 14px 16px 18px; }
+  .vd-try .vd-try-t { display: none; }
+}
+/* Bardzo wąskie telefony (320–400 px): pasek ma 9 przycisków – mniejsze odstępy, żeby ostatni nie wypadł poza ekran. */
+@media (max-width: 400px) {
+  .topbar { gap: 4px; padding: 0 6px; }
+  .top-links { gap: 0; }
+  .top-link { padding: 7px 6px; }
+  .topbar .icon-btn { width: 34px; }
+}
+/* Wąski komputer: linki w pasku same ikony (podpisy w title), żeby zostało miejsce na pole wyszukiwania.
+   Z widocznymi „Błędami” i kółkiem celu pasek jest dłuższy – wtedy do 1180 px (:has – nowsze przeglądarki). */
+@media (min-width: 961px) and (max-width: 1060px) {
+  .top-link .tl-txt { display: none; }
+  .top-link { padding: 7px 8px; }
+}
+@media (min-width: 961px) and (max-width: 1180px) {
+  .topbar:has(#mistakesLink:not([hidden])) .top-link .tl-txt { display: none; }
+  .topbar:has(#mistakesLink:not([hidden])) .top-link { padding: 7px 8px; }
 }
