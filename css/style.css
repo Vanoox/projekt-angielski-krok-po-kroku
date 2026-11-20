@@ -531,7 +531,7 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
 .order-total { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
 .order-total b { font-size: 22px; font-family: Fraunces, Georgia, serif; }
 .progress.big { height: 12px; margin: 14px 0 18px; }
-.order-levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.order-levels { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 12px; }
 .order-level { display: block; color: var(--text); padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
 .order-level:hover { text-decoration: none; outline: 1px solid var(--lvl); }
 .order-level-head { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
@@ -562,11 +562,34 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
   color: #fff; background: var(--accent); padding: 2px 8px; border-radius: 99px;
 }
 @media (max-width: 960px) {
-  .order-levels { grid-template-columns: repeat(2, 1fr); }
+  .order-levels { grid-template-columns: repeat(2, minmax(0, 1fr)); }
 }
 @media (max-width: 640px) {
   .order-summary { padding: 16px; }
   .order-total .btn { width: 100%; justify-content: center; text-align: center; }
   .order-item a { padding: 9px 10px; gap: 8px; }
   .order-num { width: 26px; height: 26px; font-size: 12px; }
+}
+
+/* ---------- Sprawdziany powtórkowe (#/sprawdzian/…) ---------- */
+.order-cp a { border-style: dashed; background: var(--surface-2); }
+.order-cp .order-num { background: transparent; font-size: 17px; }
+.order-cp.is-done .order-num { background: var(--ok-soft); }
+.order-cp .pill { flex-shrink: 0; }
+.cp-next { border-style: dashed; }
+.checkpoint h1 { font-size: clamp(28px, 4.2vw, 40px); margin: 0 0 8px; }
+.checkpoint .test-intro p { margin: 0 0 10px; }
+.checkpoint .test-intro p:last-child { margin-bottom: 0; }
+.cp-report { overflow-x: auto; }
+/* Przed sprawdzeniem nie zdradzamy, z której lekcji jest zadanie. */
+.cp-run > .exercises:not(.checked) .ex-source { display: none; }
+.cp-report { padding: 18px 20px; margin: 16px 0; }
+.cp-report h3 { margin: 0 0 6px; font-size: 20px; }
+.cp-table { margin: 12px 0; font-size: 14.5px; }
+.cp-table td:nth-child(2), .cp-table td:nth-child(3) { white-space: nowrap; }
+.cp-table tr.cp-weak td:first-child a { font-weight: 600; }
+@media (max-width: 640px) {
+  .cp-report { padding: 14px; }
+  .cp-table th, .cp-table td { padding: 8px 6px; }
+  .cp-table td:nth-child(3) .btn { padding: 6px 10px; }
 }

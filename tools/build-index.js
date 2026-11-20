@@ -22,6 +22,7 @@ const tags = [
   ...practice.map((f) => `  <script src="data/practice/${f}"></script>`),
   "  <!-- Słownictwo tematyczne -->",
   ...vocab.map((f) => `  <script src="data/vocab/${f}"></script>`),
+  ...(fs.existsSync(rel("data/checkpoints.js")) ? ["  <!-- Sprawdziany powtórkowe -->", `  <script src="data/checkpoints.js"></script>`] : []),
 ].join("\n");
 
 const html = fs.readFileSync(rel("index.html"), "utf8");
