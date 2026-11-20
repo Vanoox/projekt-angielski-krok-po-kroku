@@ -38,6 +38,7 @@
     flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     mic: '<path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2M12 19v4M8 23h8"/>',
+    layers: '<path d="m12 2 10 5-10 5L2 7z"/><path d="m2 17 10 5 10-5M2 12l10 5 10-5"/>',
     headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
   };
   const icon = (name, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
@@ -212,7 +213,7 @@
   const today = () => dayStr(new Date());
   const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); };
   const isDue = (m) => m.due <= today();
-  const mistakeList = () => Object.entries(state.mistakes).filter(([k]) => TASKS.has(k)).map(([key, m]) => ({ key, m, ...TASKS.get(key) }));
+  const mistakeList = () => Object.entries(state.mistakes).filter(([k]) => hasTask(k)).map(([key, m]) => ({ key, m, ...TASKS.get(key) })); // hasTask: też zadania z trenera odmiany
   const mistakesDue = () => mistakeList().filter((x) => isDue(x.m)).length;
   function recordResult(key, ok) {
     const prev = state.mistakes[key];
@@ -1124,6 +1125,7 @@
       <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">${icon("book")}</span><span class="nav-title">Słownictwo</span></a>
       <a class="nav-item ${h.startsWith("#/slowka") ? "active" : ""}" href="#/slowka"><span class="nav-ico">${icon("cards")}</span><span class="nav-title">Słówka na dziś</span><span class="wd-count nav-count" title="Na dziś" hidden></span></a>
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">${icon("test")}</span><span class="nav-title">Testy – pisanie zdań</span></a>
+      <a class="nav-item ${h.startsWith("#/odmiana") ? "active" : ""}" href="#/odmiana"><span class="nav-ico">${icon("layers")}</span><span class="nav-title">Odmiana czasownika</span></a>
       <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">${icon("target")}</span><span class="nav-title">Trening mieszany</span></a>
       <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">${icon("repeat")}</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
       <a class="nav-item nav-goal goal-mini" href="#/kolejnosc/cel"><span class="nav-ico gt-ring"></span><span class="nav-title">Cel na dziś</span><span class="gt-txt"></span></a>
@@ -1363,7 +1365,7 @@
       done: Object.keys(done).filter((id) => done[id] && BY_ID[id]).length,
       scores: Object.keys(data["eng-scores"] || {}).length,
       words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
-      mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => TASKS.has(k)).length,
+      mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => hasTask(k)).length,
       srs: Object.keys(data["eng-srs"] || {}).filter((k) => WORDS.has(k)).length,
       days: Object.values(data["eng-activity"] || {}).filter((e) => dayTotal(e) > 0).length,
     };
@@ -1572,6 +1574,7 @@
         <a class="card feature" href="#/vocab"><span class="f-ico">${icon("book")}</span><b>Słownictwo</b><span>Słówka tematyczne A1–B2: lista z wymową, fiszki i quizy.</span></a>
         <a class="card feature" href="#/tests"><span class="f-ico">${icon("test")}</span><b>Testy</b><span>Tłumaczenie i przekształcanie całych zdań – sprawdzanie na końcu.</span></a>
         <a class="card feature" href="#/practice"><span class="f-ico">${icon("target")}</span><b>Trening mieszany</b><span>Losowe zadania z wielu lekcji – czy rozpoznasz konstrukcję?</span></a>
+        <a class="card feature" href="#/odmiana"><span class="f-ico">${icon("layers")}</span><b>Odmiana czasownika</b><span>Dowolny czasownik we wszystkich czasach i ćwiczenie „podaj formę”.</span></a>
       </div>
       ${ankiCard()}
       <div class="level-cards">
@@ -2637,6 +2640,371 @@
     </article>`;
   }
 
+  // ---------- Odmiana czasownika (#/odmiana) ----------
+  // Formy: nieregularne z tabel lekcji irregular-verbs (Bezokolicznik | Past Simple | Past Participle, tabela przedrostków
+  // i par do pomylenia), regularne według reguł pisowni (-s/-es/-ies, -ed/-ied z podwajaniem, -ing). Czasowniki stanu
+  // z tabeli lekcji present-simple-vs-continuous. Tabela 13 czasów dla wybranej osoby i ćwiczenie „podaj formę”.
+  let cjData = null;
+  function cjTables() {
+    if (cjData) return cjData;
+    const irr = new Map(), notes = new Map(), stative = new Map();
+    // „burnt / burned” → ["burnt", "burned"]; „got (US: gotten)” → ["got"] + us: ["gotten"].
+    const alts = (c) => stripTags(c).toLowerCase().replace(/\([^)]*\)/g, " ").split(/\s*\/\s*/).map((x) => x.trim()).filter((x) => /^[a-z]+$/.test(x));
+    const us = (c) => { const m = stripTags(c).match(/\((?:US|AmE):\s*([a-z /]+)\)/i); return m ? alts(m[1]) : []; };
+    const add = (base, past, pp, ppUS) => { if (/^[a-z]+$/.test(base) && past.length && pp.length && !irr.has(base)) irr.set(base, { past, pp, ppUS: ppUS || [] }); };
+    const l = BY_ID["irregular-verbs"];
+    (l ? l.sections : []).filter((s) => s.type === "table").forEach((s) => {
+      const h = (s.headers || []).map(stripTags);
+      if (h[0] === "Bezokolicznik" && h[1] === "Past Simple") s.rows.forEach((r) => add(stripTags(r[0]).toLowerCase(), alts(r[1]), alts(r[2]), us(r[2])));
+      else if (h[1] === "Z przedrostkiem") s.rows.forEach((r) => { // „do – did – done” | „undo (cofnąć), redo” → undid/undone, redid/redone
+        const f = stripTags(r[0]).toLowerCase().split(/\s+[–-]\s+/);
+        if (f.length !== 3 || !/^[a-z]+$/.test(f[0])) return;
+        stripTags(r[1]).toLowerCase().replace(/\([^)]*\)/g, " ").split(",").map((x) => x.trim()).forEach((b) => {
+          if (!b.endsWith(f[0]) || b === f[0]) return;
+          const pre = b.slice(0, -f[0].length);
+          add(b, alts(f[1]).map((x) => pre + x), alts(f[2]).map((x) => pre + x));
+        });
+      });
+      else if (h[1] === "BrE") s.rows.forEach((r) => { // spell – spelt / spelled (formy BrE, gdy różnią się od regularnej)
+        const base = stripTags(r[0]).toLowerCase(), f = alts(r[1]);
+        if (!/–/.test(stripTags(r[1])) && f.some((x) => x !== cjEd(base))) add(base, f, f);
+      });
+      else if (/^Pary/.test(stripTags(s.title || ""))) s.rows.forEach((r) => { // ten sam bezokolicznik w kilku wierszach → uwaga (lie – lay / lie – lied)
+        const base = stripTags(r[0]).toLowerCase(), f = stripTags(r[1]);
+        if (!/^[a-z]+$/.test(base) || !/^[a-z]+ – /.test(f)) return;
+        const ff = f.toLowerCase().split(/\s+–\s+/);
+        if (ff.length === 3 && ff[1] !== cjEd(base)) add(base, alts(ff[1]), alts(ff[2])); // pierwsze znaczenie: lie – lay – lain
+        if (!notes.has(base)) notes.set(base, []);
+        notes.get(base).push(`${f} = ${stripTags(r[2]).replace(/:.*$/, "")}`);
+      });
+    });
+    [...notes].forEach(([b, xs]) => { if (xs.length < 2) notes.delete(b); });
+    CJ_IRR_MORE.split(", ").forEach((x) => { const [b, p, pp] = x.split(" "); add(b, p.split("/"), pp.split("/")); });
+    // Czasowniki stanu: „have (= posiadać)” i grupa „Zmysły (mimowolnie)” – tylko w jednym znaczeniu (amb), reszta – zawsze (strict).
+    const sv = BY_ID["present-simple-vs-continuous"];
+    const st = sv && sv.sections.find((s) => s.type === "table" && /stanu/.test(s.title || "") && stripTags((s.headers || [])[1]) === "Czasowniki");
+    (st ? st.rows : []).forEach((r) => stripTags(r[1]).split(",").forEach((x) => {
+      const w = x.replace(/\([^)]*\)/g, "").trim().toLowerCase();
+      if (/^[a-z]+( [a-z]+)?$/.test(w)) stative.set(w, /\(/.test(x) || /\(/.test(stripTags(r[0])) ? "amb" : "strict");
+      if (w === "realise" || w === "recognise") stative.set(w.replace(/ise$/, "ize"), stative.get(w));
+    }));
+    return (cjData = { irr, notes, stative, stLesson: sv });
+  }
+  // Nieregularne spoza tabel lekcji (słówka z działów i czasowniki, które uczeń może wpisać): bezokolicznik II III.
+  const CJ_IRR_MORE = "shine shone shone, sweep swept swept, forbid forbade forbidden, unwind unwound unwound, reset reset reset, withdraw withdrew withdrawn, " +
+    "broadcast broadcast broadcast, cast cast cast, offset offset offset, undergo underwent undergone, oversee oversaw overseen, bear bore borne, " +
+    "spill spilt/spilled spilt/spilled, spoil spoilt/spoiled spoilt/spoiled, lean leant/leaned leant/leaned, leap leapt/leaped leapt/leaped, " +
+    "kneel knelt/kneeled knelt/kneeled, dwell dwelt/dwelled dwelt/dwelled, arise arose arisen, awake awoke awoken, bleed bled bled, breed bred bred, " +
+    "bind bound bound, cling clung clung, creep crept crept, flee fled fled, fling flung flung, forecast forecast forecast, foresee foresaw foreseen, " +
+    "grind ground ground, mislead misled misled, misunderstand misunderstood misunderstood, overtake overtook overtaken, overhear overheard overheard, " +
+    "sew sewed sewn/sewed, sow sowed sown/sowed, mow mowed mown/mowed, swell swelled swollen/swelled, shed shed shed, shrink shrank shrunk, slide slid slid, " +
+    "speed sped sped, spin spun spun, spit spat spat, spring sprang sprung, sting stung stung, stink stank stunk, strike struck struck, swear swore sworn, " +
+    "swing swung swung, tread trod trodden, weave wove woven, weep wept wept, wind wound wound, wring wrung wrung, bid bid bid, slit slit slit, " +
+    "input input input, outdo outdid outdone, overdo overdid overdone, overeat overate overeaten, rebuild rebuilt rebuilt, retell retold retold, " +
+    "rethink rethought rethought, withhold withheld withheld, withstand withstood withstood, outgrow outgrew outgrown, override overrode overridden, " +
+    "babysit babysat babysat, stride strode stridden, strive strove striven, string strung strung, thrust thrust thrust, slay slew slain";
+  const CJ_SP_LL = new Set(SP_LL.split(" ")); // travel → travelled (BrE; AmE traveled przyjmuje spellFold)
+  const CJ_DOUBLE = new Set("prefer refer admit occur permit regret control commit omit submit transfer equip patrol compel expel propel rebel deter incur confer kidnap worship emit transmit forget begin upset reset offset forbid input babysit".split(" "));
+  const cjSyll = (w) => (w.replace(/e$/, "").match(/[aeiouy]+/g) || []).length;
+  // Podwajanie ostatniej spółgłoski: stop → stopped, plan → planning, prefer → preferred, travel → travelled; visit → visited.
+  function cjDoubles(w) {
+    if (/[wxy]$/.test(w)) return false;
+    if (CJ_DOUBLE.has(w) || CJ_SP_LL.has(w)) return true;
+    return cjSyll(w) === 1 && (/(^|[^aeiou])[aeiou][b-df-hj-np-tvz]$/.test(w) || /qu[aeiou][b-df-hj-np-tvz]$/.test(w));
+  }
+  const cjS = (w) => w === "have" ? "has" : /(s|x|z|ch|sh|o)$/.test(w) ? w + "es" : /[^aeiou]y$/.test(w) ? w.slice(0, -1) + "ies" : w + "s";
+  function cjIng(w) {
+    if (/ie$/.test(w)) return w.slice(0, -2) + "ying"; // lie → lying
+    if (/[^aeioy]e$/.test(w) && w !== "be") return w.slice(0, -1) + "ing"; // make → making (ale see → seeing, dye → dyeing)
+    if (/[^aeiou]ic$/.test(w) && cjSyll(w) > 1) return w + "king"; // panic → panicking
+    return cjDoubles(w) ? w + w.slice(-1) + "ing" : w + "ing";
+  }
+  function cjEd(w) {
+    if (/e$/.test(w)) return w + "d";
+    if (/[^aeiou]y$/.test(w)) return w.slice(0, -1) + "ied";
+    if (/[^aeiou]ic$/.test(w) && cjSyll(w) > 1) return w + "ked";
+    return cjDoubles(w) ? w + w.slice(-1) + "ed" : w + "ed";
+  }
+  const cjClean = (s) => String(s || "").toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, " ").trim().replace(/^to /, "");
+  const CJ_VALID = /^[a-z]+( [a-z']+){0,4}$/;
+  // { verb, base, rest, s3, ing, past: [...], pp: [...], ppUS: [...], irr } – rest = reszta wyrażenia („wake up” → „up”).
+  function cjForms(verb) {
+    const v = cjClean(verb), [base, ...r] = v.split(" ");
+    const irr = cjTables().irr.get(base);
+    return { verb: v, base, rest: r.join(" "), s3: base === "be" ? "is" : cjS(base), ing: cjIng(base),
+      past: irr ? irr.past : [cjEd(base)], pp: irr ? irr.pp : [cjEd(base)], ppUS: irr ? irr.ppUS : [], irr: !!irr };
+  }
+  // Czasownik stanu: "strict" (know, want…), "amb" (have, see, feel… – tylko w jednym znaczeniu) albo "".
+  function cjStative(f) {
+    const st = cjTables().stative;
+    if (st.has(f.verb)) return st.get(f.verb);
+    return st.has(f.base) && (!f.rest || /^(to|of|about|on|in|with|for|like|from|at)$/.test(f.rest)) ? st.get(f.base) : "";
+  }
+
+  // Czasy: aux = słowa przed czasownikiem (BE/WAS/HAVE zależą od osoby), v = forma czasownika, sub = „do” w przeczeniach
+  // i pytaniach (Present / Past Simple). Opis z tabeli zbiorczej lekcji tenses-overview.
+  const CJ_TENSES = [
+    { id: "ps", name: "Present Simple", lesson: "present-simple", aux: [], v: "s", sub: "do" },
+    { id: "pc", name: "Present Continuous", lesson: "present-continuous", aux: ["BE"], v: "ing", cont: true },
+    { id: "pas", name: "Past Simple", lesson: "past-simple", aux: [], v: "past", sub: "did" },
+    { id: "pac", name: "Past Continuous", lesson: "past-continuous", aux: ["WAS"], v: "ing", cont: true },
+    { id: "pp", name: "Present Perfect", lesson: "present-perfect", aux: ["HAVE"], v: "pp" },
+    { id: "ppc", name: "Present Perfect Continuous", lesson: "present-perfect-continuous", aux: ["HAVE", "been"], v: "ing", cont: true },
+    { id: "pap", name: "Past Perfect", lesson: "past-perfect", aux: ["had"], v: "pp" },
+    { id: "papc", name: "Past Perfect Continuous", lesson: "past-perfect-continuous", aux: ["had", "been"], v: "ing", cont: true },
+    { id: "fs", name: "Future Simple", lesson: "future-will", aux: ["will"], v: "base" },
+    { id: "gt", name: "be going to", lesson: "going-to", aux: ["BE", "going", "to"], v: "base", use: "zamiar, plan; przewidywanie na podstawie tego, co widać" },
+    { id: "fc", name: "Future Continuous", lesson: "future-continuous", aux: ["will", "be"], v: "ing", cont: true },
+    { id: "fp", name: "Future Perfect", lesson: "future-perfect", aux: ["will", "have"], v: "pp" },
+    { id: "fpc", name: "Future Perfect Continuous", lesson: "future-perfect", aux: ["will", "have", "been"], v: "ing", cont: true },
+  ].filter((t) => BY_ID[t.lesson]);
+  const CJ_BY_ID = Object.fromEntries(CJ_TENSES.map((t) => [t.id, t]));
+  (() => {
+    const ov = BY_ID["tenses-overview"], tb = ov && ov.sections.find((s) => s.type === "table" && /12 czasów/.test(s.title || ""));
+    (tb ? tb.rows : []).forEach((r) => { const t = CJ_TENSES.find((x) => x.name === stripTags(r[0])); if (t && !t.use) t.use = stripTags(r[2]); });
+  })();
+  const CJ_PERSONS = ["I", "you", "he", "she", "it", "we", "they"];
+  const CJ_FORMS = { aff: "twierdzenie", neg: "przeczenie", q: "pytanie" };
+  const CJ_NEG = { is: "isn't", are: "aren't", was: "wasn't", were: "weren't", do: "don't", does: "doesn't", did: "didn't", have: "haven't", has: "hasn't", had: "hadn't", will: "won't" };
+  const CJ_SHORT = { am: "'m", is: "'s", are: "'re", have: "'ve", has: "'s", had: "'d", will: "'ll" };
+  const CJ_REFL = { I: ["my", "myself"], you: ["your", "yourself"], he: ["his", "himself"], she: ["her", "herself"], it: ["its", "itself"], we: ["our", "ourselves"], they: ["their", "themselves"] };
+  const cap = (s) => s.charAt(0).toUpperCase() + s.slice(1);
+  // Jedna forma: { main, alts: [inne poprawne zapisy do pokazania], vps: [warianty bez podmiotu – odpowiedzi w ćwiczeniu] }.
+  function cjBuild(f, t, p, form) {
+    const third = p === "he" || p === "she" || p === "it", plural = p === "you" || p === "we" || p === "they";
+    const be = p === "I" ? "am" : third ? "is" : "are", was = plural ? "were" : "was";
+    const rest = f.rest.replace(/\byourself\b/g, CJ_REFL[p][1]).replace(/\byour\b/g, CJ_REFL[p][0]);
+    const isBe = f.base === "be";
+    let aux = t.aux.map((a) => a === "BE" ? be : a === "WAS" ? was : a === "HAVE" ? (third ? "has" : "have") : a);
+    let vs; // warianty formy czasownika
+    if (t.v === "s") vs = [isBe ? be : third ? f.s3 : f.base];
+    else if (t.v === "past") vs = isBe ? [was] : f.past;
+    else if (t.v === "pp") vs = f.pp.concat(f.ppUS);
+    else if (t.v === "ing") vs = [f.ing];
+    else vs = [f.base];
+    // be w Present / Past Simple: am/is/are, was/were bez „do”.
+    if (isBe && t.sub) { aux = [vs[0]]; vs = [""]; }
+    else if (t.sub && form !== "aff") { aux = [t.sub === "did" ? "did" : third ? "does" : "do"]; vs = [f.base]; }
+    const tail = (v) => [v, rest].filter(Boolean).join(" ");
+    const join = (...xs) => xs.filter(Boolean).join(" ");
+    const shown = vs.slice(0, 1).concat(f.ppUS.length && t.v === "pp" ? [] : vs.slice(1)); // gotten (AmE) tylko w odpowiedziach
+    if (form === "q") {
+      const qs = vs.map((v) => cap(join(aux[0], p, ...aux.slice(1), tail(v))) + "?");
+      return { main: qs[0], alts: qs.slice(1, shown.length), vps: qs.map((q) => q.slice(0, -1)) };
+    }
+    if (form === "neg") {
+      const a0 = aux[0], more = aux.slice(1);
+      const shortNeg = (v) => a0 === "am" ? join("I'm not", ...more, tail(v)) : join(p, CJ_NEG[a0], ...more, tail(v));
+      const full = (v) => join(p, a0, "not", ...more, tail(v));
+      const vps = vs.map((v) => a0 === "am" ? join("am not", ...more, tail(v)) : join(CJ_NEG[a0], ...more, tail(v))); // matches() zna też „has not”
+      return { main: shortNeg(vs[0]), alts: [full(vs[0])].concat(shown.slice(1).map(shortNeg)), vps };
+    }
+    const full = (v) => join(p, ...aux, tail(v));
+    const sh = aux.length && CJ_SHORT[aux[0]] ? (v) => join(p + CJ_SHORT[aux[0]], ...aux.slice(1), tail(v)) : null;
+    const vps = vs.map((v) => join(...aux, tail(v)));
+    return { main: full(vs[0]), alts: (sh ? [sh(vs[0])] : []).concat(shown.slice(1).map(full)), vps };
+  }
+
+  // Czasowniki ze słówek: „eat / drink” = „jeść / pić” rozbite na dwa. Czasownik = polski odpowiednik zaczyna się od
+  // bezokolicznika (-ać, -eć, -ić, -yć, -uć, -ąć, -ść; móc, biec…). Talie lekcji – wszystko; działy tematyczne – do 3 słów.
+  const CJ_PL_INF = /^[a-ząćęłńóśźż]+(ać|eć|ić|yć|uć|ąć|ść|źć)$|^(móc|pomóc|biec|piec|upiec|strzec)$/;
+  const CJ_PL_NOUN = /(ość|ęść|paznokieć|powieść|postać|maść|liść|przepaść|chłopiec)$/;
+  const CJ_NOT_VERB = /^(can|could|may|might|must|shall|should|will|would|ought|boiler|oven|stove|cooker)\b/; // modalne; rzeczowniki „piec”
+  let cjVerbList = null;
+  function cjVerbs() {
+    if (cjVerbList) return cjVerbList;
+    const map = new Map();
+    DECKS.forEach((d) => d.items.forEach((w) => {
+      const en = stripTags(w.en), pl = stripTags(w.pl || "").split(";")[0].trim();
+      const es = en.split(/\s*\/\s*/), ps = pl.split(/\s*\/\s*/);
+      if (es.length > 1 && es.length !== ps.length) return;
+      es.forEach((e, i) => {
+        const v = e.trim(), p = (ps[i] || ps[0]).trim(), first = p.split(/[\s,(]/)[0];
+        if (!/^[a-z][a-z' ]*$/.test(v) || CJ_NOT_VERB.test(v) || /^(be|have been|have gone) ./.test(v) || /\b(sb|sth|one's|oneself)\b/.test(v)) return;
+        if (!CJ_PL_INF.test(first) || CJ_PL_NOUN.test(first)) return;
+        if (!d.lesson && v.split(" ").length > 3) return;
+        if (!map.has(v)) map.set(v, { verb: v, pl: p, lesson: d.lesson ? PATH.indexOf(d.lesson) : Infinity });
+        else if (d.lesson) { const x = map.get(v); x.lesson = Math.min(x.lesson, PATH.indexOf(d.lesson)); }
+      });
+    }));
+    return (cjVerbList = map);
+  }
+  // Ćwiczenie: czasowniki, które uczeń już zna – ze słówek lekcji do bieżącej albo (podstawowe czasowniki z działów,
+  // np. go, do, watch) użyte jako czasownik w zdaniach z tych lekcji (po to / can / don't / I / you…, he + -s, be + -ing).
+  let cjIntroMap = null;
+  function cjIntro() {
+    if (cjIntroMap) return cjIntroMap;
+    const V = cjVerbs(), first = new Map(), texts = PATH.map(() => []);
+    for (const { ex, lesson } of TASKS.values()) if (ex.type !== "choice" && ex.type !== "finderr") (ex.answers || []).flat().slice(0, 2).forEach((a) => texts[PATH.indexOf(lesson)].push(firstVariant(a)));
+    PATH.forEach((l, i) => l.sections.filter((s) => s.type === "examples").forEach((s) => (s.items || []).forEach((x) => texts[i].push(stripTags(x.en)))));
+    const single = [...V.values()].filter((x) => x.lesson === Infinity && !/ /.test(x.verb));
+    const want = new Map(); // forma → czasownik
+    single.forEach((x) => { const f = cjForms(x.verb); want.set("B " + f.base, x.verb); want.set("S " + f.s3, x.verb); want.set("G " + f.ing, x.verb); });
+    texts.forEach((ts, i) => ts.forEach((s) => {
+      const t = normalize(s).split(" ");
+      t.forEach((w, k) => {
+        const p = t[k - 1] || "";
+        const hit = (/^(to|can|can't|cannot|will|won't|don't|doesn't|didn't|do|does|did|let's|must|should|i|you|we|they)$/.test(p) && want.get("B " + w))
+          || (/^(he|she|it)$/.test(p) && want.get("S " + w)) || (/^(am|is|are|was|were|i'm|you're|he's|she's|it's|we're|they're|been)$/.test(p) && want.get("G " + w));
+        if (hit && !first.has(hit)) first.set(hit, i);
+      });
+    }));
+    cjIntroMap = new Map([...V.values()].map((x) => [x.verb, Math.min(x.lesson, first.has(x.verb) ? first.get(x.verb) : Infinity)]));
+    return cjIntroMap;
+  }
+  // W ćwiczeniu pomijamy wyrażenia z your/yourself/somebody (forma zależy od osoby) i czasowniki, które z ludźmi brzmią
+  // dziwnie („I rain”, „we happen”).
+  const CJ_DRILL_SKIP = /\b(your|yourself|somebody|someone|something)\b|^(rain|snow|happen|freeze|boil|rise|shine|bark|flow|melt|float|leak|explode|expire|cost|seem|sound|ring|get dark|go out|kick off|take place|break down)$/;
+  const cjLockedIdx = (t) => PATH.indexOf(BY_ID[t.lesson]);
+
+  // Moje błędy: klucz odm~czasownik~czas~osoba~forma – zadanie odtwarzane z generatora (stabilne, dopóki czasownik
+  // jest w słówkach i czas w CJ_TENSES). Lekcja zadania = lekcja czasu.
+  function cjTask(key) {
+    if (TASKS.has(key)) return TASKS.get(key);
+    const [pre, verbEnc, tid, p, form] = key.split("~");
+    const t = CJ_BY_ID[tid], verb = decodeURIComponent(verbEnc || "");
+    if (pre !== "odm" || !t || !CJ_PERSONS.includes(p) || !CJ_FORMS[form] || !cjVerbs().has(verb)) return null;
+    const f = cjForms(verb), b = cjBuild(f, t, p, form), lesson = BY_ID[t.lesson];
+    const subj = p === "I" ? "I" : cap(p);
+    const ex = form === "q"
+      ? { type: "gap", q: `___? (${esc(p)} / ${esc(verb)})`, answers: b.vps }
+      : { type: "gap", q: `${subj} ___ (${esc(verb)}).`, answers: b.vps };
+    ex.task = `<b>${esc(t.name)}</b> · ${CJ_FORMS[form]}`;
+    const sentence = form === "q" ? b.main : cap(b.main) + ".";
+    // Całe zdanie z podmiotem (w pytaniu odpowiedź już jest całym zdaniem – wtedy tylko głośnik).
+    ex.explain = `<span class="cj-ans">${form === "q" ? "" : esc(sentence) + " "}${speakBtn(sentence)}</span> <a href="#/lesson/${lesson.id}">${esc(t.name)} – lekcja ${lessonNo(lesson)}</a>`;
+    const rec = { ex, lesson, src: "o", instr: "" };
+    TASKS.set(key, rec); KEY_OF.set(ex, key);
+    return rec;
+  }
+  function hasTask(k) { return TASKS.has(k) || (k.startsWith("odm~") && !!cjTask(k)); }
+  // 10 zadań: czasy z przerobionych lekcji (wybrane w filtrze), czasowniki znane do bieżącej lekcji, różne czasowniki.
+  function cjDrillItems(tenses, forms, n) {
+    const reach = reachIdx(), intro = cjIntro();
+    const verbs = shuffle([...cjVerbs().keys()].filter((v) => intro.get(v) <= reach && !CJ_DRILL_SKIP.test(v)));
+    const out = [], used = new Set();
+    for (let guard = 0; out.length < n && guard < n * 40 && verbs.length; guard++) {
+      const t = tenses[Math.floor(Math.random() * tenses.length)];
+      const v = verbs.find((x) => !used.has(x) && !(t.cont && cjStative(cjForms(x)))) || verbs.find((x) => !(t.cont && cjStative(cjForms(x))));
+      if (!v) continue;
+      used.add(v);
+      const p = ["I", "you", "he", "she", "we", "they"][Math.floor(Math.random() * 6)];
+      const form = forms[Math.floor(Math.random() * forms.length)];
+      const rec = cjTask(`odm~${encodeURIComponent(v)}~${t.id}~${p}~${form}`);
+      if (rec) out.push({ ex: rec.ex, lesson: rec.lesson });
+    }
+    return out;
+  }
+
+  let cjCfg = { verb: "go", person: "he", tenses: null, forms: ["aff", "neg", "q"] };
+  const cjDone = () => CJ_TENSES.filter((t) => state.done[t.lesson]);
+  function cjFormsLine(f) {
+    const ph = (w) => [w, f.rest].filter(Boolean).join(" ");
+    const past = f.past.map(ph).join(" / "), pp = f.pp.map(ph).join(" / ") + (f.ppUS.length ? ` (AmE: ${f.ppUS.map(ph).join(" / ")})` : "");
+    const il = BY_ID["irregular-verbs"];
+    const kind = f.base === "be" ? "nieregularny (am / is / are, was / were)" : f.irr ? "nieregularny" : "regularny";
+    return `<div class="cj-forms">
+      <div class="cj-three"><span class="cj-f"><small>bezokolicznik</small><b>${esc(ph(f.base))}</b>${speakBtn(ph(f.base))}</span><span class="cj-f"><small>Past Simple (II)</small><b>${esc(past)}</b>${speakBtn(ph(f.past[0]))}</span><span class="cj-f"><small>Past Participle (III)</small><b>${esc(pp)}</b>${speakBtn(ph(f.pp[0]))}</span><span class="cj-f"><small>he / she / it</small><b>${esc(ph(f.s3))}</b>${speakBtn(ph(f.s3))}</span><span class="cj-f"><small>-ing</small><b>${esc(ph(f.ing))}</b>${speakBtn(ph(f.ing))}</span></div>
+      <div class="cj-kind">Czasownik <b>${kind}</b>${il ? ` – <a href="#/lesson/${il.id}">${f.irr ? "lista czasowników nieregularnych" : "jak tworzyć formy -ed"}</a>` : ""}</div>
+    </div>`;
+  }
+  function cjTableHtml(f, p) {
+    const reach = reachIdx(), st = cjStative(f), stl = cjTables().stLesson;
+    const rows = CJ_TENSES.map((t) => {
+      const l = BY_ID[t.lesson], idx = cjLockedIdx(t), locked = idx > reach;
+      const name = `<a class="cj-tense" href="#/lesson/${l.id}">${esc(t.name)}</a>${t.use ? `<span class="cj-use">${esc(t.use)}</span>` : ""}${locked ? `<span class="cj-lock">poznasz w lekcji ${idx + 1}. ${esc(l.title)}</span>` : ""}`;
+      if (t.cont && st === "strict") return `<tr class="cj-row${locked ? " cj-locked" : ""}"><th scope="row">${name}</th><td class="cj-na" colspan="3" data-l="">${icon("alert")} <span><b>${esc(f.verb)}</b> to czasownik stanu – w czasach Continuous zwykle go nie używamy${stl ? ` (<a href="#/lesson/${stl.id}">czasowniki stanu</a>)` : ""}.</span></td></tr>`;
+      const cells = Object.keys(CJ_FORMS).map((form) => {
+        const b = cjBuild(f, t, p, form);
+        return `<td data-l="${form === "aff" ? "+" : form === "neg" ? "−" : "?"}"><span class="cj-main">${esc(b.main)}</span>${speakBtn(b.main)}${b.alts.length ? `<span class="cj-alt">też: ${b.alts.map(esc).join(" · ")}</span>` : ""}</td>`;
+      }).join("");
+      return `<tr class="cj-row${locked ? " cj-locked" : ""}"><th scope="row">${name}</th>${cells}</tr>`;
+    }).join("");
+    return `<div class="card cj-table-card"><table class="cj-table"><thead><tr><th scope="col">Czas</th><th scope="col">Twierdzenie (+)</th><th scope="col">Przeczenie (−)</th><th scope="col">Pytanie (?)</th></tr></thead><tbody>${rows}</tbody></table></div>`;
+  }
+  function cjResultHtml() {
+    const V = cjVerbs(), v = cjClean(cjCfg.verb);
+    if (!v) return `<div class="empty">Wpisz czasownik po angielsku, np. <b>go</b>, <b>work</b>, <b>get up</b>.</div>`;
+    if (!CJ_VALID.test(v)) return `<div class="empty">Wpisz czasownik po angielsku – same litery, np. <b>go</b> albo <b>wake up</b>.</div>`;
+    const f = cjForms(v), info = V.get(v), st = cjStative(f), notes = cjTables().notes.get(f.base), stl = cjTables().stLesson;
+    const msgs = [];
+    if (info) msgs.push(`<span class="cj-pl">${esc(info.pl)}</span>`);
+    else msgs.push(`<span class="cj-warn">${icon("alert")} Tego czasownika nie ma w słówkach kursu – formy są utworzone według reguł${f.irr ? "" : ". Sprawdź w słowniku, czy nie jest nieregularny"}.</span>`);
+    if (notes) msgs.push(`<span class="cj-note">${icon("bulb")} <b>${esc(f.base)}</b> ma kilka znaczeń: ${notes.map(esc).join("; ")}. Tabela pokazuje pierwsze.</span>`);
+    if (st === "amb") msgs.push(`<span class="cj-note">${icon("bulb")} <b>${esc(f.verb)}</b> bywa czasownikiem stanu – w znaczeniu stanu (np. have = mieć, posiadać; see = widzieć) nie używamy form Continuous, w znaczeniu czynności (have lunch, see a doctor) – tak.${stl ? ` <a href="#/lesson/${stl.id}">Czasowniki stanu</a>` : ""}</span>`);
+    return `<div class="cj-msgs">${msgs.join("")}</div>${cjFormsLine(f)}${cjTableHtml(f, cjCfg.person)}`;
+  }
+  function renderConj(arg) {
+    if (arg) cjCfg.verb = cjClean(decodeURIComponent(arg));
+    const V = [...cjVerbs().values()].sort((a, b) => a.verb.localeCompare(b.verb));
+    return `<div class="page conj">
+      <div class="hero"><h1>${icon("layers")} Odmiana czasownika</h1><p>Wpisz czasownik i zobacz go we wszystkich czasach – w twierdzeniu, przeczeniu i pytaniu. Czasy, których jeszcze nie było na Twojej ścieżce, są wyszarzone. Niżej ćwiczenie „podaj formę”.</p></div>
+      <div class="card cj-search">
+        <label class="cj-field"><span>Czasownik</span><input id="cjVerb" type="text" list="cjList" value="${esc(cjCfg.verb)}" autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="np. go, work, get up"></label>
+        <datalist id="cjList">${V.map((x) => `<option value="${esc(x.verb)}">${esc(x.pl)}</option>`).join("")}</datalist>
+        <div class="cj-persons"><span>Osoba</span><div class="chips" role="group" aria-label="Osoba">${CJ_PERSONS.map((p) => `<button class="chip ${cjCfg.person === p ? "active" : ""}" data-p="${p}" aria-pressed="${cjCfg.person === p}">${p}</button>`).join("")}</div></div>
+      </div>
+      <div id="cjOut">${cjResultHtml()}</div>
+      <h2 class="section-title" id="cwiczenie">${icon("pen")} Ćwiczenie: podaj formę</h2>
+      <div id="cjDrill">${cjDrillSetupHtml()}</div>
+      <div id="cjBox"></div>
+    </div>`;
+  }
+  function cjDrillSetupHtml() {
+    const done = cjDone();
+    if (!done.length) {
+      const first = BY_ID[CJ_TENSES[0].lesson];
+      return `<div class="card empty">Ćwiczenie obejmuje czasy z <b>przerobionych lekcji</b>. Zacznij od lekcji <a href="#/lesson/${first.id}">${lessonNo(first)}. ${esc(first.title)}</a> i oznacz ją jako przerobioną.</div>`;
+    }
+    if (!cjCfg.tenses || !cjCfg.tenses.every((id) => done.some((t) => t.id === id)) || !cjCfg.tenses.length) cjCfg.tenses = done.map((t) => t.id);
+    return `<div class="card practice-setup cj-setup">
+      <div><h3>Czasy <span style="text-transform:none;font-weight:400">(z przerobionych lekcji)</span></h3><div class="chips" data-f="tenses">${done.map((t) => `<button class="chip ${cjCfg.tenses.includes(t.id) ? "active" : ""}" data-v="${t.id}" aria-pressed="${cjCfg.tenses.includes(t.id)}">${esc(t.name)}</button>`).join("")}</div></div>
+      <div><h3>Formy</h3><div class="chips" data-f="forms">${Object.entries(CJ_FORMS).map(([k, v]) => `<button class="chip ${cjCfg.forms.includes(k) ? "active" : ""}" data-v="${k}" aria-pressed="${cjCfg.forms.includes(k)}">${v}</button>`).join("")}</div></div>
+      <div><button class="btn primary" id="cjStart">Losuj ${CJ_ROUND} zadań →</button> <span class="muted cj-best">${state.scores.odmiana ? "Najlepszy wynik: " + scorePill(state.scores.odmiana) : ""}</span></div>
+    </div>`;
+  }
+  const CJ_ROUND = 10;
+  function bindConj() {
+    const page = $(".page.conj"); if (!page) return;
+    const inp = $("#cjVerb"), out = $("#cjOut");
+    const show = () => {
+      out.innerHTML = cjResultHtml();
+      const v = cjClean(cjCfg.verb);
+      history.replaceState(null, "", location.pathname + location.search + (v && CJ_VALID.test(v) ? `#/odmiana/${encodeURIComponent(v)}` : "#/odmiana"));
+    };
+    let timer = 0;
+    inp.addEventListener("input", () => { cjCfg.verb = inp.value; clearTimeout(timer); timer = setTimeout(show, cjVerbs().has(cjClean(inp.value)) ? 0 : 350); });
+    inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(timer); cjCfg.verb = inp.value; show(); } });
+    page.querySelector(".cj-persons").addEventListener("click", (e) => {
+      const b = e.target.closest("[data-p]"); if (!b) return;
+      cjCfg.person = b.dataset.p;
+      page.querySelectorAll(".cj-persons .chip").forEach((c) => { const on = c === b; c.classList.toggle("active", on); c.setAttribute("aria-pressed", on); });
+      out.innerHTML = cjResultHtml();
+    });
+    const drill = $("#cjDrill");
+    drill.addEventListener("click", (e) => {
+      const b = e.target.closest(".chips .chip");
+      if (b) {
+        const f = b.closest(".chips").dataset.f, v = b.dataset.v, list = cjCfg[f];
+        if (list.includes(v) && list.length === 1) return; // przynajmniej jeden czas i jedna forma
+        cjCfg[f] = list.includes(v) ? list.filter((x) => x !== v) : list.concat(v);
+        b.classList.toggle("active"); b.setAttribute("aria-pressed", cjCfg[f].includes(v));
+        return;
+      }
+      if (e.target.closest("#cjStart")) start();
+    });
+    const box = $("#cjBox");
+    const start = () => {
+      const items = cjDrillItems(CJ_TENSES.filter((t) => cjCfg.tenses.includes(t.id)), cjCfg.forms, CJ_ROUND);
+      if (!items.length) { box.innerHTML = `<div class="empty">Brak czasowników do ćwiczenia – przerób kilka pierwszych lekcji.</div>`; return; }
+      box.innerHTML = exercisesShell("Podaj formę", { retryLabel: "Nowe losowanie", intro: "Wpisz formę czasownika w podanym czasie. W pytaniu napisz całe pytanie, np. <i>Does she work</i>. Skróty (doesn't, she's) i pełne formy są poprawne." });
+      renderExercises(box.firstElementChild, items, { key: "odmiana", onDone: () => { const s = drill.querySelector(".cj-best"); if (s) s.innerHTML = "Najlepszy wynik: " + scorePill(state.scores.odmiana); } });
+      box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
+      box.scrollIntoView();
+      const first = box.querySelector(".gap-input"); if (first) first.focus({ preventScroll: true });
+    };
+  }
+
   // ---------- Trening mieszany ----------
   let practiceCfg = { levels: LEVELS.slice(), cats: [], count: 15, src: "all" };
   const lessonPool = (cfg, filterFn) => PATH.filter((l) => cfg.levels.includes(l.level) && (!cfg.cats.length || cfg.cats.includes(l.category)));
@@ -2903,7 +3271,7 @@
   const SESSION_MAX = 20;
   const zadan = (n) => `${n} ${n === 1 ? "zadanie" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "zadania" : "zadań"}`;
   let mistakesCfg = { level: "", lesson: "" };
-  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : x.src === "f" ? "typowe błędy z lekcji" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
+  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : x.src === "f" ? "typowe błędy z lekcji" : x.src === "o" ? "trener odmiany" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
   const dueLabel = (m) => {
     const d = Math.round((Date.parse(m.due) - Date.parse(today())) / DAY);
     return d <= 0 ? "<b>na dziś</b>" : d === 1 ? "jutro" : `za ${d} dni`;
@@ -2941,7 +3309,7 @@
       return `<div class="card m-group">
         <div class="m-head"><div class="m-title"><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}<span class="muted">${xs.length} zad.${nDue ? ` · ${nDue} na dziś` : ""}</span></div>
           <div class="m-actions"><button class="btn small" data-mrun="${l.id}">Ćwicz teraz</button><a class="btn small" href="#/lesson/${l.id}" title="Teoria i ćwiczenia z tej lekcji">Powtórz lekcję →</a></div></div>
-        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${x.ex.type === "dictation" ? icon("headphones") + " " : x.ex.type === "finderr" ? icon("search") + " " : ""}${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
+        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : (x.src === "o" ? stripTags(x.ex.task) + ": " : "") + stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${x.ex.type === "dictation" ? icon("headphones") + " " : x.ex.type === "finderr" ? icon("search") + " " : ""}${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
           <span class="m-meta">${srcLabel(x)} · ${TYPE_LABEL[x.ex.type]} · pudełko ${x.m.box}/${BOX_DAYS.length} · powtórka ${dueLabel(x.m)}${x.m.wrong > 1 ? ` · błędy: ${x.m.wrong}` : ""}</span></li>`; }).join("")}</ul>
       </div>`;
     }).join("");
@@ -3140,6 +3508,8 @@
       if (t) { bindVocabBlock(content.querySelector(".vocab-block"), t.groups, "vocab:" + t.id); title = `${t.titlePl} – Słownictwo`; }
     } else if (h.startsWith("#/vocab")) {
       content.innerHTML = renderVocabHome(); bindVocabHome(); title = `Słownictwo – ${title}`;
+    } else if (h.startsWith("#/odmiana")) {
+      content.innerHTML = renderConj(h.split("/")[2] || ""); bindConj(); title = `Odmiana czasownika – ${title}`;
     } else if (h.startsWith("#/kolejnosc")) {
       content.innerHTML = renderOrder(); bindOrder(); title = `Kolejność nauki – ${title}`;
     } else if (h.startsWith("#/search/")) {
