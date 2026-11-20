@@ -1,6 +1,6 @@
 # Format plików z lekcjami
 
-Strona do nauki gramatyki angielskiej (A1–B2) dla Polaków. Każda lekcja to osobny plik `data/lessons/<id>.js`, który dopisuje ją do globalnej tablicy (ćwiczenia, testy i słownictwo do lekcji: `data/practice/<id>.js` – patrz `tools/PRACTICE-FORMAT.md`; po dodaniu nowego pliku uruchom `node tools/build-index.js`):
+Strona do nauki gramatyki angielskiej (A1–B2) dla Polaków. Każda lekcja to osobny plik `data/lessons/<id>.js`, który dopisuje ją do globalnej tablicy (ćwiczenia, testy i słownictwo do lekcji: `data/practice/<id>.js` – patrz `tools/PRACTICE-FORMAT.md`; po każdej zmianie w `data/` uruchom `node tools/build-index.js` – strona ładuje tylko zbudowany `data/bundle.js`):
 
 ```js
 window.LESSONS = window.LESSONS || [];

@@ -218,6 +218,20 @@ for (const t of V) {
   words += all.length;
 }
 
+// ---------- aktualność data/bundle.js (strona ładuje tylko bundle) ----------
+// Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
+try {
+  const build = require("./build-index.js");
+  const { content } = build.buildBundle();
+  const bundlePath = path.join(ROOT, build.BUNDLE);
+  const current = fs.existsSync(bundlePath) ? fs.readFileSync(bundlePath, "utf8") : "";
+  const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
+  if (current !== content || html !== build.buildIndex(content))
+    console.log("UWAGA: data/bundle.js albo index.html są nieaktualne – strona pokaże stare dane. Uruchom: node tools/build-index.js");
+} catch (e) {
+  console.log("UWAGA: nie udało się sprawdzić data/bundle.js: " + e.message);
+}
+
 if (errors.length) {
   console.log(`BŁĘDY (${errors.length}):\n` + errors.slice(0, 300).map((e) => " - " + e).join("\n") + (errors.length > 300 ? `\n … i ${errors.length - 300} więcej` : ""));
   process.exit(1);
