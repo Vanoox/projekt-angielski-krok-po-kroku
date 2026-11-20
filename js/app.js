@@ -68,6 +68,21 @@
   // Kopia zadania z poleceniem (zestawy ćwiczeń, trening, sprawdziany) – zachowuje klucz oryginału.
   const withTask = (ex, task) => { const c = { ...ex, task }; if (KEY_OF.has(ex)) KEY_OF.set(c, KEY_OF.get(ex)); return c; };
 
+  // Rejestr słówek do „Słówek na dziś”. Talia = słownictwo lekcji („lesson:<id>”) albo dział („vocab:<id>”) –
+  // te same klucze co w state.known. Jedna karta na słowo: klucz = angielskie słowo małymi literami
+  // (to samo słowo bywa w kilku lekcjach i działach – uczymy się go raz, a nie w każdej talii osobno).
+  const wordKey = (en) => stripTags(en).toLowerCase();
+  const DECKS = [
+    ...PATH.filter((l) => l.vocab && (l.vocab.items || []).length).map((l) => ({ id: "lesson:" + l.id, items: l.vocab.items, title: `${lessonNo(l)}. ${l.title}`, level: l.level, href: `#/lesson/${l.id}/vocab`, lesson: l })),
+    ...VOCAB.map((t) => ({ id: "vocab:" + t.id, items: vocabItems(t), title: `${t.icon || "📘"} ${t.titlePl}`, level: t.level, href: `#/vocab/${t.id}` })),
+  ];
+  const WORDS = new Map(); // klucz słowa → [{ deck, w }] – wszystkie miejsca, w których słowo występuje
+  DECKS.forEach((d) => {
+    const keys = new Set();
+    d.items.forEach((w) => { const k = wordKey(w.en); if (!k) return; if (!WORDS.has(k)) WORDS.set(k, []); WORDS.get(k).push({ deck: d, w }); keys.add(k); });
+    d.keys = [...keys];
+  });
+
   // ---------- Stan (localStorage) ----------
   const store = {
     get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
@@ -81,6 +96,8 @@
     showPl: store.get("showPl", true),
     known: store.get("known", {}),
     mistakes: store.get("mistakes", {}),
+    srs: store.get("srs", {}),
+    srsNew: store.get("srsNew", 10),
   });
   const state = loadState();
   const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
@@ -109,6 +126,67 @@
     else if (prev.box >= BOX_DAYS.length) delete state.mistakes[key];
     else state.mistakes[key] = { ...prev, box: prev.box + 1, due: addDays(BOX_DAYS[prev.box]), lastSeen: new Date().toISOString() };
     store.set("mistakes", state.mistakes);
+  }
+
+  // ---------- Słówka na dziś: pudełka dla słówek (eng-srs) ----------
+  // Wpis: { box: 1–6, due: "RRRR-MM-DD", deck: talia, z której słowo trafiło do powtórek,
+  //         first: dzień pierwszej oceny (do dziennego limitu nowych słówek), lastSeen: ISO }.
+  // Ocena w fiszce: „Nie wiem” → pudełko 1, powtórka jutro (zawsze, także przed terminem).
+  // „Trudne” → to samo pudełko, „Wiem” → pudełko wyżej; słówko wraca po 1, 3, 7, 14, 30 albo 60 dniach
+  // (pudełko 6 = co 60 dni, słówka nie znikają). „Trudne” i „Wiem” przed terminem niczego nie zmieniają.
+  const SRS_DAYS = [1, 3, 7, 14, 30, 60];
+  const NEW_CHOICES = [5, 10, 15, 20];
+  const SRS_ROUND = 20;
+  function rateWord(k, rating, deck) { // rating: 0 = nie wiem, 1 = trudne, 2 = wiem
+    const prev = state.srs[k];
+    let box;
+    if (rating === 0) box = 1;
+    else if (prev && !isDue(prev)) return;
+    else box = Math.min((prev ? prev.box : 1) + (rating === 2 ? 1 : 0), SRS_DAYS.length);
+    state.srs[k] = { box, due: addDays(SRS_DAYS[box - 1]), deck: (prev && prev.deck) || deck, first: prev ? prev.first || "" : today(), lastSeen: new Date().toISOString() };
+    store.set("srs", state.srs);
+  }
+  // Migracja (przy starcie i po wczytaniu kopii): słówka oznaczone jako „znam” (✓ albo „Wiem” w fiszkach), których
+  // nie ma jeszcze w powtórkach, trafiają do pudełka 3. Terminy rozkładamy na 2 tygodnie, żeby nie przyszły naraz.
+  // Bez first (nie liczą się do limitu nowych) i bez lastSeen (przy łączeniu kopii wygrywa prawdziwa ocena).
+  const knownEntry = (k, deck) => ({ box: 3, due: addDays(1 + (parseInt(hashStr(k), 36) % 14)), deck });
+  function migrateKnown(s) {
+    if (!isObj(s.srs)) s.srs = {};
+    if (!NEW_CHOICES.includes(s.srsNew)) s.srsNew = 10;
+    let n = 0;
+    for (const [deck, words] of Object.entries(s.known || {})) for (const [en, v] of Object.entries(words || {})) {
+      const k = wordKey(en);
+      if (v && WORDS.has(k) && !s.srs[k]) { s.srs[k] = knownEntry(k, deck); n++; }
+    }
+    if (n) store.set("srs", s.srs);
+  }
+  // Talie w codziennej kolejce: słownictwo przerobionych lekcji oraz lekcje i działy, które uczeń zaczął
+  // (ocenił w nich fiszkę albo oznaczył słowo jako znane).
+  function activeDecks() {
+    const started = new Set(Object.values(state.srs).map((e) => e.deck));
+    for (const [d, ws] of Object.entries(state.known)) if (Object.values(ws || {}).some(Boolean)) started.add(d);
+    return DECKS.filter((d) => (d.lesson && state.done[d.lesson.id]) || started.has(d.id));
+  }
+  // Kolejka na dziś: due = słówka z terminem do dziś (najstarsze najpierw), fresh = nowe słówka (do limitu dziennego,
+  // po kolei z talii: lekcje w kolejności nauki, potem działy), avail = ile nowych czeka w taliach bez limitu.
+  function srsToday() {
+    const t = today(), decks = activeDecks();
+    const due = Object.keys(state.srs).filter((k) => WORDS.has(k) && state.srs[k].due <= t).sort((a, b) => state.srs[a].due.localeCompare(state.srs[b].due));
+    const left = Math.max(0, state.srsNew - Object.values(state.srs).filter((e) => e.first === t).length);
+    const fresh = [], seen = new Set();
+    let avail = 0;
+    for (const d of decks) for (const k of d.keys) if (!state.srs[k] && !seen.has(k)) {
+      seen.add(k); avail++;
+      if (fresh.length < left) fresh.push({ k, deck: d.id });
+    }
+    return { due, fresh, avail, decks };
+  }
+  const wordsDue = () => { const q = srsToday(); return q.due.length + q.fresh.length; };
+  // Treść karty: słowo z podanej talii (albo z pierwszej, w której występuje); inne znaczenia z pozostałych talii jako „też:”.
+  function wordCard(k, deckId) {
+    const occ = WORDS.get(k), main = occ.find((o) => o.deck.id === deckId) || occ[0];
+    const also = [...new Set(occ.map((o) => stripTags(o.w.pl)))].filter((p) => p !== stripTags(main.w.pl)).slice(0, 3);
+    return { k, w: main.w, deck: main.deck.id, also };
   }
   const cpKey = (c) => "checkpoint:" + c.id;
   const cpPassed = (c) => { const s = state.scores[cpKey(c)]; return !!s && s.correct / s.total >= 0.8; };
@@ -264,6 +342,7 @@
     const quick = `<div class="nav-group nav-quick">
       <a class="nav-item ${h.startsWith("#/kolejnosc") ? "active" : ""}" href="#/kolejnosc"><span class="nav-ico">🧭</span><span class="nav-title">Kolejność nauki</span></a>
       <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">📚</span><span class="nav-title">Słownictwo</span></a>
+      <a class="nav-item ${h.startsWith("#/slowka") ? "active" : ""}" href="#/slowka"><span class="nav-ico">🃏</span><span class="nav-title">Słówka na dziś</span><span class="wd-count nav-count" title="Na dziś" hidden></span></a>
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">📝</span><span class="nav-title">Testy – pisanie zdań</span></a>
       <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">🎯</span><span class="nav-title">Trening mieszany</span></a>
       <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">🔁</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
@@ -280,7 +359,7 @@
     $("#nav").innerHTML = quick + (groups || `<div class="nav-empty">Brak lekcji dla wybranych poziomów.</div>`);
     const active = $("#nav .nav-item.active");
     if (active) active.scrollIntoView({ block: "nearest" });
-    syncMistakeCount();
+    syncTodayCounts();
   }
 
   // ---------- Kolejność nauki (#/kolejnosc) ----------
@@ -379,6 +458,8 @@
     "eng-levels": (v) => Array.isArray(v) && v.length > 0 && v.every((x) => LEVELS.includes(x)),
     "eng-showPl": (v) => typeof v === "boolean",
     "eng-mistakes": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
+    "eng-srs": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
+    "eng-srsNew": (v) => NEW_CHOICES.includes(v),
     "eng-theme": (v) => v === "light" || v === "dark",
   };
   // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
@@ -398,13 +479,15 @@
   };
   // Ustawienia (poziomy w menu, tłumaczenia, motyw) przy łączeniu zostają takie, jak na tym urządzeniu –
   // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
-  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme"];
-  // Klucze bez własnej reguły (eng-mistakes, przyszłe eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
+  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew"];
+  // Klucze bez własnej reguły (eng-mistakes, eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
   // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
   // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
   // Nowa funkcja z własnymi danymi powinna dopisać do MERGE (i BACKUP_CHECK) regułę dla swojego klucza.
   // eng-mistakes celowo bez reguły: przy tym samym zadaniu wygrywa świeższy stan pudełka. (Zadanie opanowane
   // na jednym urządzeniu, a wciąż obecne w kopii z drugiego, wraca na listę – lepiej powtórzyć raz za dużo.)
+  // eng-srs też bez reguły: przy tym samym słówku wygrywa ostatnia ocena; wpisy z migracji „znam” (bez lastSeen)
+  // przegrywają z każdą prawdziwą oceną. Słówka „znam” bez wpisu dostają go po wczytaniu (migrateKnown).
   const lastSeen = (e) => (isObj(e) && Date.parse(e.lastSeen)) || 0;
   function mergeDefault(a, b) {
     if (!isObj(a) || !isObj(b)) return a;
@@ -463,6 +546,7 @@
       scores: Object.keys(data["eng-scores"] || {}).length,
       words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
       mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => TASKS.has(k)).length,
+      srs: Object.keys(data["eng-srs"] || {}).filter((k) => WORDS.has(k)).length,
     };
   }
   const fmtDate = (iso, time) => {
@@ -543,13 +627,13 @@
       const cur = readAll(), merged = mergeData(cur, data);
       const [sF, sC, sM] = [data, cur, merged].map(backupStats);
       const row = (label, k) => `<tr><td>${label}</td><td>${sF[k]}</td><td>${sC[k]}</td><td>${sM[k]}</td></tr>`;
-      const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes;
+      const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes && !sF.srs;
       panel.innerHTML = `<div class="backup-preview">
         <h3>Kopia${date && fmtDate(date) ? ` z ${fmtDate(date, true)}` : ""}</h3>
         ${empty ? `<p class="backup-msg warn">Ta kopia nie zawiera żadnego postępu (same ustawienia albo nic).</p>` : ""}
         <div class="backup-table"><table>
           <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
-          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Zadania w „Moich błędach”", "mistakes")}</tbody>
+          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Słówka w powtórkach", "srs")}${row("Zadania w „Moich błędach”", "mistakes")}</tbody>
         </table></div>
         <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
         <b>Zastąp</b> – postęp z tego urządzenia zostanie <b>usunięty</b> i zastąpiony kopią.</p>
@@ -568,6 +652,7 @@
     function apply(data, replace, stats) {
       if (!writeAll(data, replace)) return fail("Nie udało się zapisać postępu (brak miejsca w przeglądarce?).");
       Object.assign(state, loadState());
+      migrateKnown(state);
       const t = localStorage.getItem("eng-theme");
       if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
       syncThemeColor();
@@ -924,7 +1009,7 @@
         ctl.mPrev = state.mistakes[key];
         recordResult(key, ctl.result.ok);
       }
-      syncMistakeCount();
+      syncTodayCounts();
     };
     const report = (ctl, upgrade, onlyProgress) => {
       if (onlyProgress) { updateScore(); return; }
@@ -1042,7 +1127,10 @@
       const kb = e.target.closest(".v-known"); if (!kb) return;
       const row = kb.closest(".vrow"); const w = row.dataset.en;
       if (known[w]) delete known[w]; else known[w] = 1;
-      row.classList.toggle("known", !!known[w]); save(); refreshK();
+      // „Znam” bez fiszki = jak przy migracji: pudełko 3 (odznaczenie nie zmienia powtórek).
+      const k = wordKey(w);
+      if (known[w] && !state.srs[k] && WORDS.has(k)) state.srs[k] = knownEntry(k, key);
+      row.classList.toggle("known", !!known[w]); save(); refreshK(); syncTodayCounts();
     });
     const panes = Object.fromEntries([...root.querySelectorAll(".v-pane")].map((p) => [p.dataset.pane, p]));
     const modes = {
@@ -1057,47 +1145,83 @@
     }));
   }
 
-  function runFlashcards(pane, items, key, refreshK) {
-    const known = knownSet(key);
-    let dir = "en"; // co widać na awersie
-    let onlyUnknown = items.some((w) => !known[stripTags(w.en)]);
-    let queue, i, okN, badN;
-    const start = () => {
-      const pool = onlyUnknown ? items.filter((w) => !known[stripTags(w.en)]) : items;
-      queue = shuffle(pool.length ? pool : items); i = 0; okN = 0; badN = 0; draw();
-    };
+  // Fiszki z oceną „Nie wiem / Trudne / Wiem” – w taliach (lekcja, dział) i w „Słówkach na dziś”.
+  // cards: [{ k, w, deck, also }]. „Nie wiem” odsłania odpowiedź, a karta wraca na koniec talii.
+  // opts: { onRate(card, rating), onEnd(stats [nie wiem, trudne, wiem] – pierwsze oceny), top, afterDraw(), note }.
+  let fcDir = "en"; // co widać na awersie – wspólne dla wszystkich fiszek
+  const RATE_BTNS = [["fc-bad", "✗ Nie wiem"], ["fc-hard", "~ Trudne"], ["fc-ok primary", "✓ Wiem"]];
+  function flashcards(pane, cards, opts) {
+    const queue = cards.slice(), rated = new Set(), stats = [0, 0, 0];
+    let i = 0;
     const draw = () => {
-      if (i >= queue.length) {
-        pane.innerHTML = `<div class="card fc-done"><b>Koniec talii! 🎉</b><p>Wiem: ${okN} · Do powtórki: ${badN}</p>
-          <button class="btn primary fc-again">↻ Jeszcze raz (nieznane)</button> <button class="btn fc-all">Cała talia</button></div>`;
-        pane.querySelector(".fc-again").onclick = () => { onlyUnknown = true; start(); };
-        pane.querySelector(".fc-all").onclick = () => { onlyUnknown = false; start(); };
-        return;
-      }
-      const w = queue[i];
-      const front = dir === "en" ? `<div class="fc-word">${w.en}</div>` : `<div class="fc-word">${w.pl}</div>`;
-      const back = dir === "en" ? `<div class="fc-word">${w.pl}</div>` : `<div class="fc-word">${w.en}</div>`;
-      pane.innerHTML = `<div class="fc-top"><span>${i + 1} / ${queue.length}</span>
-          <label class="toggle"><input type="checkbox" class="fc-dir" ${dir === "pl" ? "checked" : ""}> Najpierw po polsku</label>
-          <label class="toggle"><input type="checkbox" class="fc-only" ${onlyUnknown ? "checked" : ""}> Tylko nieznane</label></div>
+      if (i >= queue.length) { opts.onEnd(stats); return; }
+      const c = queue[i], w = c.w;
+      const en = `<div class="fc-word">${w.en}</div>`, pl = `<div class="fc-word">${w.pl}</div>`;
+      const also = c.also && c.also.length ? `<div class="fc-also">też: ${c.also.map(esc).join(" · ")}</div>` : "";
+      pane.innerHTML = `${opts.note ? `<p class="fc-note">${opts.note}</p>` : ""}
+        <div class="fc-top"><span>${i + 1} / ${queue.length}</span>
+          <label class="toggle"><input type="checkbox" class="fc-dir" ${fcDir === "pl" ? "checked" : ""}> Najpierw po polsku</label>${opts.top || ""}</div>
         <div class="card flashcard" tabindex="0" title="Kliknij lub naciśnij spację, aby odwrócić">
-          <div class="fc-front">${front}<div class="fc-hint">kliknij, aby odwrócić</div></div>
-          <div class="fc-back" hidden>${back}${w.ex ? `<div class="fc-ex"><i>${w.ex}</i>${w.exPl ? `<br><span>${w.exPl}</span>` : ""}</div>` : ""}</div>
+          <div class="fc-front">${fcDir === "en" ? en : pl}<div class="fc-hint">kliknij, aby odwrócić</div></div>
+          <div class="fc-back" hidden>${fcDir === "en" ? pl + also : en}${w.ex ? `<div class="fc-ex"><i>${w.ex}</i>${w.exPl ? `<br><span>${w.exPl}</span>` : ""}</div>` : ""}</div>
         </div>
-        <div class="fc-actions">${speakBtn(w.en)}<button class="btn fc-bad">✗ Jeszcze nie</button><button class="btn primary fc-ok">✓ Wiem</button></div>`;
-      const card = pane.querySelector(".flashcard");
-      const flip = () => { pane.querySelector(".fc-front").hidden = !pane.querySelector(".fc-front").hidden; pane.querySelector(".fc-back").hidden = !pane.querySelector(".fc-back").hidden; };
-      card.onclick = flip;
-      card.onkeydown = (e) => { if (e.key === " ") { e.preventDefault(); flip(); } };
-      pane.querySelector(".fc-ok").onclick = () => { known[stripTags(w.en)] = 1; okN++; save(); refreshK(); markRow(w, true); i++; draw(); };
-      pane.querySelector(".fc-bad").onclick = () => { delete known[stripTags(w.en)]; badN++; save(); refreshK(); markRow(w, false); queue.push(w); i++; draw(); };
-      pane.querySelector(".fc-dir").onchange = (e) => { dir = e.target.checked ? "pl" : "en"; draw(); };
-      pane.querySelector(".fc-only").onchange = (e) => { onlyUnknown = e.target.checked; start(); };
+        <div class="fc-actions">${speakBtn(w.en)}${RATE_BTNS.map(([cls, label], r) => `<button class="btn ${cls}" data-r="${r}">${label}</button>`).join("")}</div>
+        <div class="fc-keys">Spacja – odwróć · klawisze 1 / 2 / 3 – ocena</div>`;
+      const card = pane.querySelector(".flashcard"), front = pane.querySelector(".fc-front"), back = pane.querySelector(".fc-back");
+      const flip = () => { front.hidden = !front.hidden; back.hidden = !back.hidden; };
+      let next = null; // po „Nie wiem”: odpowiedź widoczna, czekamy na „Dalej”
+      const rate = (r) => {
+        if (next) return next();
+        if (!rated.has(c)) { rated.add(c); stats[r]++; }
+        opts.onRate(c, r);
+        if (r !== 0) { i++; draw(); return; }
+        queue.push(c);
+        front.hidden = true; back.hidden = false;
+        next = () => { i++; draw(); };
+        pane.querySelector(".fc-actions").innerHTML = `${speakBtn(w.en)}<button class="btn primary fc-next">Dalej →</button>`;
+        pane.querySelector(".fc-next").onclick = next;
+        card.focus({ preventScroll: true });
+      };
+      card.onclick = () => { if (!next) flip(); };
+      card.onkeydown = (e) => {
+        if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (next) next(); else flip(); }
+        else if (["1", "2", "3"].includes(e.key)) { e.preventDefault(); rate(+e.key - 1); }
+      };
+      pane.querySelectorAll("[data-r]").forEach((b) => { b.onclick = () => rate(+b.dataset.r); });
+      pane.querySelector(".fc-dir").onchange = (e) => { fcDir = e.target.checked ? "pl" : "en"; draw(); };
+      if (opts.afterDraw) opts.afterDraw();
       card.focus({ preventScroll: true });
     };
+    draw();
+  }
+  const fcStatsHtml = (s) => `Wiem: ${s[2]} · Trudne: ${s[1]} · Nie wiem: ${s[0]}`;
+
+  function runFlashcards(pane, items, key, refreshK) {
+    const known = knownSet(key);
+    let onlyUnknown = items.some((w) => !known[stripTags(w.en)]);
     const markRow = (w, k) => {
       const row = pane.closest(".vocab-block").querySelector(`.vrow[data-en="${CSS.escape(stripTags(w.en))}"]`);
       if (row) row.classList.toggle("known", k);
+    };
+    const start = () => {
+      const pool = onlyUnknown ? items.filter((w) => !known[stripTags(w.en)]) : items;
+      flashcards(pane, shuffle(pool.length ? pool : items).map((w) => ({ k: wordKey(w.en), w, deck: key })), {
+        note: `Oceny trafiają do <a href="#/slowka">🃏 Słówek na dziś</a> – słówko wróci wtedy, gdy trzeba je powtórzyć.`,
+        top: `<label class="toggle"><input type="checkbox" class="fc-only" ${onlyUnknown ? "checked" : ""}> Tylko nieznane</label>`,
+        afterDraw: () => { pane.querySelector(".fc-only").onchange = (e) => { onlyUnknown = e.target.checked; start(); }; },
+        onRate: (c, r) => {
+          rateWord(c.k, r, key);
+          const en = stripTags(c.w.en);
+          if (r === 2) known[en] = 1; else if (r === 0) delete known[en];
+          save(); refreshK(); markRow(c.w, !!known[en]); syncTodayCounts();
+        },
+        onEnd: (st) => {
+          pane.innerHTML = `<div class="card fc-done"><b>Koniec talii! 🎉</b><p>${fcStatsHtml(st)}</p>
+            <button class="btn primary fc-again">↻ Jeszcze raz (nieznane)</button> <button class="btn fc-all">Cała talia</button></div>`;
+          pane.querySelector(".fc-again").onclick = () => { onlyUnknown = true; start(); };
+          pane.querySelector(".fc-all").onclick = () => { onlyUnknown = false; start(); };
+        },
+      });
     };
     start();
   }
@@ -1322,6 +1446,7 @@
     const list = VOCAB.filter((t) => vocabLevels.includes(t.level));
     return `<div class="page">
       <div class="hero"><h1>📚 Słownictwo</h1><p>Słówka, które trzeba znać na poziomach A1–B2, pogrupowane tematycznie. W każdym dziale: lista z wymową i przykładami, fiszki oraz dwa rodzaje quizu. Oznaczaj słowa, które już znasz – postęp zapisuje się w przeglądarce.</p></div>
+      <div class="card today-widget"><span class="f-ico">🃏</span><div class="tw-body"><b>Słówka na dziś</b>${wordsRow(srsToday())}</div></div>
       ${ankiCard()}
       <div class="chips" id="vLevels" style="margin-bottom:18px">${LEVELS.map((l) => `<button class="chip ${vocabLevels.includes(l) ? "active" : ""}" data-level="${l}">${l} · ${LEVEL_INFO[l].name}</button>`).join("")}</div>
       ${VOCAB.length ? LEVELS.filter((lv) => vocabLevels.includes(lv)).map((lv) => {
@@ -1580,12 +1705,16 @@
   const filteredMistakes = () => mistakeList().filter((x) => (!mistakesCfg.level || x.lesson.level === mistakesCfg.level) && (!mistakesCfg.lesson || x.lesson.id === mistakesCfg.lesson));
   const sessionItems = (list) => shuffle(list).slice(0, SESSION_MAX).map((x) => ({ ex: x.src[0] === "p" ? withTask(x.ex, x.ex.task || x.instr) : x.ex, lesson: x.lesson }));
 
-  // Licznik „na dziś” w górnym pasku i w menu (link w pasku widać tylko, gdy są jakieś błędy).
-  function syncMistakeCount() {
-    const n = mistakesDue(), any = mistakeList().length > 0;
+  // Liczniki „na dziś” w górnym pasku i w menu: .m-count = Moje błędy (link w pasku widać tylko, gdy są jakieś błędy),
+  // .wd-count = Słówka na dziś (przy „Słownictwie”), na przycisku ☰ (telefon) – suma obu.
+  function syncTodayCounts() {
+    const n = mistakesDue(), any = mistakeList().length > 0, w = wordsDue();
     const link = $("#mistakesLink");
     if (link) { link.hidden = !any; link.title = n ? `Moje błędy – ${n} na dziś` : "Moje błędy"; }
     document.querySelectorAll(".m-count").forEach((el) => { el.textContent = n; el.hidden = !n; });
+    document.querySelectorAll(".wd-count").forEach((el) => { el.textContent = w; el.hidden = !w; });
+    const menu = $(".menu-count");
+    if (menu) { menu.textContent = n + w; menu.hidden = !(n + w); menu.title = `Na dziś: ${[w ? slowek(w) : "", n ? zadan(n) + " z błędami" : ""].filter(Boolean).join(", ")}`; }
     const tEl = $("#mToday"), lEl = $("#mList"); // na stronie „Moje błędy” – stan na bieżąco w trakcie powtórki
     if (tEl && lEl) { const xs = filteredMistakes(); tEl.innerHTML = mTodayHtml(xs); lEl.innerHTML = mListHtml(xs); }
   }
@@ -1654,12 +1783,92 @@
     };
     page.addEventListener("click", (e) => { const b = e.target.closest("[data-mrun]"); if (b) start(b.dataset.mrun); });
   }
-  // Kafelek na stronie głównej (punkt 2 dopisze tu słówka na dziś).
+  // ---------- Słówka na dziś (#/slowka) ----------
+  const plural = (n, one, few, many) => n === 1 ? one : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? few : many;
+  const slowek = (n) => `${n} ${plural(n, "słówko", "słówka", "słówek")}`;
+  const daysLabel = (d) => `${d} ${d === 1 ? "dzień" : "dni"}`;
+  // „12 do powtórki + 10 nowych” (pusty napis, gdy nic na dziś).
+  const wordsTodayTxt = (q) => [q.due.length ? `${q.due.length} do powtórki` : "", q.fresh.length ? `${q.fresh.length} ${plural(q.fresh.length, "nowe", "nowe", "nowych")}` : ""].filter(Boolean).join(" + ");
+  const srsEntries = () => Object.entries(state.srs).filter(([k]) => WORDS.has(k)).map(([, e]) => e);
+  function wTodayHtml(q) {
+    const txt = wordsTodayTxt(q), n = q.due.length + q.fresh.length;
+    if (n) return `<div class="card m-today"><div><b>Na dziś: ${txt}</b><span>${n > SRS_ROUND ? `Po ${SRS_ROUND} w jednej rundzie. ` : ""}Najpierw powtórki, potem nowe słówka.</span></div><button class="btn primary" data-wrun>Zacznij →</button></div>`;
+    const next = srsEntries().map((e) => e.due).sort()[0];
+    const nNext = next ? srsEntries().filter((e) => e.due === next).length : 0;
+    const more = q.avail ? `Dzienny limit nowych słówek (${state.srsNew}) wykorzystany – kolejne jutro. Możesz zwiększyć limit poniżej.`
+      : "Wszystkie słówka z Twoich lekcji i działów są już w powtórkach – nowe dojdą po następnej lekcji.";
+    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ✓</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })} (${slowek(nNext)}). ` : ""}${more}</span></div></div>`;
+  }
+  function wInfoHtml(q) {
+    const entries = srsEntries();
+    const boxes = SRS_DAYS.map((d, i) => entries.filter((e) => Math.min(e.box, SRS_DAYS.length) === i + 1).length);
+    const inDeck = (d) => d.keys.filter((k) => state.srs[k]).length;
+    return `<div class="card wd-settings"><span>Nowych słówek dziennie:</span><div class="chips">${NEW_CHOICES.map((n) => `<button class="chip ${state.srsNew === n ? "active" : ""}" data-wnew="${n}">${n}</button>`).join("")}</div></div>
+      ${entries.length ? `<h2 class="section-title">Twoje pudełka (${slowek(entries.length)})</h2>
+      <div class="wd-boxes">${boxes.map((n, i) => `<div class="card wd-box"><b>${n}</b><span>pudełko ${i + 1}</span><small>co ${daysLabel(SRS_DAYS[i])}</small></div>`).join("")}</div>
+      <p class="muted-p">„Wiem” przenosi słówko do następnego pudełka, „Trudne” zostawia w tym samym, „Nie wiem” cofa do pudełka 1. W pudełkach 5–6 są słówka, które znasz już dobrze (${boxes[4] + boxes[5]}).</p>` : ""}
+      ${q.decks.length ? `<h2 class="section-title">Skąd są słówka</h2>
+      <p class="muted-p">Słownictwo lekcji dochodzi, gdy lekcja jest przerobiona. Dział słownictwa – gdy zaczniesz go ćwiczyć fiszkami albo oznaczysz w nim słówko jako znane (<a href="#/vocab">📚 Słownictwo</a>). Słówko, które powtarza się w kilku miejscach, uczysz się tylko raz.</p>
+      <div class="card wd-decks">${q.decks.map((d) => `<a class="wd-deck" href="${d.href}"><span class="wd-deck-t">${badge(d.level)} ${esc(d.title)}</span><span class="muted">w powtórkach: ${inDeck(d)} z ${d.keys.length}</span></a>`).join("")}</div>` : ""}`;
+  }
+  function renderWords() {
+    const q = srsToday();
+    const head = `<div class="hero"><h1>🃏 Słówka na dziś</h1><p>Codzienna porcja fiszek: słówka do powtórki i kilka nowych. Oceniaj szczerze: <b>Nie wiem</b> – słówko wróci jutro, <b>Trudne</b> – wróci po tym samym czasie co ostatnio, <b>Wiem</b> – wróci później: po 3, 7, 14, 30, a potem co 60 dni. Tak powtarzasz słówko wtedy, gdy zaczyna Ci uciekać z pamięci.</p></div>`;
+    if (!q.decks.length && !srsEntries().length) return `<div class="page">${head}<div class="card empty m-empty"><b>Na razie nie masz słówek do nauki.</b><p>Słówka z lekcji pojawią się tu, gdy oznaczysz lekcję jako przerobioną (albo zdasz jej szybki sprawdzian). Słówka z działów – gdy zaczniesz ćwiczyć dział fiszkami.</p><p><a class="btn primary" href="#/kolejnosc">🧭 Kolejność nauki</a> <a class="btn" href="#/vocab">📚 Słownictwo</a></p></div></div>`;
+    return `<div class="page words">${head}
+      <div id="wToday">${wTodayHtml(q)}</div>
+      <div id="wBox"></div>
+      <div id="wInfo">${wInfoHtml(q)}</div>
+    </div>`;
+  }
+  function bindWords() {
+    const page = $(".page.words"); if (!page) return;
+    const refresh = () => { const q = srsToday(); $("#wToday").innerHTML = wTodayHtml(q); $("#wInfo").innerHTML = wInfoHtml(q); syncTodayCounts(); };
+    const run = () => {
+      const q = srsToday(), box = $("#wBox");
+      const cards = [...shuffle(q.due).map((k) => wordCard(k, state.srs[k].deck)), ...q.fresh.map((f) => wordCard(f.k, f.deck))].slice(0, SRS_ROUND);
+      if (!cards.length) { box.innerHTML = ""; refresh(); return; }
+      $("#wToday").hidden = true;
+      box.innerHTML = `<section class="block wd-session"><h2>Runda: ${slowek(cards.length)}</h2><div class="wd-pane"></div></section>`;
+      const pane = box.querySelector(".wd-pane");
+      flashcards(pane, cards, {
+        onRate: (c, r) => {
+          rateWord(c.k, r, c.deck);
+          const en = stripTags(c.w.en); // „znam” w talii, z której jest karta – tak samo jak w fiszkach działu
+          if (r === 2) knownSet(c.deck)[en] = 1; else if (r === 0 && state.known[c.deck]) delete state.known[c.deck][en];
+          save(); syncTodayCounts();
+        },
+        onEnd: (st) => {
+          const left = wordsDue();
+          pane.innerHTML = `<div class="card fc-done"><b>Runda skończona! 🎉</b><p>${fcStatsHtml(st)}</p>
+            ${left ? `<button class="btn primary wd-more">Następna runda (zostało: ${left}) →</button>` : `<p class="wd-all">✓ Na dziś wszystko powtórzone. Wróć jutro!</p>`}</div>`;
+          const more = pane.querySelector(".wd-more"); if (more) more.onclick = () => { run(); box.scrollIntoView(); };
+          $("#wToday").hidden = false; refresh();
+        },
+      });
+      box.scrollIntoView();
+    };
+    page.addEventListener("click", (e) => {
+      const n = e.target.closest("[data-wnew]");
+      if (n) { state.srsNew = +n.dataset.wnew; store.set("srsNew", state.srsNew); refresh(); return; }
+      if (e.target.closest("[data-wrun]")) run();
+    });
+  }
+
+  // Kafelek „Dziś do powtórki” (strona główna; wiersz ze słówkami także na stronie Słownictwo).
+  function wordsRow(q) {
+    const txt = wordsTodayTxt(q), started = q.decks.length || srsEntries().length;
+    return `<a class="tw-row" href="#/slowka"><span>🃏 Słówka: ${txt ? `<b>${txt}</b>` : started ? "na dziś wszystko powtórzone ✓" : "codzienne fiszki z powtórkami – zacznij ćwiczyć dowolny dział fiszkami"}</span><span class="btn small ${txt ? "primary" : ""}">${txt ? "Ucz się" : "Zobacz"} →</span></a>`;
+  }
   function todayWidget() {
-    const all = mistakeList();
-    if (!all.length) return "";
-    const n = all.filter((x) => isDue(x.m)).length;
-    return `<a class="card today-widget" href="#/bledy"><span class="f-ico">🔁</span><span class="anki-txt"><b>Dziś do powtórki</b><span>Moje błędy: ${n ? `<b>${zadan(n)}</b> na dziś` : "na dziś wszystko powtórzone ✓"} (razem na liście: ${all.length})</span></span><span class="btn ${n ? "primary" : ""}">${n ? "Powtórz" : "Zobacz"} →</span></a>`;
+    const all = mistakeList(), q = srsToday(), rows = [];
+    if (q.decks.length || srsEntries().length) rows.push(wordsRow(q));
+    if (all.length) {
+      const n = all.filter((x) => isDue(x.m)).length;
+      rows.push(`<a class="tw-row" href="#/bledy"><span>🔁 Moje błędy: ${n ? `<b>${zadan(n)}</b> na dziś` : "na dziś wszystko powtórzone ✓"} (razem na liście: ${all.length})</span><span class="btn small ${n ? "primary" : ""}">${n ? "Powtórz" : "Zobacz"} →</span></a>`);
+    }
+    if (!rows.length) return "";
+    return `<div class="card today-widget"><span class="f-ico">📅</span><div class="tw-body"><b>Dziś do powtórki</b>${rows.join("")}</div></div>`;
   }
 
   // ---------- Wyszukiwanie ----------
@@ -1704,6 +1913,8 @@
       const id = h.slice(13);
       content.innerHTML = renderCheckpoint(id); bindCheckpoint(id);
       if (CP_BY_ID[id]) title = `Sprawdzian ${CP_BY_ID[id].n}: ${CP_BY_ID[id].title} – ${title}`;
+    } else if (h.startsWith("#/slowka")) {
+      content.innerHTML = renderWords(); bindWords(); title = `Słówka na dziś – ${title}`;
     } else if (h.startsWith("#/bledy")) {
       content.innerHTML = renderMistakes(); bindMistakes(); title = `Moje błędy – ${title}`;
     } else if (h.startsWith("#/practice")) {
@@ -1830,6 +2041,7 @@
   // Udostępnione do testów automatycznych (tools/).
   window.__ENG = { matches, expandAnswer, vocabMatch, variants };
 
+  migrateKnown(state);
   renderLevelFilter();
   route();
 })();
