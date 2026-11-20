@@ -54,14 +54,16 @@
     get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
     set(k, v) { try { localStorage.setItem("eng-" + k, JSON.stringify(v)); } catch (e) {} },
   };
-  const state = {
+  // Ponownie wywoływane po wczytaniu kopii postępu (Object.assign(state, loadState())).
+  const loadState = () => ({
     done: store.get("done", {}),
     scores: store.get("scores", {}),
     levels: store.get("levels", LEVELS.slice()),
     showPl: store.get("showPl", true),
     known: store.get("known", {}),
-  };
-  const save = () => { for (const k of ["done", "scores", "levels", "showPl", "known"]) store.set(k, state[k]); };
+  });
+  const state = loadState();
+  const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
   const saveScore = (key, correct, total) => {
     const prev = state.scores[key];
     if (!prev || correct / total >= prev.correct / prev.total) state.scores[key] = { correct, total };
@@ -300,8 +302,11 @@
         </div>
         <div class="progress big" role="progressbar" aria-valuemin="0" aria-valuemax="${PATH.length}" aria-valuenow="${nDone}" aria-label="Postęp całego kursu"><i style="width:${percent(nDone, PATH.length)}%"></i></div>
         <div class="order-levels">${levelBars}</div>
+        <a class="order-backup-link" href="#/kolejnosc/kopia" data-jump="kopia">💾 Kopia postępu – pobierz albo wczytaj z pliku</a>
       </div>
+      ${backupReminder()}
       ${groups}
+      ${backupSectionHtml()}
     </div>`;
   }
 
@@ -311,6 +316,220 @@
       const target = document.getElementById(a.dataset.jump);
       if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
     }));
+    bindBackup($(".order-page .backup"));
+  }
+
+  // ---------- Kopia postępu: eksport / import (sekcja #kopia na stronie „Kolejność nauki”) ----------
+  // Plik: { app: "angielski", version: 1, date, data: { "eng-done": {...}, "eng-scores": {...}, ... } } –
+  // wszystkie klucze eng-* z localStorage oprócz BACKUP_SKIP. Wartości zapisane jako JSON trafiają do pliku
+  // już odczytane (plik da się przeczytać); eng-theme jest w localStorage zwykłym tekstem, stąd RAW_KEYS.
+  const BACKUP_APP = "angielski", BACKUP_VERSION = 1;
+  const RAW_KEYS = ["eng-theme"];
+  const BACKUP_SKIP = ["eng-backup"]; // dane przypomnienia o kopii dotyczą tylko tego urządzenia
+  const DAY = 864e5, REMIND_DAYS = 14;
+  const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
+  // Sprawdzenie typów przy wczytywaniu – plik niezgodny z tym opisem jest odrzucany w całości.
+  const BACKUP_CHECK = {
+    "eng-done": isObj,
+    "eng-scores": (v) => isObj(v) && Object.values(v).every((s) => isObj(s) && s.total > 0 && s.correct >= 0),
+    "eng-known": (v) => isObj(v) && Object.values(v).every(isObj),
+    "eng-levels": (v) => Array.isArray(v) && v.length > 0 && v.every((x) => LEVELS.includes(x)),
+    "eng-showPl": (v) => typeof v === "boolean",
+    "eng-theme": (v) => v === "light" || v === "dark",
+  };
+  // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
+  const ratio = (s) => s.correct / s.total;
+  const MERGE = {
+    "eng-done": (a, b) => ({ ...a, ...b }), // lekcja przerobiona w którymkolwiek miejscu
+    "eng-scores": (a, b) => { // lepszy wynik (przy remisie zostaje wynik z tego urządzenia, jak w saveScore)
+      const out = { ...a };
+      for (const [k, s] of Object.entries(b)) if (!out[k] || ratio(s) > ratio(out[k])) out[k] = s;
+      return out;
+    },
+    "eng-known": (a, b) => { // suma słówek oznaczonych jako „znam”
+      const out = { ...a };
+      for (const [k, words] of Object.entries(b)) out[k] = { ...(out[k] || {}), ...words };
+      return out;
+    },
+  };
+  // Ustawienia (poziomy w menu, tłumaczenia, motyw) przy łączeniu zostają takie, jak na tym urządzeniu –
+  // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
+  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme"];
+  // Klucze bez własnej reguły (np. przyszłe eng-mistakes / eng-srs w postaci { klucz: { box, due, lastSeen, … } }):
+  // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
+  // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
+  // Nowa funkcja z własnymi danymi powinna dopisać do MERGE (i BACKUP_CHECK) regułę dla swojego klucza.
+  const lastSeen = (e) => (isObj(e) && Date.parse(e.lastSeen)) || 0;
+  function mergeDefault(a, b) {
+    if (!isObj(a) || !isObj(b)) return a;
+    const out = { ...a };
+    for (const [k, e] of Object.entries(b)) if (!(k in out) || lastSeen(e) > lastSeen(out[k])) out[k] = e;
+    return out;
+  }
+  function mergeData(cur, inc) {
+    const out = { ...cur };
+    for (const [k, v] of Object.entries(inc)) {
+      if (KEEP_LOCAL.includes(k)) continue;
+      out[k] = k in cur ? (MERGE[k] || mergeDefault)(cur[k], v) : v;
+    }
+    return out;
+  }
+
+  function lsKeys() {
+    const out = [];
+    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith("eng-") && !BACKUP_SKIP.includes(k)) out.push(k); } } catch (e) {}
+    return out;
+  }
+  function readAll() {
+    const data = {};
+    for (const k of lsKeys()) {
+      const raw = localStorage.getItem(k);
+      if (RAW_KEYS.includes(k)) { data[k] = raw; continue; }
+      try { data[k] = JSON.parse(raw); } catch (e) {} // uszkodzony wpis – i tak nie jest używany (store.get daje domyślny)
+    }
+    return data;
+  }
+  function writeAll(data, replace) {
+    try {
+      if (replace) lsKeys().forEach((k) => localStorage.removeItem(k));
+      for (const [k, v] of Object.entries(data)) localStorage.setItem(k, RAW_KEYS.includes(k) ? String(v) : JSON.stringify(v));
+      return true;
+    } catch (e) { return false; }
+  }
+  // Zwraca { data, date } albo { error: "komunikat dla ucznia" }.
+  function parseBackup(text) {
+    let obj;
+    try { obj = JSON.parse(text); } catch (e) { return { error: "To nie jest plik z kopią postępu (zły format pliku)." }; }
+    if (!isObj(obj) || obj.app !== BACKUP_APP || !isObj(obj.data)) return { error: "Ten plik nie jest kopią postępu z tej strony." };
+    if (typeof obj.version !== "number" || obj.version > BACKUP_VERSION) return { error: "Ta kopia pochodzi z nowszej wersji strony. Odśwież stronę i spróbuj jeszcze raz." };
+    const data = {};
+    for (const [k, v] of Object.entries(obj.data)) {
+      if (!k.startsWith("eng-") || BACKUP_SKIP.includes(k)) continue;
+      if (BACKUP_CHECK[k] && !BACKUP_CHECK[k](v)) return { error: "Plik z kopią jest uszkodzony – nie da się go wczytać." };
+      data[k] = v;
+    }
+    return { data, date: obj.date };
+  }
+  function backupStats(data) {
+    const done = data["eng-done"] || {}, known = data["eng-known"] || {};
+    return {
+      done: Object.keys(done).filter((id) => done[id] && BY_ID[id]).length,
+      scores: Object.keys(data["eng-scores"] || {}).length,
+      words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
+    };
+  }
+  const fmtDate = (iso, time) => {
+    const d = new Date(iso);
+    if (isNaN(d)) return "";
+    return d.toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" }) + (time ? ", " + d.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) : "");
+  };
+
+  // Przypomnienie: 14 dni od ostatniej kopii (albo od „Później” / początku nauki), o ile od ostatniej kopii przybyło postępu.
+  // eng-backup = { last: data ostatniej kopii, since: od kiedy liczymy 14 dni, count: ile było postępu przy ostatniej kopii }.
+  const progressCount = () => Object.keys(state.done).length + Object.keys(state.scores).length;
+  function backupDue() {
+    const n = progressCount(), b = store.get("backup", null);
+    if (!n) return false;
+    if (!isObj(b)) { store.set("backup", { since: new Date().toISOString(), count: 0 }); return false; }
+    return n > (b.count || 0) && Date.now() - (Date.parse(b.since) || 0) >= REMIND_DAYS * DAY;
+  }
+  const backupReminder = () => backupDue() ? `<div class="card backup-reminder" role="note">
+      <span class="br-ico" aria-hidden="true">💾</span>
+      <div class="br-text"><b>Zrób kopię postępu</b><span>Postęp jest zapisany tylko w tej przeglądarce. Kopia w pliku przyda się, gdy wyczyścisz dane przeglądarki albo zmienisz urządzenie.</span></div>
+      <div class="br-actions"><button class="btn primary small" type="button" data-backup="download">Pobierz kopię</button><button class="btn small" type="button" data-backup="later">Później</button></div>
+    </div>` : "";
+
+  function downloadBackup() {
+    const now = new Date();
+    const file = { app: BACKUP_APP, version: BACKUP_VERSION, date: now.toISOString(), data: readAll() };
+    const blob = new Blob([JSON.stringify(file, null, 1)], { type: "application/json" });
+    const a = document.createElement("a");
+    a.href = URL.createObjectURL(blob);
+    const p = (x) => String(x).padStart(2, "0");
+    a.download = `angielski-postep-${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}.json`;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+    store.set("backup", { last: now.toISOString(), since: now.toISOString(), count: progressCount() });
+    document.querySelectorAll(".backup-reminder").forEach((el) => el.remove());
+    const last = $(".backup-last");
+    if (last) last.innerHTML = `Ostatnia kopia: <b>${fmtDate(now, true)}</b>.`;
+  }
+
+  let backupFlash = ""; // komunikat po wczytaniu kopii – pokazany raz, po ponownym narysowaniu strony
+
+  function backupSectionHtml() {
+    const b = store.get("backup", null);
+    const flash = backupFlash; backupFlash = "";
+    return `<section class="card backup" id="kopia">
+      <h2>💾 Kopia postępu</h2>
+      <p>Przerobione lekcje, wyniki zadań i słówka oznaczone jako „znam” są zapisane <b>tylko w tej przeglądarce</b>. Po wyczyszczeniu danych przeglądarki znikną. Pobierz kopię do pliku – potem wczytasz ją tutaj albo na innym urządzeniu (np. na telefonie).</p>
+      <p class="muted backup-last">${b && b.last ? `Ostatnia kopia: <b>${fmtDate(b.last, true)}</b>.` : "Na tym urządzeniu nie zrobiono jeszcze kopii."}</p>
+      <div class="backup-actions">
+        <button class="btn primary" type="button" data-backup="download">⬇ Pobierz kopię postępu</button>
+        <button class="btn" type="button" data-backup="pick">⬆ Wczytaj kopię</button>
+        <input type="file" accept=".json,application/json" hidden>
+      </div>
+      <div class="backup-panel" aria-live="polite">${flash}</div>
+    </section>`;
+  }
+
+  function bindBackup(box) {
+    if (!box) return;
+    const input = box.querySelector("input[type=file]"), panel = box.querySelector(".backup-panel");
+    box.querySelector('[data-backup="pick"]').addEventListener("click", () => { input.value = ""; input.click(); });
+    const fail = (msg) => { panel.innerHTML = `<div class="backup-msg bad">${esc(msg)}</div>`; };
+    input.addEventListener("change", () => {
+      const f = input.files && input.files[0];
+      if (!f) return;
+      if (f.size > 5e6) return fail("Ten plik jest za duży jak na kopię postępu.");
+      const reader = new FileReader();
+      reader.onerror = () => fail("Nie udało się odczytać pliku.");
+      reader.onload = () => {
+        const res = parseBackup(String(reader.result));
+        if (res.error) return fail(res.error);
+        showPreview(res);
+      };
+      reader.readAsText(f);
+    });
+
+    function showPreview({ data, date }) {
+      const cur = readAll(), merged = mergeData(cur, data);
+      const [sF, sC, sM] = [data, cur, merged].map(backupStats);
+      const row = (label, k) => `<tr><td>${label}</td><td>${sF[k]}</td><td>${sC[k]}</td><td>${sM[k]}</td></tr>`;
+      const empty = !sF.done && !sF.scores && !sF.words;
+      panel.innerHTML = `<div class="backup-preview">
+        <h3>Kopia${date && fmtDate(date) ? ` z ${fmtDate(date, true)}` : ""}</h3>
+        ${empty ? `<p class="backup-msg warn">Ta kopia nie zawiera żadnego postępu (same ustawienia albo nic).</p>` : ""}
+        <div class="backup-table"><table>
+          <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
+          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}</tbody>
+        </table></div>
+        <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
+        <b>Zastąp</b> – postęp z tego urządzenia zostanie <b>usunięty</b> i zastąpiony kopią.</p>
+        <div class="backup-actions">
+          <button class="btn primary" type="button" data-act="merge">Połącz</button>
+          <button class="btn danger" type="button" data-act="replace">Zastąp</button>
+          <button class="btn" type="button" data-act="cancel">Anuluj</button>
+        </div>
+      </div>`;
+      panel.querySelector('[data-act="cancel"]').addEventListener("click", () => { panel.innerHTML = ""; });
+      panel.querySelector('[data-act="merge"]').addEventListener("click", () => apply(merged, false, sM));
+      panel.querySelector('[data-act="replace"]').addEventListener("click", () => apply(data, true, sF));
+      panel.querySelector(".backup-preview").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    }
+
+    function apply(data, replace, stats) {
+      if (!writeAll(data, replace)) return fail("Nie udało się zapisać postępu (brak miejsca w przeglądarce?).");
+      Object.assign(state, loadState());
+      const t = localStorage.getItem("eng-theme");
+      if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
+      syncThemeColor();
+      backupFlash = `<div class="backup-msg good">✓ Kopia wczytana${replace ? " (postęp zastąpiony)" : " i połączona z postępem z tego urządzenia"}: ${stats.done} przerobionych lekcji, ${stats.scores} wyników, ${stats.words} znanych słówek.</div>`;
+      renderLevelFilter();
+      route();
+      const sec = document.getElementById("kopia");
+      if (sec) sec.scrollIntoView({ block: "start" });
+    }
   }
 
   // ---------- Strona główna ----------
@@ -333,6 +552,7 @@
           ${overview ? `<a class="btn" href="#/lesson/tenses-overview">🗺️ Przegląd wszystkich czasów</a>` : ""}
         </div>
       </section>
+      ${backupReminder()}
       <div class="stats">
         <div class="stat"><b>${PATH.length}</b><span>lekcji</span></div>
         <div class="stat"><b>${nEx}</b><span>przykładów zdań</span></div>
@@ -366,6 +586,7 @@
         <div><b>2. Ćwiczenia</b>Zestawy od łatwych do trudnych: wybór, luki, układanie zdań, przekształcenia. Każde zadanie ma wyjaśnienie.</div>
         <div><b>3. Test</b>Na koniec napisz całe zdania sam(a). Wynik i poprawki zobaczysz po zakończeniu testu.</div>
       </div>
+      <p class="muted-p backup-note">Postęp zapisuje się w tej przeglądarce. <a href="#/kolejnosc/kopia">💾 Pobierz albo wczytaj kopię postępu</a> – przyda się na innym urządzeniu.</p>
     </div>`;
   }
 
@@ -1346,10 +1567,12 @@
     document.title = title;
     // Przy przełączaniu zakładek tej samej lekcji zostajemy przy nagłówku zamiast skakać na górę.
     const tabsEl = $(".tabs");
+    const anchor = h.startsWith("#/kolejnosc/") && document.getElementById(h.slice(12)); // np. #/kolejnosc/kopia
     if (sameLesson && tabsEl && window.scrollY > tabsEl.offsetTop) tabsEl.scrollIntoView();
-    else window.scrollTo(0, 0);
+    else if (!anchor) window.scrollTo(0, 0);
     lastRoute = currentLessonId() || "";
     renderNav();
+    if (anchor) anchor.scrollIntoView(); // dopiero po renderNav – ono przewija menu do aktywnej pozycji, co cofa stronę
   }
 
   // ---------- Zdarzenia globalne ----------
@@ -1358,6 +1581,12 @@
     if (sb) { e.preventDefault(); e.stopPropagation(); speak(sb.dataset.say, sb); return; }
     const pl = e.target.closest(".hide-pl .ex-pl");
     if (pl) { pl.classList.toggle("revealed"); return; }
+    const bk = e.target.closest("[data-backup=download], [data-backup=later]");
+    if (bk) {
+      if (bk.dataset.backup === "download") downloadBackup();
+      else { store.set("backup", { ...store.get("backup", {}), since: new Date().toISOString() }); document.querySelectorAll(".backup-reminder").forEach((el) => el.remove()); }
+      return;
+    }
     const sc = e.target.closest("[data-scroll]");
     if (sc) { e.preventDefault(); const t = document.getElementById(sc.dataset.scroll); if (t) t.scrollIntoView({ behavior: "smooth" }); }
   }, true);
