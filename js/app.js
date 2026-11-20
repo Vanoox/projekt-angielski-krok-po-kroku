@@ -2,6 +2,41 @@
   "use strict";
 
   const LEVELS = ["A1", "A2", "B1", "B2"];
+  // Ikony liniowe 24×24 (stroke = currentColor). Większość przepisana z Feather Icons (MIT, © 2013–2017 Cole Bemis)
+  // i Lucide (ISC, © Lucide Contributors); "cards", "slow" – własne. Użycie: icon("check") → <svg class="ic">.
+  const ICONS = {
+    check: '<path d="M20 6 9 17l-5-5"/>',
+    x: '<path d="M18 6 6 18M6 6l12 12"/>',
+    menu: '<path d="M3 6h18M3 12h18M3 18h18"/>',
+    contrast: '<circle cx="12" cy="12" r="9"/><path d="M12 3a9 9 0 0 1 0 18z" fill="currentColor"/>',
+    compass: '<circle cx="12" cy="12" r="10"/><path d="m16.24 7.76-2.12 6.36-6.36 2.12 2.12-6.36z"/>',
+    book: '<path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/>',
+    cards: '<rect x="3" y="7" width="13" height="14" rx="2"/><path d="M8 3h11a2 2 0 0 1 2 2v12"/>',
+    test: '<path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.12 2.12 0 0 1 3 3L12 15l-4 1 1-4z"/>',
+    pen: '<path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/>',
+    target: '<circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="6"/><circle cx="12" cy="12" r="2"/>',
+    repeat: '<path d="m17 1 4 4-4 4"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><path d="m7 23-4-4 4-4"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/>',
+    flag: '<path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1zM4 22v-7"/>',
+    medal: '<circle cx="12" cy="8" r="6"/><path d="M8.2 12.6 7 22l5-3 5 3-1.2-9.4"/>',
+    save: '<path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"/><path d="M17 21v-8H7v8M7 3v5h8"/>',
+    download: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m7 10 5 5 5-5M12 15V3"/>',
+    upload: '<path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><path d="m17 8-5-5-5 5M12 3v12"/>',
+    map: '<path d="M1 6v16l7-4 8 4 7-4V2l-7 4-8-4zM8 2v16M16 6v16"/>',
+    bulb: '<path d="M15 14c.2-1 .7-1.7 1.5-2.5 1-.9 1.5-2.2 1.5-3.5A6 6 0 0 0 6 8c0 1 .2 2.2 1.5 3.5.7.7 1.3 1.5 1.5 2.5M9 18h6M10 22h4"/>',
+    alert: '<path d="M10.29 3.86 1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0zM12 9v4M12 17h.01"/>',
+    play: '<path d="M6 4l14 8-14 8z"/>',
+    slow: '<path d="M2 20h14.5a5.5 5.5 0 0 0 5.5-5.5V9"/><path d="M10 20a7 7 0 1 1 7-7"/><path d="M10 16a3 3 0 1 1 3-3"/><path d="M22 9l-1-4M22 9l1.6-3.6"/>',
+    rotate: '<path d="M1 4v6h6"/><path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10"/>',
+    volume: '<path d="M11 5 6 9H2v6h4l5 4zM19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+    list: '<path d="M8 6h13M8 12h13M8 18h13M3 6h.01M3 12h.01M3 18h.01"/>',
+    type: '<path d="M4 7V4h16v3M9 20h6M12 4v16"/>',
+    "book-open": '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
+    briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
+    archive: '<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>',
+    calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
+    headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
+  };
+  const icon = (name, cls) => `<svg class="ic${cls ? " " + cls : ""}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false">${ICONS[name]}</svg>`;
   const LEVEL_INFO = {
     A1: { name: "Początkujący", desc: "Podstawy: to be, proste czasy, liczba mnoga, zaimki, przyimki." },
     A2: { name: "Podstawowy", desc: "Codzienna komunikacja: przeszłość, przyszłość, stopniowanie, modalne." },
@@ -215,14 +250,14 @@
   // Test poziomu (#/test-poziomu/A1): wynik w scores pod „test-level:A1”, zaliczenie od 80% = odznaka przy poziomie.
   const ltKey = (lv) => "test-level:" + lv;
   const ltPassed = (lv) => { const s = state.scores[ltKey(lv)]; return !!s && s.correct / s.total >= 0.8; };
-  const ltBadge = (lv) => ltPassed(lv) ? `<span class="lt-badge" title="Test poziomu ${lv} zaliczony">🏅 ${lv} zaliczony</span>` : "";
+  const ltBadge = (lv) => ltPassed(lv) ? `<span class="lt-badge" title="Test poziomu ${lv} zaliczony">${icon("medal")} ${lv} zaliczony</span>` : "";
   // Następny krok na ścieżce: pierwsza nieprzerobiona lekcja – chyba że tuż przed nią jest sprawdzian,
   // którego blok jest już przerobiony, a sam sprawdzian niezaliczony (pominięte starsze sprawdziany nie blokują).
   function nextStep() {
     const i = PATH.findIndex((l) => !state.done[l.id]);
     const before = i < 0 ? PATH[PATH.length - 1] : PATH[i - 1];
     const cp = before && CP_AFTER[before.id];
-    if (cp && !cpPassed(cp) && cp.lessons.every((l) => state.done[l.id])) return { cp, href: `#/sprawdzian/${cp.id}`, title: `🏁 Sprawdzian ${cp.n}: ${cp.title}` };
+    if (cp && !cpPassed(cp) && cp.lessons.every((l) => state.done[l.id])) return { cp, href: `#/sprawdzian/${cp.id}`, title: `Sprawdzian ${cp.n}: ${cp.title}` };
     return i < 0 ? null : { lesson: PATH[i], href: `#/lesson/${PATH[i].id}`, title: PATH[i].title };
   }
 
@@ -345,7 +380,7 @@
     if ((speechSynthesis.getVoices().length && !voice) || failed) return "Nie udało się znaleźć angielskiego głosu w tym urządzeniu – zdania mogą nie być czytane albo brzmieć z polskim akcentem. Dodaj głos angielski w ustawieniach systemu (Android: Ustawienia → Zamiana tekstu na mowę, Windows: Ustawienia → Czas i język → Mowa, iPhone: Ustawienia → Dostępność → Treść mówiona → Głosy) albo otwórz stronę w innej przeglądarce.";
     return "";
   }
-  const ttsWarnHtml = (failed) => { const p = ttsProblem(failed); return p ? `<div class="callout warning"><h3>⚠️ Brak głosu angielskiego</h3><div class="prose">${p}</div></div>` : ""; };
+  const ttsWarnHtml = (failed) => { const p = ttsProblem(failed); return p ? `<div class="callout warning"><h3>${icon("alert")} Brak głosu angielskiego</h3><div class="prose">${p}</div></div>` : ""; };
   const syncTtsWarn = (failed) => document.querySelectorAll(".tts-warn").forEach((el) => { el.innerHTML = ttsWarnHtml(failed); });
   if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = () => { pickVoice(); syncTtsWarn(); }; }
   function speak(text, btn, rate, onFail) {
@@ -363,7 +398,7 @@
     speechSynthesis.speak(u);
   }
   // Uwaga: przekazuj tu wyłącznie tekst ANGIELSKI (tłumaczenia trzymamy w osobnych polach).
-  const speakBtn = (text) => `<button class="speak" data-say="${esc(stripTags(text))}" title="Posłuchaj wymowy" aria-label="Posłuchaj">🔊</button>`;
+  const speakBtn = (text) => `<button class="speak" data-say="${esc(stripTags(text))}" title="Posłuchaj wymowy" aria-label="Posłuchaj">${icon("volume")}</button>`;
 
   // ---------- Sidebar ----------
   function renderLevelFilter() {
@@ -375,12 +410,12 @@
     const cur = currentLessonId();
     const h = location.hash;
     const quick = `<div class="nav-group nav-quick">
-      <a class="nav-item ${h.startsWith("#/kolejnosc") ? "active" : ""}" href="#/kolejnosc"><span class="nav-ico">🧭</span><span class="nav-title">Kolejność nauki</span></a>
-      <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">📚</span><span class="nav-title">Słownictwo</span></a>
-      <a class="nav-item ${h.startsWith("#/slowka") ? "active" : ""}" href="#/slowka"><span class="nav-ico">🃏</span><span class="nav-title">Słówka na dziś</span><span class="wd-count nav-count" title="Na dziś" hidden></span></a>
-      <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">📝</span><span class="nav-title">Testy – pisanie zdań</span></a>
-      <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">🎯</span><span class="nav-title">Trening mieszany</span></a>
-      <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">🔁</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
+      <a class="nav-item ${h.startsWith("#/kolejnosc") ? "active" : ""}" href="#/kolejnosc"><span class="nav-ico">${icon("compass")}</span><span class="nav-title">Kolejność nauki</span></a>
+      <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">${icon("book")}</span><span class="nav-title">Słownictwo</span></a>
+      <a class="nav-item ${h.startsWith("#/slowka") ? "active" : ""}" href="#/slowka"><span class="nav-ico">${icon("cards")}</span><span class="nav-title">Słówka na dziś</span><span class="wd-count nav-count" title="Na dziś" hidden></span></a>
+      <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">${icon("test")}</span><span class="nav-title">Testy – pisanie zdań</span></a>
+      <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">${icon("target")}</span><span class="nav-title">Trening mieszany</span></a>
+      <a class="nav-item ${h.startsWith("#/bledy") ? "active" : ""}" href="#/bledy"><span class="nav-ico">${icon("repeat")}</span><span class="nav-title">Moje błędy</span><span class="m-count nav-count" title="Na dziś" hidden></span></a>
     </div>`;
     const groups = CATEGORIES.map((c) => {
       const items = PATH.filter((l) => l.category === c && state.levels.includes(l.level))
@@ -388,7 +423,7 @@
       if (!items.length) return "";
       return `<div class="nav-group"><div class="nav-group-title">${esc(c)}</div>` +
         items.map((l) => `<a class="nav-item ${l.id === cur ? "active" : ""}" href="#/lesson/${l.id}">
-          ${badge(l.level)}<span class="nav-title">${esc(l.title)}</span>${state.done[l.id] ? '<span class="done-mark" title="Przerobione">✓</span>' : ""}</a>`).join("") +
+          ${badge(l.level)}<span class="nav-title">${esc(l.title)}</span>${state.done[l.id] ? `<span class="done-mark" title="Przerobione">${icon("check")}</span>` : ""}</a>`).join("") +
         `</div>`;
     }).join("");
     $("#nav").innerHTML = quick + (groups || `<div class="nav-empty">Brak lekcji dla wybranych poziomów.</div>`);
@@ -410,11 +445,11 @@
       const isNext = step && step.cp === cp;
       return `<li class="order-item order-cp${passed ? " is-done" : ""}${isNext ? " is-next" : ""}" data-level="${cp.level}">
             <a href="#/sprawdzian/${cp.id}">
-              <span class="order-num" aria-hidden="true">🏁</span>
+              <span class="order-num" aria-hidden="true">${icon("flag")}</span>
               <span class="order-titles"><span class="order-title">Sprawdzian ${cp.n}: ${esc(cp.title)}</span><span class="order-pl">Powtórka: lekcje ${cpRange(cp)}${cp.prior.length ? " + trochę wcześniejszych" : ""}</span></span>
               ${isNext ? '<span class="order-next-tag">Teraz</span>' : ""}
               ${s ? scorePill(s) : ""}
-              <span class="order-check" aria-label="${passed ? "Zaliczony" : "Niezaliczony"}">${passed ? "✓" : ""}</span>
+              <span class="order-check" aria-label="${passed ? "Zaliczony" : "Niezaliczony"}">${passed ? icon("check") : ""}</span>
             </a>
           </li>`;
     };
@@ -424,10 +459,10 @@
       const ready = ls.every((l) => state.done[l.id]);
       return `<li class="order-item order-cp order-lt${passed ? " is-done" : ""}" data-level="${lv}">
             <a href="#/test-poziomu/${lv}">
-              <span class="order-num" aria-hidden="true">📝</span>
-              <span class="order-titles"><span class="order-title">Test poziomu ${lv}</span><span class="order-pl">${LT_SIZE} zadań ze wszystkich lekcji ${lv}${passed ? "" : ready ? " – poziom przerobiony, sprawdź się!" : " – zalicz (80%), a dostaniesz odznakę 🏅"}</span></span>
+              <span class="order-num" aria-hidden="true">${icon("test")}</span>
+              <span class="order-titles"><span class="order-title">Test poziomu ${lv}</span><span class="order-pl">${LT_SIZE} zadań ze wszystkich lekcji ${lv}${passed ? "" : ready ? " – poziom przerobiony, sprawdź się!" : " – zalicz (80%), a dostaniesz odznakę " + icon("medal")}</span></span>
               ${s ? scorePill(s) : ""}
-              <span class="order-check" aria-label="${passed ? "Zaliczony" : "Niezaliczony"}">${passed ? "✓" : ""}</span>
+              <span class="order-check" aria-label="${passed ? "Zaliczony" : "Niezaliczony"}">${passed ? icon("check") : ""}</span>
             </a>
           </li>`;
     };
@@ -437,7 +472,7 @@
       if (!ls.length) return "";
       const d = ls.filter((l) => state.done[l.id]).length;
       return `<a class="order-level" href="#/kolejnosc" data-jump="lvl-${lv}" data-level="${lv}">
-        <div class="order-level-head">${badge(lv)} <b>${LEVEL_INFO[lv].name}</b>${ltPassed(lv) ? '<span title="Test poziomu zaliczony">🏅</span>' : ""}<span class="muted">${d}/${ls.length}</span></div>
+        <div class="order-level-head">${badge(lv)} <b>${LEVEL_INFO[lv].name}</b>${ltPassed(lv) ? `<span class="lt-mark" title="Test poziomu zaliczony">${icon("medal")}</span>` : ""}<span class="muted">${d}/${ls.length}</span></div>
         <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${ls.length}" aria-valuenow="${d}" aria-label="Postęp ${lv}"><i style="width:${percent(d, ls.length)}%"></i></div>
       </a>`;
     }).join("");
@@ -456,7 +491,7 @@
               ${badge(l.level)}
               <span class="order-titles"><span class="order-title">${esc(l.title)}</span>${l.titlePl ? `<span class="order-pl">${esc(l.titlePl)}</span>` : ""}</span>
               ${isNext ? '<span class="order-next-tag">Teraz</span>' : ""}
-              <span class="order-check" aria-label="${done ? "Przerobione" : "Nieprzerobione"}">${done ? "✓" : ""}</span>
+              <span class="order-check" aria-label="${done ? "Przerobione" : "Nieprzerobione"}">${done ? icon("check") : ""}</span>
             </a>
           </li>${CP_AFTER[l.id] ? cpRow(CP_AFTER[l.id]) : ""}`;
         }).join("")}${ltRow(lv, ls)}</ol>
@@ -465,15 +500,15 @@
     return `<div class="page order-page">
       <div class="crumbs"><a href="#/">Strona główna</a> · <span>Kolejność nauki</span></div>
       <h1>Kolejność nauki</h1>
-      <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).${CHECKPOINTS.length ? " Co kilka lekcji czeka 🏁 <b>sprawdzian powtórkowy</b>: zadania z ostatnich lekcji i trochę z wcześniejszych, głównie pisanie całych zdań." : ""} Na końcu każdego poziomu jest 📝 <b>test poziomu</b> – za zaliczenie (80%) dostajesz odznakę 🏅.</p>
+      <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).${CHECKPOINTS.length ? ` Co kilka lekcji czeka ${icon("flag")} <b>sprawdzian powtórkowy</b>: zadania z ostatnich lekcji i trochę z wcześniejszych, głównie pisanie całych zdań.` : ""} Na końcu każdego poziomu jest ${icon("test")} <b>test poziomu</b> – za zaliczenie (80%) dostajesz odznakę ${icon("medal")}.</p>
       <div class="card order-summary">
         <div class="order-total">
           <div><b>${nDone} z ${PATH.length} lekcji</b> <span class="muted">(${percent(nDone, PATH.length)}%)${CHECKPOINTS.length ? ` · sprawdziany: ${nCp}/${CHECKPOINTS.length}` : ""} · testy poziomów: ${nLt}/${LEVELS.filter((lv) => levelLessons(lv).length).length}</span></div>
-          ${step ? `<a class="btn primary" href="${step.href}">${nDone ? "Kontynuuj naukę" : "Zacznij naukę"}: ${esc(step.title)} →</a>` : `<span class="pill good">Wszystkie lekcje przerobione!</span>`}
+          ${step ? `<a class="btn primary" href="${step.href}">${nDone ? "Kontynuuj naukę" : "Zacznij naukę"}: ${step.cp ? icon("flag") + " " : ""}${esc(step.title)} →</a>` : `<span class="pill good">Wszystkie lekcje przerobione!</span>`}
         </div>
         <div class="progress big" role="progressbar" aria-valuemin="0" aria-valuemax="${PATH.length}" aria-valuenow="${nDone}" aria-label="Postęp całego kursu"><i style="width:${percent(nDone, PATH.length)}%"></i></div>
         <div class="order-levels">${levelBars}</div>
-        <a class="order-backup-link" href="#/kolejnosc/kopia" data-jump="kopia">💾 Kopia postępu – pobierz albo wczytaj z pliku</a>
+        <a class="order-backup-link" href="#/kolejnosc/kopia" data-jump="kopia">${icon("save")} Kopia postępu – pobierz albo wczytaj z pliku</a>
       </div>
       ${backupReminder()}
       ${groups}
@@ -614,7 +649,7 @@
     return n > (b.count || 0) && Date.now() - (Date.parse(b.since) || 0) >= REMIND_DAYS * DAY;
   }
   const backupReminder = () => backupDue() ? `<div class="card backup-reminder" role="note">
-      <span class="br-ico" aria-hidden="true">💾</span>
+      <span class="br-ico" aria-hidden="true">${icon("save")}</span>
       <div class="br-text"><b>Zrób kopię postępu</b><span>Postęp jest zapisany tylko w tej przeglądarce. Kopia w pliku przyda się, gdy wyczyścisz dane przeglądarki albo zmienisz urządzenie.</span></div>
       <div class="br-actions"><button class="btn primary small" type="button" data-backup="download">Pobierz kopię</button><button class="btn small" type="button" data-backup="later">Później</button></div>
     </div>` : "";
@@ -641,12 +676,12 @@
     const b = store.get("backup", null);
     const flash = backupFlash; backupFlash = "";
     return `<section class="card backup" id="kopia">
-      <h2>💾 Kopia postępu</h2>
+      <h2>${icon("save")} Kopia postępu</h2>
       <p>Przerobione lekcje, wyniki zadań i słówka oznaczone jako „znam” są zapisane <b>tylko w tej przeglądarce</b>. Po wyczyszczeniu danych przeglądarki znikną. Pobierz kopię do pliku – potem wczytasz ją tutaj albo na innym urządzeniu (np. na telefonie).</p>
       <p class="muted backup-last">${b && b.last ? `Ostatnia kopia: <b>${fmtDate(b.last, true)}</b>.` : "Na tym urządzeniu nie zrobiono jeszcze kopii."}</p>
       <div class="backup-actions">
-        <button class="btn primary" type="button" data-backup="download">⬇ Pobierz kopię postępu</button>
-        <button class="btn" type="button" data-backup="pick">⬆ Wczytaj kopię</button>
+        <button class="btn primary" type="button" data-backup="download">${icon("download")} Pobierz kopię postępu</button>
+        <button class="btn" type="button" data-backup="pick">${icon("upload")} Wczytaj kopię</button>
         <input type="file" accept=".json,application/json" hidden>
       </div>
       <div class="backup-panel" aria-live="polite">${flash}</div>
@@ -705,7 +740,7 @@
       const t = localStorage.getItem("eng-theme");
       if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
       syncThemeColor();
-      backupFlash = `<div class="backup-msg good">✓ Kopia wczytana${replace ? " (postęp zastąpiony)" : " i połączona z postępem z tego urządzenia"}: ${stats.done} przerobionych lekcji, ${stats.scores} wyników, ${stats.words} znanych słówek.</div>`;
+      backupFlash = `<div class="backup-msg good">${icon("check")} Kopia wczytana${replace ? " (postęp zastąpiony)" : " i połączona z postępem z tego urządzenia"}: ${stats.done} przerobionych lekcji, ${stats.scores} wyników, ${stats.words} znanych słówek.</div>`;
       renderLevelFilter();
       route();
       const sec = document.getElementById("kopia");
@@ -728,9 +763,9 @@
         <h1>Gramatyka angielska<br>od A1 do B2</h1>
         <p>Wszystkie najważniejsze tematy wyjaśnione po polsku: czasy, czasowniki modalne, tryby warunkowe, strona bierna i dużo więcej. Każda lekcja ma budowę, mnóstwo przykładów z tłumaczeniem, słownictwo, zestawy ćwiczeń i test z pisaniem całych zdań.</p>
         <div class="hero-actions">
-          ${next ? `<a class="btn primary" href="${next.href}">${nDone ? "Kontynuuj" : "Zacznij od początku"}: ${esc(next.title)} →</a>` : `<a class="btn primary" href="#/practice">Wszystko przerobione! Trenuj →</a>`}
-          <a class="btn" href="#/kolejnosc">🧭 Kolejność nauki (${nDone}/${PATH.length})</a>
-          ${overview ? `<a class="btn" href="#/lesson/tenses-overview">🗺️ Przegląd wszystkich czasów</a>` : ""}
+          ${next ? `<a class="btn primary" href="${next.href}">${nDone ? "Kontynuuj" : "Zacznij od początku"}: ${next.cp ? icon("flag") + " " : ""}${esc(next.title)} →</a>` : `<a class="btn primary" href="#/practice">Wszystko przerobione! Trenuj →</a>`}
+          <a class="btn" href="#/kolejnosc">${icon("compass")} Kolejność nauki (${nDone}/${PATH.length})</a>
+          ${overview ? `<a class="btn" href="#/lesson/tenses-overview">${icon("map")} Przegląd wszystkich czasów</a>` : ""}
         </div>
       </section>
       ${todayWidget()}
@@ -742,9 +777,9 @@
         <div class="stat"><b>${nWords}</b><span>słówek w ${VOCAB.length} działach</span></div>
       </div>
       <div class="feature-cards">
-        <a class="card feature" href="#/vocab"><span class="f-ico">📚</span><b>Słownictwo</b><span>Słówka tematyczne A1–B2: lista z wymową, fiszki i quizy.</span></a>
-        <a class="card feature" href="#/tests"><span class="f-ico">📝</span><b>Testy</b><span>Tłumaczenie i przekształcanie całych zdań – sprawdzanie na końcu.</span></a>
-        <a class="card feature" href="#/practice"><span class="f-ico">🎯</span><b>Trening mieszany</b><span>Losowe zadania z wielu lekcji – czy rozpoznasz konstrukcję?</span></a>
+        <a class="card feature" href="#/vocab"><span class="f-ico">${icon("book")}</span><b>Słownictwo</b><span>Słówka tematyczne A1–B2: lista z wymową, fiszki i quizy.</span></a>
+        <a class="card feature" href="#/tests"><span class="f-ico">${icon("test")}</span><b>Testy</b><span>Tłumaczenie i przekształcanie całych zdań – sprawdzanie na końcu.</span></a>
+        <a class="card feature" href="#/practice"><span class="f-ico">${icon("target")}</span><b>Trening mieszany</b><span>Losowe zadania z wielu lekcji – czy rozpoznasz konstrukcję?</span></a>
       </div>
       ${ankiCard()}
       <div class="level-cards">
@@ -758,17 +793,17 @@
             <div class="progress-label">${d} z ${ls.length} przerobionych</div>
             <div class="progress"><i style="width:${(d / ls.length) * 100}%"></i></div>
             <ul class="lesson-list">${ls.map((l) => `<li><a href="#/lesson/${l.id}">
-              ${state.done[l.id] ? '<span class="done-mark">✓</span>' : ""}<span>${esc(l.title)}</span><span class="pl">${esc(l.titlePl)}</span></a></li>`).join("")}</ul>
+              ${state.done[l.id] ? `<span class="done-mark">${icon("check")}</span>` : ""}<span>${esc(l.title)}</span><span class="pl">${esc(l.titlePl)}</span></a></li>`).join("")}</ul>
           </div>`;
         }).join("")}
       </div>
       <h2 class="section-title">Jak korzystać</h2>
       <div class="howto">
-        <div><b>1. Słówka i teoria</b>Zacznij od zakładki „Słownictwo” w lekcji, potem przeczytaj teorię. Kliknij 🔊, żeby usłyszeć wymowę.</div>
+        <div><b>1. Słówka i teoria</b>Zacznij od zakładki „Słownictwo” w lekcji, potem przeczytaj teorię. Kliknij ${icon("volume")}, żeby usłyszeć wymowę.</div>
         <div><b>2. Ćwiczenia</b>Zestawy od łatwych do trudnych: wybór, luki, układanie zdań, przekształcenia. Każde zadanie ma wyjaśnienie.</div>
         <div><b>3. Test</b>Na koniec napisz całe zdania sam(a). Wynik i poprawki zobaczysz po zakończeniu testu.</div>
       </div>
-      <p class="muted-p backup-note">Postęp zapisuje się w tej przeglądarce. <a href="#/kolejnosc/kopia">💾 Pobierz albo wczytaj kopię postępu</a> – przyda się na innym urządzeniu.</p>
+      <p class="muted-p backup-note">Postęp zapisuje się w tej przeglądarce. <a href="#/kolejnosc/kopia">${icon("save")} Pobierz albo wczytaj kopię postępu</a> – przyda się na innym urządzeniu.</p>
     </div>`;
   }
 
@@ -801,12 +836,12 @@
           <tbody>${(s.rows || []).map((r) => `<tr>${r.map((c) => `<td>${c}</td>`).join("")}</tr>`).join("")}</tbody></table></div></section>`;
       case "tip":
       case "warning":
-        return `<section class="block" id="${id}"><div class="callout ${s.type}"><h3>${s.type === "tip" ? "💡 " : "⚠️ "}${s.title || (s.type === "tip" ? "Wskazówka" : "Uwaga")}</h3><div class="prose">${s.html}</div></div></section>`;
+        return `<section class="block" id="${id}"><div class="callout ${s.type}"><h3>${icon(s.type === "tip" ? "bulb" : "alert")} ${s.title || (s.type === "tip" ? "Wskazówka" : "Uwaga")}</h3><div class="prose">${s.html}</div></div></section>`;
       case "mistakes":
         return `<section class="block">${h(sectionTitle(s, "Typowe błędy"))}<div class="mistakes">${(s.items || []).map((m) => `
           <div class="card mistake">
-            <div class="mistake-row"><span class="m-icon" style="color:var(--bad)">✗</span><span class="wrong">${m.wrong}</span></div>
-            <div class="mistake-row"><span class="m-icon" style="color:var(--ok)">✓</span><span class="right">${m.right}</span>${speakBtn(m.right)}</div>
+            <div class="mistake-row"><span class="m-icon" style="color:var(--bad)">${icon("x")}</span><span class="wrong">${m.wrong}</span></div>
+            <div class="mistake-row"><span class="m-icon" style="color:var(--ok)">${icon("check")}</span><span class="right">${m.right}</span>${speakBtn(m.right)}</div>
             <div class="why">${m.why}</div></div>`).join("")}</div></section>`;
       case "compare":
         return `<section class="block">${h(s.title)}<div class="compare">${(s.items || []).map((c) => `
@@ -822,7 +857,7 @@
   function exerciseHtml(ex, i, src) {
     const num = `<span class="ex-num">${i + 1}.</span>`;
     const task = ex.task ? `<div class="ex-task">${ex.task}</div>` : "";
-    const hint = ex.hint ? `<div class="ex-hint">💡 ${ex.hint}</div>` : "";
+    const hint = ex.hint ? `<div class="ex-hint">${icon("bulb")} ${ex.hint}</div>` : "";
     if (ex.type === "choice") {
       return `<div class="card exercise" data-i="${i}">${src}${task}<div class="ex-q">${num}<div>${ex.q.split("___").join("<b>_____</b>")}</div></div>${hint}
         <div class="options">${ex.options.map((o, j) => `<button class="opt" data-j="${j}">${o}</button>`).join("")}</div><div class="fb"></div></div>`;
@@ -839,7 +874,7 @@
     }
     if (ex.type === "dictation") {
       return `<div class="card exercise write dictation" data-i="${i}">${src}${task}<div class="ex-q">${num}<div class="d-controls">
-          <button class="btn small d-btn d-play" title="Odtwórz zdanie">▶ Odtwórz</button><button class="btn small d-btn d-slow" title="Odtwórz wolniej">🐢 Wolniej</button><span class="d-count muted"></span></div></div>
+          <button class="btn small d-btn d-play" title="Odtwórz zdanie">${icon("play")} Odtwórz</button><button class="btn small d-btn d-slow" title="Odtwórz wolniej">${icon("slow")} Wolniej</button><span class="d-count muted"></span></div></div>
         <div class="w-wrap"><textarea class="w-input" rows="1" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Zapisz po angielsku to, co słyszysz…" aria-label="Twoja odpowiedź"></textarea></div>
         <div class="gap-actions"></div><div class="fb"></div></div>`;
     }
@@ -867,7 +902,7 @@
     const show = (ok, extra) => {
       card.classList.remove("pending");
       card.classList.add(ok ? "correct" : "wrong");
-      fb.innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><span class="verdict">${ok ? "✓ Dobrze!" : "✗ Niestety."}</span>${extra || ""} <span class="explain">${ex.explain || ""}</span></div>`;
+      fb.innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><span class="verdict">${ok ? icon("check") + " Dobrze!" : icon("x") + " Niestety."}</span>${extra || ""} <span class="explain">${ex.explain || ""}</span></div>`;
     };
     const ctl = { ex, card, result: null };
     const finish = (res) => {
@@ -878,12 +913,12 @@
       show(res.ok, res.extra);
       if ((ex.type === "write" || ex.type === "dictation") && !res.ok && res.given) {
         const b = document.createElement("button");
-        b.className = "btn small accept"; b.textContent = "✓ Moja odpowiedź też jest poprawna";
+        b.className = "btn small accept"; b.innerHTML = icon("check") + " Moja odpowiedź też jest poprawna";
         b.title = "Automat zna tylko podane warianty. Jeśli jesteś pewien/pewna, że Twoje zdanie jest poprawne – zalicz je.";
         b.addEventListener("click", () => {
           b.remove(); card.classList.remove("wrong"); card.classList.add("correct");
           fb.querySelector(".feedback").className = "feedback ok";
-          fb.querySelector(".verdict").textContent = "✓ Zaliczone (samoocena).";
+          fb.querySelector(".verdict").innerHTML = icon("check") + " Zaliczone (samoocena).";
           ctl.result.ok = true; report(ctl, true);
         });
         fb.querySelector(".feedback").appendChild(b);
@@ -1112,9 +1147,9 @@
       <div class="exercises-head">${opts.h3 ? `<h3>${title}</h3>` : `<h2>${title}</h2>`}<span class="score"></span></div>
       ${opts.intro ? `<div class="ex-intro">${opts.intro}</div>` : ""}
       <div class="ex-list"></div>
-      <button class="btn primary check-all" style="display:none">Zakończ i sprawdź ✓</button>
+      <button class="btn primary check-all" style="display:none">Zakończ i sprawdź ${icon("check")}</button>
       <div class="result-slot"></div>
-      <div class="ex-footer"><button class="btn retry">↻ ${opts.retryLabel || "Od nowa"}</button>${opts.extraBtn || ""}</div>
+      <div class="ex-footer"><button class="btn retry">${icon("rotate")} ${opts.retryLabel || "Od nowa"}</button>${opts.extraBtn || ""}</div>
     </div>`;
   }
 
@@ -1153,7 +1188,7 @@
           <div class="v-main"><div class="v-en">${w.en}${w.pos ? ` <span class="v-pos">${w.pos}</span>` : ""}</div><div class="v-pl ex-pl">${w.pl}</div>
           ${w.ex ? `<div class="v-ex">${speakBtn(w.ex)}<span><i>${w.ex}</i>${w.exPl ? `<span class="ex-pl v-expl"> – ${w.exPl}</span>` : ""}</span></div>` : ""}
           ${w.note ? `<div class="ex-note">${w.note}</div>` : ""}</div>
-          <button class="v-known" title="Oznacz jako znane">✓</button>
+          <button class="v-known" title="Oznacz jako znane">${icon("check")}</button>
         </div>`).join("")}</div>`).join("");
   }
 
@@ -1163,10 +1198,10 @@
     return `<div class="vocab-block ${state.showPl ? "" : "hide-pl"}" data-vkey="${esc(key)}">
       <div class="v-toolbar">
         <div class="seg">
-          <button class="seg-btn active" data-vmode="list">📋 Lista</button>
-          <button class="seg-btn" data-vmode="cards">🃏 Fiszki</button>
-          <button class="seg-btn" data-vmode="quiz-en">✍️ Wpisz po angielsku</button>
-          <button class="seg-btn" data-vmode="quiz-pl">🔤 Wybierz znaczenie</button>
+          <button class="seg-btn active" data-vmode="list">${icon("list")} Lista</button>
+          <button class="seg-btn" data-vmode="cards">${icon("cards")} Fiszki</button>
+          <button class="seg-btn" data-vmode="quiz-en">${icon("pen")} Wpisz po angielsku</button>
+          <button class="seg-btn" data-vmode="quiz-pl">${icon("type")} Wybierz znaczenie</button>
         </div>
         <span class="v-progress">znasz <b class="v-k">${k}</b> z ${n}</span>
       </div>
@@ -1217,7 +1252,7 @@
   // cards: [{ k, w, deck, also }]. „Nie wiem” odsłania odpowiedź, a karta wraca na koniec talii.
   // opts: { onRate(card, rating), onEnd(stats [nie wiem, trudne, wiem] – pierwsze oceny), top, afterDraw(), note }.
   let fcDir = "en"; // co widać na awersie – wspólne dla wszystkich fiszek
-  const RATE_BTNS = [["fc-bad", "✗ Nie wiem"], ["fc-hard", "~ Trudne"], ["fc-ok primary", "✓ Wiem"]];
+  const RATE_BTNS = [["fc-bad", icon("x") + " Nie wiem"], ["fc-hard", "~ Trudne"], ["fc-ok primary", icon("check") + " Wiem"]];
   function flashcards(pane, cards, opts) {
     const queue = cards.slice(), rated = new Set(), stats = [0, 0, 0];
     let i = 0;
@@ -1274,7 +1309,7 @@
     const start = () => {
       const pool = onlyUnknown ? items.filter((w) => !known[stripTags(w.en)]) : items;
       flashcards(pane, shuffle(pool.length ? pool : items).map((w) => ({ k: wordKey(w.en), w, deck: key })), {
-        note: `Oceny trafiają do <a href="#/slowka">🃏 Słówek na dziś</a> – słówko wróci wtedy, gdy trzeba je powtórzyć.`,
+        note: `Oceny trafiają do <a href="#/slowka">${icon("cards")} Słówek na dziś</a> – słówko wróci wtedy, gdy trzeba je powtórzyć.`,
         top: `<label class="toggle"><input type="checkbox" class="fc-only" ${onlyUnknown ? "checked" : ""}> Tylko nieznane</label>`,
         afterDraw: () => { pane.querySelector(".fc-only").onchange = (e) => { onlyUnknown = e.target.checked; start(); }; },
         onRate: (c, r) => {
@@ -1285,7 +1320,7 @@
         },
         onEnd: (st) => {
           pane.innerHTML = `<div class="card fc-done"><b>Koniec talii! 🎉</b><p>${fcStatsHtml(st)}</p>
-            <button class="btn primary fc-again">↻ Jeszcze raz (nieznane)</button> <button class="btn fc-all">Cała talia</button></div>`;
+            <button class="btn primary fc-again">${icon("rotate")} Jeszcze raz (nieznane)</button> <button class="btn fc-all">Cała talia</button></div>`;
           pane.querySelector(".fc-again").onclick = () => { onlyUnknown = true; start(); };
           pane.querySelector(".fc-all").onclick = () => { onlyUnknown = false; start(); };
         },
@@ -1327,7 +1362,7 @@
         const ok = v != null && vocabMatch(v, ex.en);
         inp.disabled = true; inp.classList.add(ok ? "ok" : "bad"); card.classList.add(ok ? "correct" : "wrong");
         card.querySelector(".gap-actions").remove();
-        card.querySelector(".fb").innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><span class="verdict">${ok ? "✓ Dobrze!" : "✗"}</span> <b>${ex.en}</b> ${speakBtn(ex.en)} ${ex.explain ? `<div class="muted">${ex.explain}</div>` : ""}</div>`;
+        card.querySelector(".fb").innerHTML = `<div class="feedback ${ok ? "ok" : "bad"}"><span class="verdict">${icon(ok ? "check" : "x")}${ok ? " Dobrze!" : ""}</span> <b>${ex.en}</b> ${speakBtn(ex.en)} ${ex.explain ? `<div class="muted">${ex.explain}</div>` : ""}</div>`;
         answered++; if (ok) correct++; upd();
       };
       card.querySelector(".check").onclick = () => { if (inp.value.trim()) fin(inp.value); else inp.focus(); };
@@ -1341,14 +1376,14 @@
   function syncDoneBtn(btn, id) {
     const d = !!state.done[id];
     btn.classList.toggle("done", d);
-    btn.textContent = d ? "✓ Przerobione" : "Oznacz jako przerobione";
+    btn.innerHTML = d ? icon("check") + " Przerobione" : "Oznacz jako przerobione";
   }
   const TABS = [
-    { id: "", label: "📖 Lekcja" },
-    { id: "vocab", label: "🔤 Słownictwo", count: (l) => (l.vocab && l.vocab.items || []).length },
-    { id: "practice", label: "✍️ Ćwiczenia", count: (l) => (l.exercises || []).length + practiceCount(l) },
-    { id: "test", label: "📝 Test", count: (l) => l.test.length },
-    { id: "dictation", label: "🎧 Dyktando", count: (l) => l.dict.length },
+    { id: "", label: icon("book-open") + " Lekcja" },
+    { id: "vocab", label: icon("type") + " Słownictwo", count: (l) => (l.vocab && l.vocab.items || []).length },
+    { id: "practice", label: icon("pen") + " Ćwiczenia", count: (l) => (l.exercises || []).length + practiceCount(l) },
+    { id: "test", label: icon("test") + " Test", count: (l) => l.test.length },
+    { id: "dictation", label: icon("headphones") + " Dyktando", count: (l) => l.dict.length },
   ];
   function lessonTab() { const m = location.hash.match(/^#\/lesson\/[\w-]+\/(\w+)/); return m ? m[1] : ""; }
 
@@ -1377,7 +1412,7 @@
       ${body}
       <div class="pager">
         ${prev ? `<a class="card prev" href="#/lesson/${prev.id}"><small>← Poprzednia</small>${esc(prev.title)} ${badge(prev.level)}</a>` : "<span></span>"}
-        ${CP_AFTER[id] ? `<a class="card next cp-next" href="#/sprawdzian/${CP_AFTER[id].id}"><small>Następny krok →</small>🏁 Sprawdzian ${CP_AFTER[id].n}: ${esc(CP_AFTER[id].title)}</a>`
+        ${CP_AFTER[id] ? `<a class="card next cp-next" href="#/sprawdzian/${CP_AFTER[id].id}"><small>Następny krok →</small>${icon("flag")} Sprawdzian ${CP_AFTER[id].n}: ${esc(CP_AFTER[id].title)}</a>`
           : next ? `<a class="card next" href="#/lesson/${next.id}"><small>Następna →</small>${badge(next.level)} ${esc(next.title)}</a>` : ""}
       </div>
     </article>`;
@@ -1388,17 +1423,17 @@
     const req = (l.requires || []).map((r) => BY_ID[r]).filter(Boolean);
     const v = l.vocab && l.vocab.items || [];
     const prep = req.length || v.length ? `<div class="card prep">
-        <h3>🧳 Zanim zaczniesz</h3>
-        ${req.length ? `<p><b>Powinieneś znać:</b> ${req.map((r) => `<a href="#/lesson/${r.id}">${esc(r.title)}</a>${state.done[r.id] ? " ✓" : ""}`).join(", ")}</p>` : ""}
+        <h3>${icon("briefcase")} Zanim zaczniesz</h3>
+        ${req.length ? `<p><b>Powinieneś znać:</b> ${req.map((r) => `<a href="#/lesson/${r.id}">${esc(r.title)}</a>${state.done[r.id] ? " " + icon("check") : ""}`).join(", ")}</p>` : ""}
         ${v.length ? `<p><b>Słówka potrzebne w tej lekcji</b> (${v.length}): ${v.slice(0, 14).map((w) => `<span class="w-chip" title="${esc(stripTags(w.pl))}">${w.en}</span>`).join(" ")}${v.length > 14 ? " …" : ""}</p>
-        <a class="btn small" href="#/lesson/${l.id}/vocab">🔤 Przećwicz słówka →</a>` : ""}
+        <a class="btn small" href="#/lesson/${l.id}/vocab">${icon("type")} Przećwicz słówka →</a>` : ""}
       </div>` : "";
     const nPractice = practiceCount(l);
     return `
       <div class="toolbar">
         <label class="toggle"><input type="checkbox" id="plToggle" ${state.showPl ? "checked" : ""}> Pokaż tłumaczenia</label>
         <span class="spacer"></span>
-        <a class="btn small" href="#exercises" data-scroll="exercises">✍️ Sprawdzian (${(l.exercises || []).length})</a>
+        <a class="btn small" href="#exercises" data-scroll="exercises">${icon("pen")} Sprawdzian (${(l.exercises || []).length})</a>
         <button class="btn small" id="doneBtn"></button>
       </div>
       <nav class="toc">${titled.map(({ s, i }) => `<a href="#s-${i}-${slug(s.title || s.type)}" data-scroll="s-${i}-${slug(s.title || s.type)}">${stripTags(s.title || (s.type === "formula" ? "Budowa" : s.type === "examples" ? "Przykłady" : "Typowe błędy"))}</a>`).join("")}</nav>
@@ -1406,8 +1441,8 @@
       ${l.sections.map(renderSection).join("")}
       ${exercisesShell("Szybki sprawdzian", { id: "exercises" })}
       ${nPractice || l.test.length ? `<div class="card next-steps"><b>Co dalej?</b>
-        ${nPractice ? `<a class="btn" href="#/lesson/${l.id}/practice">✍️ Więcej ćwiczeń (${nPractice})</a>` : ""}
-        ${l.test.length ? `<a class="btn primary" href="#/lesson/${l.id}/test">📝 Test – pisanie zdań (${l.test.length})</a>` : ""}</div>` : ""}`;
+        ${nPractice ? `<a class="btn" href="#/lesson/${l.id}/practice">${icon("pen")} Więcej ćwiczeń (${nPractice})</a>` : ""}
+        ${l.test.length ? `<a class="btn primary" href="#/lesson/${l.id}/test">${icon("test")} Test – pisanie zdań (${l.test.length})</a>` : ""}</div>` : ""}`;
   }
 
   function renderLessonVocab(l) {
@@ -1428,7 +1463,7 @@
           <summary><span class="set-title">${s.title}</span><span class="set-meta">${s.items.length} zad. ${scorePill(state.scores[s.key])}</span></summary>
           <div class="set-body">${s.instruction ? `<div class="set-instr">${s.instruction}</div>` : ""}<div class="set-ex"></div></div>
         </details>`).join("")}</div>
-      ${l.test.length ? `<div class="card next-steps"><b>Gotowe?</b><a class="btn primary" href="#/lesson/${l.id}/test">📝 Przejdź do testu (${l.test.length})</a></div>` : ""}
+      ${l.test.length ? `<div class="card next-steps"><b>Gotowe?</b><a class="btn primary" href="#/lesson/${l.id}/test">${icon("test")} Przejdź do testu (${l.test.length})</a></div>` : ""}
     </section>`;
   }
 
@@ -1449,11 +1484,11 @@
   // ---------- Dyktando ----------
   const DICT_ROUND = 10;
   const dictIntro = (more) => `<div class="tts-warn">${ttsWarnHtml()}</div>
-    <div class="ex-intro">Kliknij <b>▶ Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>🐢 Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}</div>`;
+    <div class="ex-intro">Kliknij <b>${icon("play")} Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>${icon("slow")} Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}</div>`;
   function renderLessonDictation(l) {
     const s = state.scores[l.id + "::dict"];
     return `<section class="block">
-      <h2>🎧 Dyktando</h2>
+      <h2>${icon("headphones")} Dyktando</h2>
       <p class="muted-p">Zdania z przykładów w tej lekcji (${l.dict.length}) – za każdym razem ${Math.min(DICT_ROUND, l.dict.length)} losowych. Najpierw przeczytaj teorię, potem sprawdź, czy rozpoznajesz te zdania ze słuchu.${s ? ` Najlepszy wynik: ${scorePill(s)}` : ""}</p>
       <div id="dictBox">${exercisesShell("Posłuchaj i zapisz", { h3: true, retryLabel: "Nowe zdania" })}</div>
     </section>`;
@@ -1524,10 +1559,10 @@
   const ANKI_FILE = "downloads/Angielski_A1-B2.apkg";
   function ankiCard() {
     return `<div class="card anki-dl">
-      <span class="f-ico">🗂️</span>
+      <span class="f-ico">${icon("archive")}</span>
       <div class="anki-txt"><b>Talia Anki do pobrania</b>
         <span>Ok. 4500 słówek A1–B2 (plus trochę C1) w kierunku PL → EN, z transkrypcją IPA i nagraniem wymowy. Otwórz pobrany plik <code>.apkg</code> w programie Anki (na komputerze lub w AnkiDroid), a talia sama się zaimportuje.</span></div>
-      <a class="btn primary" href="${ANKI_FILE}" download>⬇ Pobierz (.apkg, ok. 50 MB)</a>
+      <a class="btn primary" href="${ANKI_FILE}" download>${icon("download")} Pobierz (.apkg, ok. 50 MB)</a>
     </div>`;
   }
 
@@ -1536,8 +1571,8 @@
   function renderVocabHome() {
     const list = VOCAB.filter((t) => vocabLevels.includes(t.level));
     return `<div class="page">
-      <div class="hero"><h1>📚 Słownictwo</h1><p>Słówka, które trzeba znać na poziomach A1–B2, pogrupowane tematycznie. W każdym dziale: lista z wymową i przykładami, fiszki oraz dwa rodzaje quizu. Oznaczaj słowa, które już znasz – postęp zapisuje się w przeglądarce.</p></div>
-      <div class="card today-widget"><span class="f-ico">🃏</span><div class="tw-body"><b>Słówka na dziś</b>${wordsRow(srsToday())}</div></div>
+      <div class="hero"><h1>${icon("book")} Słownictwo</h1><p>Słówka, które trzeba znać na poziomach A1–B2, pogrupowane tematycznie. W każdym dziale: lista z wymową i przykładami, fiszki oraz dwa rodzaje quizu. Oznaczaj słowa, które już znasz – postęp zapisuje się w przeglądarce.</p></div>
+      <div class="card today-widget"><span class="f-ico">${icon("cards")}</span><div class="tw-body"><b>Słówka na dziś</b>${wordsRow(srsToday())}</div></div>
       ${ankiCard()}
       <div class="chips" id="vLevels" style="margin-bottom:18px">${LEVELS.map((l) => `<button class="chip ${vocabLevels.includes(l) ? "active" : ""}" data-level="${l}">${l} · ${LEVEL_INFO[l].name}</button>`).join("")}</div>
       ${VOCAB.length ? LEVELS.filter((lv) => vocabLevels.includes(lv)).map((lv) => {
@@ -1568,7 +1603,7 @@
     const i = same.indexOf(t);
     return `<article class="page">
       <div class="lesson-head">
-        <div class="crumbs" data-level="${t.level}"><a href="#/vocab">📚 Słownictwo</a> · ${badge(t.level)} <span>${LEVEL_INFO[t.level].name}</span></div>
+        <div class="crumbs" data-level="${t.level}"><a href="#/vocab">${icon("book")} Słownictwo</a> · ${badge(t.level)} <span>${LEVEL_INFO[t.level].name}</span></div>
         <h1>${t.icon || ""} ${esc(t.titlePl)}</h1>
         <div class="title-pl">${esc(t.title)} · ${vocabItems(t).length} słówek</div>
       </div>
@@ -1604,13 +1639,13 @@
     $("#pStart").addEventListener("click", start);
     info();
   }
-  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań", dictation: "🎧 Dyktando" };
+  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań", dictation: icon("headphones") + " Dyktando" };
   // Dyktando w treningu: tylko lekcje do bieżącej włącznie (pierwsza nieprzerobiona na ścieżce) – żeby nie dyktować zdań z gramatyką, której jeszcze nie było.
   const reachIdx = () => { const i = PATH.findIndex((l) => !state.done[l.id]); return i < 0 ? PATH.length - 1 : i; };
   const reachLabel = () => reachIdx() ? `lekcje 1–${reachIdx() + 1}` : "lekcja 1";
   function renderPractice() {
     return `<div class="page">
-      <div class="hero"><h1>🎯 Trening mieszany</h1><p>Losowe zadania z wielu lekcji (sprawdzane od razu) — dobry sposób, żeby sprawdzić, czy umiesz rozpoznać właściwą konstrukcję, gdy nie wiesz, z jakiej lekcji jest zadanie.</p></div>
+      <div class="hero"><h1>${icon("target")} Trening mieszany</h1><p>Losowe zadania z wielu lekcji (sprawdzane od razu) — dobry sposób, żeby sprawdzić, czy umiesz rozpoznać właściwą konstrukcję, gdy nie wiesz, z jakiej lekcji jest zadanie.</p></div>
       ${setupHtml(practiceCfg, [10, 15, 25, 40], `<div><h3>Rodzaj zadań</h3><div class="chips" data-f="src">${Object.entries(SRC).map(([k, v]) => `<button class="chip ${practiceCfg.src === k ? "active" : ""}" data-v="${k}">${v}</button>`).join("")}</div></div>`)}
       <div id="pBox"></div>
     </div>`;
@@ -1641,11 +1676,11 @@
   function renderTests() {
     const perLevel = LEVELS.map((lv) => ({ lv, n: levelLessons(lv).length }));
     return `<div class="page">
-      <div class="hero"><h1>📝 Testy</h1><p>Test składa się głównie z zadań, w których <b>samodzielnie piszesz całe zdania</b>: tłumaczenie z polskiego, przekształcanie (np. na stronę bierną, mowę zależną), poprawianie błędów i układanie zdań. Wynik zobaczysz dopiero na końcu – jak na prawdziwym sprawdzianie.</p></div>
-      <div class="level-test-row">${perLevel.filter((x) => x.n).map((x) => `<a class="card level-test" data-level="${x.lv}" href="#/test-poziomu/${x.lv}">${badge(x.lv)} <b>Test poziomu ${x.lv}</b><span>${LT_SIZE} zadań ze wszystkich ${x.n} lekcji, z raportem tematów</span><span class="lt-score">${scorePill(state.scores[ltKey(x.lv)])}${ltPassed(x.lv) ? " 🏅" : ""}</span></a>`).join("")}</div>
-      ${CHECKPOINTS.length ? `<h2 class="section-title">🏁 Sprawdziany powtórkowe</h2>
+      <div class="hero"><h1>${icon("test")} Testy</h1><p>Test składa się głównie z zadań, w których <b>samodzielnie piszesz całe zdania</b>: tłumaczenie z polskiego, przekształcanie (np. na stronę bierną, mowę zależną), poprawianie błędów i układanie zdań. Wynik zobaczysz dopiero na końcu – jak na prawdziwym sprawdzianie.</p></div>
+      <div class="level-test-row">${perLevel.filter((x) => x.n).map((x) => `<a class="card level-test" data-level="${x.lv}" href="#/test-poziomu/${x.lv}">${badge(x.lv)} <b>Test poziomu ${x.lv}</b><span>${LT_SIZE} zadań ze wszystkich ${x.n} lekcji, z raportem tematów</span><span class="lt-score">${scorePill(state.scores[ltKey(x.lv)])}${ltPassed(x.lv) ? " " + icon("medal") : ""}</span></a>`).join("")}</div>
+      ${CHECKPOINTS.length ? `<h2 class="section-title">${icon("flag")} Sprawdziany powtórkowe</h2>
       <p class="muted-p">Co kilka lekcji: zadania z ostatniego bloku lekcji i trochę z wcześniejszych, głównie pisanie całych zdań. Stoją też w <a href="#/kolejnosc">kolejności nauki</a>.</p>
-      <div class="results-list">${CHECKPOINTS.map((c) => { const { cur, rev } = cpSize(c); return `<a class="card result-item test-link" href="#/sprawdzian/${c.id}"><h3>${badge(c.level)} Sprawdzian ${c.n}: ${esc(c.title)} <span class="muted" style="font-family:Inter;font-size:14px;font-weight:400">lekcje ${cpRange(c)} · ${cur + rev} zadań</span> ${scorePill(state.scores[cpKey(c)])}${cpPassed(c) ? " ✓" : ""}</h3></a>`; }).join("")}</div>` : ""}
+      <div class="results-list">${CHECKPOINTS.map((c) => { const { cur, rev } = cpSize(c); return `<a class="card result-item test-link" href="#/sprawdzian/${c.id}"><h3>${badge(c.level)} Sprawdzian ${c.n}: ${esc(c.title)} <span class="muted" style="font-family:Inter;font-size:14px;font-weight:400">lekcje ${cpRange(c)} · ${cur + rev} zadań</span> ${scorePill(state.scores[cpKey(c)])}${cpPassed(c) ? " " + icon("check") : ""}</h3></a>`; }).join("")}</div>` : ""}
       <h2 class="section-title">Własny test</h2>
       ${setupHtml(testCfg, [10, 20, 30, 50])}
       <div id="pBox"></div>
@@ -1716,21 +1751,21 @@
     const last = c.lessons[c.lessons.length - 1], after = PATH[PATH.indexOf(last) + 1];
     const todo = c.lessons.filter((l) => !state.done[l.id]);
     return `<div class="page checkpoint" data-level="${c.level}">
-      <div class="crumbs" data-level="${c.level}"><a href="#/kolejnosc">🧭 Kolejność nauki</a> · ${badge(c.level)} <span>Sprawdzian ${c.n} z ${CHECKPOINTS.length}</span></div>
-      <h1>🏁 Sprawdzian ${c.n}: ${esc(c.title)}</h1>
+      <div class="crumbs" data-level="${c.level}"><a href="#/kolejnosc">${icon("compass")} Kolejność nauki</a> · ${badge(c.level)} <span>Sprawdzian ${c.n} z ${CHECKPOINTS.length}</span></div>
+      <h1>${icon("flag")} Sprawdzian ${c.n}: ${esc(c.title)}</h1>
       <p class="summary">Powtórka po lekcjach ${cpRange(c)}${c.prior.length ? ` z dodatkiem zadań z lekcji 1–${lessonNo(c.lessons[0]) - 1}` : ""}. Zadania są wymieszane i nie widać, z której lekcji pochodzą – trzeba samemu rozpoznać, jakiej konstrukcji użyć.</p>
       <div class="card test-intro">
         <p><b>Co sprawdzamy:</b> ${esc(c.focus || "")}</p>
-        <p class="cp-lessons"><b>Lekcje:</b> ${c.lessons.map((l) => `<a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a>${state.done[l.id] ? " ✓" : ""}`).join(" · ")}</p>
+        <p class="cp-lessons"><b>Lekcje:</b> ${c.lessons.map((l) => `<a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a>${state.done[l.id] ? " " + icon("check") : ""}`).join(" · ")}</p>
         <p><b>${cur + rev} zadań</b>: ${cur} z tych lekcji${rev ? ` i ${rev} z wcześniejszych` : ""}. Prawie wszystkie to <b>pisanie całych zdań</b> (tłumaczenie, przekształcanie, poprawianie błędów), kilka to układanie zdań z wyrazów. Wynik i poprawki zobaczysz po kliknięciu „Zakończ i sprawdź”. Zaliczenie od <b>80%</b>. Każde podejście losuje nowe zadania.</p>
         ${todo.length ? `<p class="callout warning">Możesz pisać od razu, ale najlepiej najpierw przerobić: ${todo.map((l) => `<a href="#/lesson/${l.id}">${esc(l.title)}</a>`).join(", ")}</p>` : ""}
-        ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${cpPassed(c) ? " – <b>zaliczone ✓</b>" : ""}</p>` : ""}
+        ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${cpPassed(c) ? ` – <b>zaliczone ${icon("check")}</b>` : ""}</p>` : ""}
       </div>
       <div id="cpBox" class="cp-run">${exercisesShell("Zadania", { h3: true, retryLabel: "Nowe losowanie" })}</div>
       <div id="cpReport"></div>
       <div class="pager">
         <a class="card prev" href="#/lesson/${last.id}"><small>← Ostatnia lekcja</small>${esc(last.title)} ${badge(last.level)}</a>
-        ${after ? `<a class="card next" href="#/lesson/${after.id}"><small>Następna lekcja →</small>${badge(after.level)} ${esc(after.title)}</a>` : `<a class="card next" href="#/tests"><small>Dalej →</small>📝 Testy</a>`}
+        ${after ? `<a class="card next" href="#/lesson/${after.id}"><small>Następna lekcja →</small>${badge(after.level)} ${esc(after.title)}</a>` : `<a class="card next" href="#/tests"><small>Dalej →</small>${icon("test")} Testy</a>`}
       </div>
     </div>`;
   }
@@ -1752,7 +1787,7 @@
     const need = Math.ceil(total * 0.8) - correct;
     const isReview = opts.isReview || (() => false);
     return `<div class="card cp-report">
-      <h3>${passed ? `✓ ${opts.noun} zaliczony` : `Do zaliczenia zabrakło ${need} ${need === 1 ? "punktu" : "punktów"}`}</h3>
+      <h3>${passed ? `${icon("check")} ${opts.noun} zaliczony` : `Do zaliczenia zabrakło ${need} ${need === 1 ? "punktu" : "punktów"}`}</h3>
       <p>${passed
         ? (weak.length ? "Brawo! Zerknij jeszcze na lekcje z błędami poniżej, zanim pójdziesz dalej." : "Bezbłędnie we wszystkich lekcjach – można iść dalej.")
         : "Przejrzyj poprawki przy zadaniach, powtórz lekcje z błędami (teoria i ćwiczenia), a potem wylosuj nowy zestaw."}</p>
@@ -1760,7 +1795,7 @@
       <table class="cp-table"><thead><tr><th>Lekcja</th><th>Wynik</th><th></th></tr></thead><tbody>
         ${rows.map(([l, r]) => `<tr class="${r.ok < r.n ? "cp-weak" : ""}"><td><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}${isReview(l) ? ' <span class="muted">(powtórka)</span>' : ""}</td>
           <td>${scorePill({ correct: r.ok, total: r.n })}</td>
-          <td>${r.ok < r.n ? `<a class="btn small" href="#/lesson/${l.id}/practice" title="Ćwiczenia z tej lekcji">Powtórz →</a>` : "✓"}</td></tr>`).join("")}
+          <td>${r.ok < r.n ? `<a class="btn small" href="#/lesson/${l.id}/practice" title="Ćwiczenia z tej lekcji">Powtórz →</a>` : icon("check")}</td></tr>`).join("")}
       </tbody></table>
       ${passed && opts.after ? `<p><a class="btn primary" href="${opts.after.href}">${esc(opts.after.label)} →</a></p>` : ""}
     </div>`;
@@ -1799,19 +1834,19 @@
     const nDone = ls.filter((l) => state.done[l.id]).length;
     const last = ls[ls.length - 1], after = PATH[PATH.indexOf(last) + 1];
     return `<div class="page checkpoint" data-level="${lv}">
-      <div class="crumbs" data-level="${lv}"><a href="#/kolejnosc">🧭 Kolejność nauki</a> · ${badge(lv)} <span>${LEVEL_INFO[lv].name}</span></div>
-      <h1>📝 Test poziomu ${lv}</h1>
+      <div class="crumbs" data-level="${lv}"><a href="#/kolejnosc">${icon("compass")} Kolejność nauki</a> · ${badge(lv)} <span>${LEVEL_INFO[lv].name}</span></div>
+      <h1>${icon("test")} Test poziomu ${lv}</h1>
       <p class="summary">Sprawdza cały poziom ${lv} (${LEVEL_INFO[lv].name}): lekcje ${lessonNo(ls[0])}–${lessonNo(last)}. Zadania są wymieszane i nie widać, z której lekcji pochodzą. Po teście zobaczysz raport: które tematy idą dobrze, a które trzeba powtórzyć.</p>
       <div class="card test-intro">
-        <p><b>${LT_SIZE} zadań</b>, po równo z każdej z ${ls.length} lekcji poziomu. Prawie wszystkie to <b>pisanie całych zdań</b> (tłumaczenie, przekształcanie, poprawianie błędów), kilka to układanie zdań z wyrazów. Wynik i poprawki zobaczysz po kliknięciu „Zakończ i sprawdź”. Zaliczenie od <b>80%</b> – dostajesz wtedy odznakę 🏅 przy poziomie w <a href="#/kolejnosc">kolejności nauki</a>. Każde podejście losuje nowe zadania.</p>
+        <p><b>${LT_SIZE} zadań</b>, po równo z każdej z ${ls.length} lekcji poziomu. Prawie wszystkie to <b>pisanie całych zdań</b> (tłumaczenie, przekształcanie, poprawianie błędów), kilka to układanie zdań z wyrazów. Wynik i poprawki zobaczysz po kliknięciu „Zakończ i sprawdź”. Zaliczenie od <b>80%</b> – dostajesz wtedy odznakę ${icon("medal")} przy poziomie w <a href="#/kolejnosc">kolejności nauki</a>. Każde podejście losuje nowe zadania.</p>
         ${nDone < ls.length ? `<p class="callout warning">Przerobione lekcje tego poziomu: ${nDone} z ${ls.length}. Test obejmuje wszystkie – możesz pisać od razu (np. żeby sprawdzić, co już umiesz), ale najlepiej po przerobieniu całego poziomu.</p>` : ""}
-        ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${ltPassed(lv) ? ` – <b>zaliczone ✓</b> ${ltBadge(lv)}` : ""}</p>` : ""}
+        ${s ? `<p>Twój najlepszy wynik: ${scorePill(s)}${ltPassed(lv) ? ` – <b>zaliczone ${icon("check")}</b> ${ltBadge(lv)}` : ""}</p>` : ""}
       </div>
       <div id="cpBox" class="cp-run">${exercisesShell("Zadania", { h3: true, retryLabel: "Nowe losowanie" })}</div>
       <div id="cpReport"></div>
       <div class="pager">
         <a class="card prev" href="#/lesson/${last.id}"><small>← Ostatnia lekcja poziomu</small>${esc(last.title)} ${badge(last.level)}</a>
-        ${after ? `<a class="card next" href="#/lesson/${after.id}"><small>Następny poziom →</small>${badge(after.level)} ${esc(after.title)}</a>` : `<a class="card next" href="#/tests"><small>Dalej →</small>📝 Testy</a>`}
+        ${after ? `<a class="card next" href="#/lesson/${after.id}"><small>Następny poziom →</small>${badge(after.level)} ${esc(after.title)}</a>` : `<a class="card next" href="#/tests"><small>Dalej →</small>${icon("test")} Testy</a>`}
       </div>
     </div>`;
   }
@@ -1866,7 +1901,7 @@
     const due = list.filter((x) => isDue(x.m));
     if (due.length) return `<div class="card m-today"><div><b>Na dziś: ${zadan(due.length)}</b><span>${due.length > SESSION_MAX ? `Po ${SESSION_MAX} w jednej rundzie.` : "Zadania sprawdzają się od razu."}</span></div><button class="btn primary" data-mrun="due">Powtórz →</button></div>`;
     const next = list.map((x) => x.m.due).sort()[0];
-    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ✓</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })}. Możesz też poćwiczyć wcześniej (przyciski „Ćwicz teraz” poniżej) – wtedy dobra odpowiedź nie przesuwa zadania dalej.` : ""}</span></div></div>`;
+    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ${icon("check")}</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })}. Możesz też poćwiczyć wcześniej (przyciski „Ćwicz teraz” poniżej) – wtedy dobra odpowiedź nie przesuwa zadania dalej.` : ""}</span></div></div>`;
   }
   function mListHtml(list) {
     const by = new Map();
@@ -1878,15 +1913,15 @@
       return `<div class="card m-group">
         <div class="m-head"><div class="m-title"><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}<span class="muted">${xs.length} zad.${nDue ? ` · ${nDue} na dziś` : ""}</span></div>
           <div class="m-actions"><button class="btn small" data-mrun="${l.id}">Ćwicz teraz</button><a class="btn small" href="#/lesson/${l.id}" title="Teoria i ćwiczenia z tej lekcji">Powtórz lekcję →</a></div></div>
-        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? "🎧 " + stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
+        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${x.ex.type === "dictation" ? icon("headphones") + " " : ""}${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
           <span class="m-meta">${srcLabel(x)} · ${TYPE_LABEL[x.ex.type]} · pudełko ${x.m.box}/${BOX_DAYS.length} · powtórka ${dueLabel(x.m)}${x.m.wrong > 1 ? ` · błędy: ${x.m.wrong}` : ""}</span></li>`; }).join("")}</ul>
       </div>`;
     }).join("");
   }
   function renderMistakes() {
     const all = mistakeList();
-    const head = `<div class="hero"><h1>🔁 Moje błędy</h1><p>Tu wracają zadania, w których się pomylisz – w lekcjach, ćwiczeniach, testach, treningu i sprawdzianach. Zadanie z błędem wraca następnego dnia, a po każdej dobrej odpowiedzi coraz rzadziej: po 3, 7 i 14 dniach. Czwarta dobra odpowiedź z rzędu – zadanie znika z listy. Nowy błąd – zadanie wraca na początek.</p></div>`;
-    if (!all.length) return `<div class="page">${head}<div class="card empty m-empty"><b>Nie masz żadnych zadań do powtórki.</b><p>Rozwiązuj ćwiczenia i testy – zadania z błędami same się tu pojawią.</p><p><a class="btn primary" href="#/kolejnosc">🧭 Kolejność nauki</a></p></div></div>`;
+    const head = `<div class="hero"><h1>${icon("repeat")} Moje błędy</h1><p>Tu wracają zadania, w których się pomylisz – w lekcjach, ćwiczeniach, testach, treningu i sprawdzianach. Zadanie z błędem wraca następnego dnia, a po każdej dobrej odpowiedzi coraz rzadziej: po 3, 7 i 14 dniach. Czwarta dobra odpowiedź z rzędu – zadanie znika z listy. Nowy błąd – zadanie wraca na początek.</p></div>`;
+    if (!all.length) return `<div class="page">${head}<div class="card empty m-empty"><b>Nie masz żadnych zadań do powtórki.</b><p>Rozwiązuj ćwiczenia i testy – zadania z błędami same się tu pojawią.</p><p><a class="btn primary" href="#/kolejnosc">${icon("compass")} Kolejność nauki</a></p></div></div>`;
     const levels = LEVELS.filter((lv) => all.some((x) => x.lesson.level === lv));
     if (mistakesCfg.level && !levels.includes(mistakesCfg.level)) mistakesCfg.level = "";
     const lessons = PATH.filter((l) => all.some((x) => x.lesson === l) && (!mistakesCfg.level || l.level === mistakesCfg.level));
@@ -1916,7 +1951,7 @@
       const box = $("#mBox");
       const run = () => {
         const items = sessionItems(pick());
-        if (!items.length) { box.innerHTML = `<div class="card m-done">✓ Wszystko powtórzone.</div>`; refresh(); return; }
+        if (!items.length) { box.innerHTML = `<div class="card m-done">${icon("check")} Wszystko powtórzone.</div>`; refresh(); return; }
         box.innerHTML = exercisesShell(what === "due" ? "Powtórka na dziś" : `Ćwiczenie: ${esc(BY_ID[what].title)}`, { retryLabel: what === "due" ? "Następna runda" : "Jeszcze raz" });
         renderExercises(box.firstElementChild, items, { showSource: true, onDone: refresh });
         box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
@@ -1940,7 +1975,7 @@
     const nNext = next ? srsEntries().filter((e) => e.due === next).length : 0;
     const more = q.avail ? `Dzienny limit nowych słówek (${state.srsNew}) wykorzystany – kolejne jutro. Możesz zwiększyć limit poniżej.`
       : "Wszystkie słówka z Twoich lekcji i działów są już w powtórkach – nowe dojdą po następnej lekcji.";
-    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ✓</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })} (${slowek(nNext)}). ` : ""}${more}</span></div></div>`;
+    return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ${icon("check")}</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })} (${slowek(nNext)}). ` : ""}${more}</span></div></div>`;
   }
   function wInfoHtml(q) {
     const entries = srsEntries();
@@ -1951,13 +1986,13 @@
       <div class="wd-boxes">${boxes.map((n, i) => `<div class="card wd-box"><b>${n}</b><span>pudełko ${i + 1}</span><small>co ${daysLabel(SRS_DAYS[i])}</small></div>`).join("")}</div>
       <p class="muted-p">„Wiem” przenosi słówko do następnego pudełka, „Trudne” zostawia w tym samym, „Nie wiem” cofa do pudełka 1. W pudełkach 5–6 są słówka, które znasz już dobrze (${boxes[4] + boxes[5]}).</p>` : ""}
       ${q.decks.length ? `<h2 class="section-title">Skąd są słówka</h2>
-      <p class="muted-p">Słownictwo lekcji dochodzi, gdy lekcja jest przerobiona. Dział słownictwa – gdy zaczniesz go ćwiczyć fiszkami albo oznaczysz w nim słówko jako znane (<a href="#/vocab">📚 Słownictwo</a>). Słówko, które powtarza się w kilku miejscach, uczysz się tylko raz.</p>
+      <p class="muted-p">Słownictwo lekcji dochodzi, gdy lekcja jest przerobiona. Dział słownictwa – gdy zaczniesz go ćwiczyć fiszkami albo oznaczysz w nim słówko jako znane (<a href="#/vocab">${icon("book")} Słownictwo</a>). Słówko, które powtarza się w kilku miejscach, uczysz się tylko raz.</p>
       <div class="card wd-decks">${q.decks.map((d) => `<a class="wd-deck" href="${d.href}"><span class="wd-deck-t">${badge(d.level)} ${esc(d.title)}</span><span class="muted">w powtórkach: ${inDeck(d)} z ${d.keys.length}</span></a>`).join("")}</div>` : ""}`;
   }
   function renderWords() {
     const q = srsToday();
-    const head = `<div class="hero"><h1>🃏 Słówka na dziś</h1><p>Codzienna porcja fiszek: słówka do powtórki i kilka nowych. Oceniaj szczerze: <b>Nie wiem</b> – słówko wróci jutro, <b>Trudne</b> – wróci po tym samym czasie co ostatnio, <b>Wiem</b> – wróci później: po 3, 7, 14, 30, a potem co 60 dni. Tak powtarzasz słówko wtedy, gdy zaczyna Ci uciekać z pamięci.</p></div>`;
-    if (!q.decks.length && !srsEntries().length) return `<div class="page">${head}<div class="card empty m-empty"><b>Na razie nie masz słówek do nauki.</b><p>Słówka z lekcji pojawią się tu, gdy oznaczysz lekcję jako przerobioną (albo zdasz jej szybki sprawdzian). Słówka z działów – gdy zaczniesz ćwiczyć dział fiszkami.</p><p><a class="btn primary" href="#/kolejnosc">🧭 Kolejność nauki</a> <a class="btn" href="#/vocab">📚 Słownictwo</a></p></div></div>`;
+    const head = `<div class="hero"><h1>${icon("cards")} Słówka na dziś</h1><p>Codzienna porcja fiszek: słówka do powtórki i kilka nowych. Oceniaj szczerze: <b>Nie wiem</b> – słówko wróci jutro, <b>Trudne</b> – wróci po tym samym czasie co ostatnio, <b>Wiem</b> – wróci później: po 3, 7, 14, 30, a potem co 60 dni. Tak powtarzasz słówko wtedy, gdy zaczyna Ci uciekać z pamięci.</p></div>`;
+    if (!q.decks.length && !srsEntries().length) return `<div class="page">${head}<div class="card empty m-empty"><b>Na razie nie masz słówek do nauki.</b><p>Słówka z lekcji pojawią się tu, gdy oznaczysz lekcję jako przerobioną (albo zdasz jej szybki sprawdzian). Słówka z działów – gdy zaczniesz ćwiczyć dział fiszkami.</p><p><a class="btn primary" href="#/kolejnosc">${icon("compass")} Kolejność nauki</a> <a class="btn" href="#/vocab">${icon("book")} Słownictwo</a></p></div></div>`;
     return `<div class="page words">${head}
       <div id="wToday">${wTodayHtml(q)}</div>
       <div id="wBox"></div>
@@ -1984,7 +2019,7 @@
         onEnd: (st) => {
           const left = wordsDue();
           pane.innerHTML = `<div class="card fc-done"><b>Runda skończona! 🎉</b><p>${fcStatsHtml(st)}</p>
-            ${left ? `<button class="btn primary wd-more">Następna runda (zostało: ${left}) →</button>` : `<p class="wd-all">✓ Na dziś wszystko powtórzone. Wróć jutro!</p>`}</div>`;
+            ${left ? `<button class="btn primary wd-more">Następna runda (zostało: ${left}) →</button>` : `<p class="wd-all">${icon("check")} Na dziś wszystko powtórzone. Wróć jutro!</p>`}</div>`;
           const more = pane.querySelector(".wd-more"); if (more) more.onclick = () => { run(); box.scrollIntoView(); };
           $("#wToday").hidden = false; refresh();
         },
@@ -2001,17 +2036,17 @@
   // Kafelek „Dziś do powtórki” (strona główna; wiersz ze słówkami także na stronie Słownictwo).
   function wordsRow(q) {
     const txt = wordsTodayTxt(q), started = q.decks.length || srsEntries().length;
-    return `<a class="tw-row" href="#/slowka"><span>🃏 Słówka: ${txt ? `<b>${txt}</b>` : started ? "na dziś wszystko powtórzone ✓" : "codzienne fiszki z powtórkami – zacznij ćwiczyć dowolny dział fiszkami"}</span><span class="btn small ${txt ? "primary" : ""}">${txt ? "Ucz się" : "Zobacz"} →</span></a>`;
+    return `<a class="tw-row" href="#/slowka"><span>${icon("cards")} Słówka: ${txt ? `<b>${txt}</b>` : started ? "na dziś wszystko powtórzone " + icon("check") : "codzienne fiszki z powtórkami – zacznij ćwiczyć dowolny dział fiszkami"}</span><span class="btn small ${txt ? "primary" : ""}">${txt ? "Ucz się" : "Zobacz"} →</span></a>`;
   }
   function todayWidget() {
     const all = mistakeList(), q = srsToday(), rows = [];
     if (q.decks.length || srsEntries().length) rows.push(wordsRow(q));
     if (all.length) {
       const n = all.filter((x) => isDue(x.m)).length;
-      rows.push(`<a class="tw-row" href="#/bledy"><span>🔁 Moje błędy: ${n ? `<b>${zadan(n)}</b> na dziś` : "na dziś wszystko powtórzone ✓"} (razem na liście: ${all.length})</span><span class="btn small ${n ? "primary" : ""}">${n ? "Powtórz" : "Zobacz"} →</span></a>`);
+      rows.push(`<a class="tw-row" href="#/bledy"><span>${icon("repeat")} Moje błędy: ${n ? `<b>${zadan(n)}</b> na dziś` : "na dziś wszystko powtórzone " + icon("check")} (razem na liście: ${all.length})</span><span class="btn small ${n ? "primary" : ""}">${n ? "Powtórz" : "Zobacz"} →</span></a>`);
     }
     if (!rows.length) return "";
-    return `<div class="card today-widget"><span class="f-ico">📅</span><div class="tw-body"><b>Dziś do powtórki</b>${rows.join("")}</div></div>`;
+    return `<div class="card today-widget"><span class="f-ico">${icon("calendar")}</span><div class="tw-body"><b>Dziś do powtórki</b>${rows.join("")}</div></div>`;
   }
 
   // ---------- Wyszukiwanie ----------
@@ -2166,7 +2201,7 @@
       bar.setAttribute("role", "status");
       bar.innerHTML = `<span>Jest nowa wersja strony.</span>
         <button class="btn primary" type="button">Odśwież</button>
-        <button class="icon-btn" type="button" aria-label="Później" title="Później">✕</button>`;
+        <button class="icon-btn" type="button" aria-label="Później" title="Później">${icon("x")}</button>`;
       const [refresh, later] = bar.querySelectorAll("button");
       refresh.addEventListener("click", () => { wantReload = true; refresh.disabled = true; worker.postMessage("skip-waiting"); });
       later.addEventListener("click", () => bar.remove());
