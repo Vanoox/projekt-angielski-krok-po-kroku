@@ -51,7 +51,7 @@ window.PRACTICE["questions"] = {
         { type: "choice", q: "___ you in Italy last year?", options: ["Did", "Were", "Are"], answer: 1, explain: "Last year → przeszłość; be → Were you…?" },
         { type: "choice", q: "___ it rain a lot in Scotland?", options: ["Is", "Does", "Do"], answer: 1, explain: "Present Simple, it + zwykły czasownik rain → Does." },
         { type: "choice", q: "___ the children at school yesterday?", options: ["Was", "Were", "Did"], answer: 1, explain: "Be w przeszłości; the children = they → Were." },
-        { type: "choice", q: "___ they going to sell their house?", options: ["Do", "Will", "Are"], answer: 2, explain: "Going to: be + going to → Are they going to…?" },
+        { type: "choice", q: "___ they watching a film right now?", options: ["Do", "Did", "Are"], answer: 2, explain: "Present Continuous: be + -ing → Are they watching…?" },
       ],
     },
     {
@@ -67,7 +67,7 @@ window.PRACTICE["questions"] = {
         { type: "gap", q: "How often ___ you ___ (see) your grandparents?", answers: [["do"], ["see"]], explain: "Zwyczaj (how often) → Present Simple: do + see." },
         { type: "gap", q: "___ you ___ (finish) your homework yesterday?", answers: [["Did"], ["finish"]], explain: "Yesterday → Past Simple: Did + podmiot + forma podstawowa." },
         { type: "gap", q: "What ___ your dad ___ (do)? – He's a doctor.", answers: [["does"], ["do"]], explain: "What does he do? = Czym się zajmuje? Pierwsze do to posiłkowy (does), drugie – główny czasownik." },
-        { type: "gap", q: "When ___ you ___ (start) learning English? – Five years ago.", answers: [["did"], ["start"]], explain: "Ago → Past Simple: did + start." },
+        { type: "gap", q: "When ___ you ___ (start) school? – Twenty years ago.", answers: [["did"], ["start"]], explain: "Ago → Past Simple: did + start." },
       ],
     },
     {
@@ -219,7 +219,7 @@ window.PRACTICE["questions"] = {
     { type: "write", task: "Przetłumacz", q: "Co kupiłaś mamie?", answers: ["What did you buy {for your mum|your mum|for your mom|your mom|for your mother|your mother}?", "What have you bought {for your mum|your mum|for your mom|your mom|for your mother|your mother}?"], explain: "Co? = dopełnienie → did + you + buy." },
     { type: "write", task: "Przetłumacz", q: "Jak często sprzątasz mieszkanie?", answers: ["How often do you clean {your|the} {flat|apartment}?"], explain: "How often + do + you + clean." },
     { type: "write", task: "Przetłumacz", q: "Na kogo czekasz?", answers: ["{Who|Whom} are you waiting for?", "For whom are you waiting?"], explain: "Wait for – przyimek na końcu pytania." },
-    { type: "write", task: "Przetłumacz", q: "Która sukienka jest tańsza?", answers: ["Which dress is cheaper?", "Which dress is the cheaper one?", "Which is the cheaper dress?"], explain: "Wybór z kilku → which; which dress jest tu podmiotem." },
+    { type: "write", task: "Przetłumacz", q: "Która sukienka jest twoja?", answers: ["Which dress is yours?", "Which (one) is your dress?", "Which one is yours?"], explain: "Wybór z kilku → which; which dress jest tu podmiotem." },
     { type: "write", task: "Przetłumacz", q: "Czy byłeś wczoraj w pracy?", answers: ["Were you at work yesterday?"], explain: "Przeszłość od be: Were + you + …?" },
     { type: "write", task: "Zadaj pytanie o podkreśloną część", q: "Peter <u>is reading a book</u>.", answers: ["What is {Peter|he} doing?"], explain: "Pytanie o czynność → What + is + podmiot + doing?" },
     { type: "write", task: "Zadaj pytanie o podkreśloną część", q: "<u>My cousin</u> sent me this postcard.", answers: ["Who sent you {this|the} postcard?", "Who sent {this|the} postcard to you?"], explain: "Pytanie o podmiot (kto wysłał?) → bez did: Who sent…? (me → you)." },

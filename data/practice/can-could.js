@@ -64,7 +64,7 @@ window.PRACTICE["can-could"] = {
         { type: "gap", q: "You ___ pay by card here – we accept all cards.", answers: ["can"], explain: "Możliwość (wolno, da się) → can." },
         { type: "choice", q: "She ___ play the piano and the violin.", options: ["cans", "can", "can to"], answer: 1, explain: "Can ma jedną formę dla wszystkich osób (bez -s) i nie łączy się z to." },
         { type: "choice", q: "Tom ___ speak French, but he understands a little.", options: ["isn't can", "can't", "don't can"], answer: 1, explain: "Przeczenie tworzymy, dodając not do can: can't. Bez is/do." },
-        { type: "choice", q: "It's too dark in here – I ___ see anything.", options: ["can't", "can", "don't can"], answer: 0, explain: "Za ciemno → nie widzę: can't see (zmysły + can)." },
+        { type: "choice", q: "It's very dark in here – I ___ see anything.", options: ["can't", "can", "don't can"], answer: 0, explain: "Za ciemno → nie widzę: can't see (zmysły + can)." },
       ],
     },
     {
@@ -105,7 +105,7 @@ window.PRACTICE["can-could"] = {
         { type: "choice", q: "Could I use your phone? – Yes, of course you ___.", options: ["could", "can", "may to"], answer: 1, explain: "Na prośbę z could odpowiadamy can – pozwolenie dotyczy teraz, nie przeszłości." },
         { type: "choice", q: "(Uczeń do nauczyciela) ___ I go to the toilet, please?", options: ["May", "Will", "Do"], answer: 0, explain: "Formalne pytanie o pozwolenie: May I…?" },
         { type: "choice", q: "Can I borrow your car tonight? – Sorry, you ___. I need it.", options: ["can't", "couldn't", "don't"], answer: 0, explain: "Odmowa pozwolenia (teraz) → you can't." },
-        { type: "choice", q: "___ you turn the music down, please? I'm trying to work.", options: ["Can", "May", "Shall"], answer: 0, explain: "Prośba do kogoś: Can you…? (May you / Shall you – niepoprawne)." },
+        { type: "choice", q: "___ you turn the music down, please? I'm working.", options: ["Can", "May", "Shall"], answer: 0, explain: "Prośba do kogoś: Can you…? (May you / Shall you – niepoprawne)." },
         { type: "write", task: "Przetłumacz (grzeczna prośba z could)", q: "Czy mógłbyś zamknąć drzwi?", answers: ["Could you {close|shut} the door(, please)?", "Could you please {close|shut} the door?"], explain: "„Czy mógłbyś…?” → Could you + bezokolicznik?" },
         { type: "write", task: "Przetłumacz (zapytaj o pozwolenie)", q: "Czy mogę otworzyć okno?", answers: ["{Can|Could|May} I open the window(, please)?"], explain: "Pytanie o pozwolenie: Can / Could / May I…?" },
         { type: "write", task: "Przetłumacz", q: "Czy możesz mi podać cukier?", answers: ["{Can|Could} you {pass|hand|give} (me) the sugar(, please)?", "{Can|Could} you please {pass|hand|give} (me) the sugar?"], explain: "Prośba: Can / Could you pass…? (pass = podać przy stole)." },

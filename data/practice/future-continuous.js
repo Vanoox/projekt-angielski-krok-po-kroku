@@ -21,6 +21,11 @@ window.PRACTICE["future-continuous"] = {
       { en: "disturb", pl: "przeszkadzać (komuś)" },
       { en: "sightseeing", pl: "zwiedzanie", note: "go sightseeing = iść zwiedzać" },
       { en: "by now", pl: "do tej pory, pewnie już", ex: "They'll be waiting for us by now.", exPl: "Pewnie już na nas czekają." },
+      // --- słowa z ćwiczeń ---
+      { en: "popcorn", pl: "popcorn" },
+      { en: "nap", pl: "drzemka" },
+      { en: "vacuum", pl: "odkurzać" },
+      { en: "client", pl: "klient" },
     ],
   },
 
@@ -94,13 +99,13 @@ window.PRACTICE["future-continuous"] = {
       title: "6. Która forma przyszła?",
       instruction: "Wybierz poprawną formę: <b>will</b>, <b>be going to</b>, <b>Future Continuous</b>, <b>Future Perfect</b> czy czas teraźniejszy?",
       items: [
-        { type: "choice", q: "By 6 p.m. I ___ the report, so we can go out then.", options: ["'ll be writing", "'ll have written", "write"], answer: 1, explain: "By 6 p.m. = najpóźniej do szóstej raport będzie gotowy → Future Perfect." },
+        { type: "choice", q: "– The phone's ringing! – OK, I ___ it.", options: ["'ll answer", "'ll be answering", "answer"], answer: 0, explain: "Decyzja podjęta w chwili mówienia → will, nie Future Continuous." },
         { type: "choice", q: "At 6 p.m. I ___ the report, so I can't go out.", options: ["'ll be writing", "'ll have written", "written"], answer: 0, explain: "O szóstej pisanie będzie w toku → Future Continuous." },
         { type: "choice", q: "Look at those black clouds! It ___ rain.", options: ["'s going to", "'ll be", "is"], answer: 0, explain: "Przewidywanie na podstawie tego, co widzimy → be going to." },
         { type: "choice", q: "– Tom's in hospital. – Really? I didn't know. I ___ him tomorrow.", options: ["'ll visit", "'ll be visiting", "visited"], answer: 0, explain: "Decyzja podjęta w chwili mówienia (dopiero się dowiedziałem) → will + bezokolicznik." },
         { type: "choice", q: "Call me when you ___ home.", options: ["'ll be getting", "get", "'ll get"], answer: 1, explain: "Po when w zdaniu o przyszłości – Present Simple, nie will." },
         { type: "choice", q: "While you ___ the dishes, I'll be vacuuming the living room.", options: ["'ll be doing", "are doing", "did"], answer: 1, explain: "Po while w znaczeniu przyszłym nie używamy will – stosujemy Present Continuous." },
-        { type: "choice", q: "By this time next year I ___ my studies and I'll be looking for a job.", options: ["'ll have finished", "'ll be finishing", "finished"], answer: 0, explain: "By + moment w przyszłości, czynność zakończona → Future Perfect." },
+        { type: "choice", q: "This time next year I ___ for a job in London.", options: ["'ll have looked", "'ll be looking", "looked"], answer: 1, explain: "Czynność w trakcie w określonym momencie w przyszłości (this time next year) → Future Continuous." },
       ],
     },
   ],

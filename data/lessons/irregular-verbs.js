@@ -1248,7 +1248,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "My grandfather ___ (teach) me to play chess.",
+      "q": "My grandfather ___ (teach) me chess.",
       "answers": [
         "taught"
       ],

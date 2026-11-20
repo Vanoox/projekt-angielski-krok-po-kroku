@@ -46,6 +46,8 @@ window.PRACTICE["past-continuous"] = {
       { en: "round", pl: "okrągły; dookoła" },
       { en: "immediately / constantly", pl: "natychmiast / ciągle" },
       { en: "p.m.", pl: "po południu (o godzinie)" },
+      // --- słowa z ćwiczeń ---
+      { en: "it started to rain / it started raining", pl: "zaczęło padać", note: "stały zwrot" },
     ],
   },
 

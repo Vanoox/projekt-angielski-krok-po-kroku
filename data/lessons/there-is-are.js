@@ -442,14 +442,14 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "Look! ___ an accident. Call an ambulance!",
+      "q": "Look! ___ an accident on the road. Call an ambulance!",
       "options": [
-        "There's been",
-        "It's been",
-        "There have been"
+        "There's",
+        "It's",
+        "There are"
       ],
       "answer": 0,
-      "explain": "Świeża wiadomość o wydarzeniu → there has been (l.poj.)."
+      "explain": "Coś jest / istnieje (an accident – l.poj.) → there's."
     },
     {
       "type": "gap",

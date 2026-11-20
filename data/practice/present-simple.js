@@ -103,7 +103,7 @@ window.PRACTICE["present-simple"] = {
         { type: "gap", q: "The baby ___ (cry) every night.", answers: ["cries"], explain: "Spółgłoska + y (r+y) → y zamieniamy na -ies." },
         { type: "gap", q: "She ___ (wash) her car on Sundays.", answers: ["washes"], explain: "Końcówka -sh → dodajemy -es." },
         { type: "gap", q: "Our teacher ___ (go) to work by bike.", answers: ["goes"], explain: "Go kończy się na -o → goes." },
-        { type: "gap", q: "He ___ (enjoy) cooking for his friends.", answers: ["enjoys"], explain: "Samogłoska + y (o+y) → tylko -s." },
+        { type: "gap", q: "He ___ (enjoy) his work at the hospital.", answers: ["enjoys"], explain: "Samogłoska + y (o+y) → tylko -s." },
         { type: "gap", q: "My grandad ___ (do) the crossword every morning.", answers: ["does"], explain: "Do kończy się na -o → does (wymowa /dʌz/)." },
         { type: "gap", q: "Kate lives abroad and she ___ (miss) her family a lot.", answers: ["misses"], explain: "Końcówka -ss → dodajemy -es." },
         { type: "gap", q: "Dad usually ___ (relax) in front of the TV after work.", answers: ["relaxes"], explain: "Końcówka -x → dodajemy -es." },
@@ -267,7 +267,7 @@ window.PRACTICE["present-simple"] = {
   test: [
     { type: "write", task: "Przetłumacz", q: "Mój brat mieszka w Londynie.", answers: ["My brother lives in London."], explain: "Stała sytuacja → Present Simple; he → lives." },
     { type: "write", task: "Przetłumacz", q: "Ona nie pracuje w soboty.", answers: ["She doesn't work on Saturdays.", "On Saturdays she doesn't work."], explain: "She → doesn't work (bez -s)." },
-    { type: "write", task: "Przetłumacz", q: "Czy lubisz pływać?", answers: ["Do you like swimming?", "Do you like to swim?"], explain: "You → Do you like…? Po like: -ing albo to + bezokolicznik." },
+    { type: "write", task: "Przetłumacz", q: "Czy twój brat lubi koty?", answers: ["Does your brother like cats?"], explain: "He/she (your brother) → Does … like…? Czasownik bez -s po does." },
     { type: "write", task: "Przetłumacz", q: "Jak często odwiedzasz dziadków?", answers: ["How often do you visit your grandparents?", "How often do you see your grandparents?"], explain: "How often + do + you + visit." },
     { type: "write", task: "Przetłumacz", q: "Nasz pociąg odjeżdża o 7.30.", answers: ["Our train {leaves|departs|goes} at {7.30|7:30|seven thirty|half past seven}.", "Our train is {leaving|departing} at {7.30|7:30|seven thirty|half past seven}."], explain: "Rozkład jazdy → Present Simple, nawet jeśli to przyszłość (możliwe też: is leaving)." },
     { type: "write", task: "Przetłumacz", q: "Mój tata nigdy nie je śniadania.", answers: ["My {dad|father} never {eats|has} breakfast."], explain: "Never + czasownik twierdzący z -s; nie: doesn't never." },

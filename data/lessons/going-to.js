@@ -420,7 +420,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "I've decided. I ___ (learn) to drive this year.",
+      "q": "I've decided. I ___ (learn) Spanish this year.",
       "answers": [
         "am going to learn",
         "'m going to learn"

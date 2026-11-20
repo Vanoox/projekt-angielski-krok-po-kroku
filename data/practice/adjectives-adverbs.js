@@ -60,7 +60,7 @@ window.PRACTICE["adjectives-adverbs"] = {
       instruction: "Wybierz poprawne słowo. Zapytaj: <b>jaki?</b> (przymiotnik) czy <b>jak?</b> (przysłówek).",
       items: [
         { type: "choice", q: "Tom is a very ___ driver.", options: ["carefully", "careful", "care"], answer: 1, explain: "Jaki kierowca? → przymiotnik przed rzeczownikiem: careful driver." },
-        { type: "choice", q: "Could you speak more ___, please? I can't hear you.", options: ["loud", "loudly", "louder"], answer: 1, explain: "Jak mówić? → przysłówek: more loudly." },
+        { type: "choice", q: "Please speak ___. The baby is asleep.", options: ["quiet", "quietly", "quieter"], answer: 1, explain: "Jak mówić? → przysłówek: quietly." },
         { type: "choice", q: "She answered all the questions ___.", options: ["correctly", "correct", "corrected"], answer: 0, explain: "Jak odpowiedziała? → przysłówek correctly." },
         { type: "choice", q: "The exam was ___.", options: ["easily", "easy", "ease"], answer: 1, explain: "Po be → przymiotnik: was easy." },
         { type: "choice", q: "He sang the song ___.", options: ["beautiful", "beauty", "beautifully"], answer: 2, explain: "Jak zaśpiewał? → przysłówek beautifully." },
@@ -150,7 +150,7 @@ window.PRACTICE["adjectives-adverbs"] = {
         { type: "write", task: "Popraw błąd", q: "This cake tastes wonderfully.", answers: ["This cake tastes wonderful."], explain: "Taste (smakować) + przymiotnik." },
         { type: "write", task: "Popraw błąd", q: "I'm very interesting in football.", answers: ["I'm very interested in football."], explain: "Moje uczucie → -ed: interested in." },
         { type: "write", task: "Popraw błąd", q: "He answered the question polite.", answers: ["He answered the question politely.", "He politely answered the question."], explain: "Jak odpowiedział? → przysłówek politely." },
-        { type: "write", task: "Popraw błąd", q: "The lesson was so bored that I fell asleep.", answers: ["The lesson was so boring that I fell asleep."], explain: "Lekcja wywołuje nudę → boring." },
+        { type: "write", task: "Popraw błąd", q: "The lesson was very bored, so I fell asleep.", answers: ["The lesson was very boring, so I fell asleep."], explain: "Lekcja wywołuje nudę → boring." },
         { type: "write", task: "Popraw błąd", q: "We worked hardly all day.", answers: ["We worked hard all day."], explain: "Ciężko = hard; hardly znaczy „prawie wcale”." },
         { type: "write", task: "Popraw błąd", q: "It was a terrible expensive hotel.", answers: ["It was a terribly expensive hotel."], explain: "Przymiotnik wzmacniamy przysłówkiem: terribly expensive." },
         { type: "write", task: "Popraw błąd", q: "She has got a blue beautiful dress.", answers: ["She has got a beautiful blue dress.", "She has a beautiful blue dress."], explain: "Opinia przed kolorem: beautiful blue." },

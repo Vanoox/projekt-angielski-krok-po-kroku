@@ -52,7 +52,7 @@ window.PRACTICE["present-perfect"] = {
       items: [
         { type: "gap", q: "Have you ___ (see) my glasses anywhere?", answers: ["seen"], explain: "see – saw – seen (nieregularny). Po have zawsze III forma." },
         { type: "gap", q: "I've ___ (write) an email to the manager.", answers: ["written"], explain: "write – wrote – written; uwaga na podwójne t." },
-        { type: "gap", q: "My dad has ___ (stop) smoking.", answers: ["stopped"], explain: "Krótki czasownik zakończony na spółgłoskę po jednej samogłosce – podwajamy ją: stop → stopped." },
+        { type: "gap", q: "My dad has ___ (stop) the car.", answers: ["stopped"], explain: "Krótki czasownik zakończony na spółgłoskę po jednej samogłosce – podwajamy ją: stop → stopped." },
         { type: "gap", q: "We've ___ (eat) all the biscuits.", answers: ["eaten"], explain: "eat – ate – eaten (nieregularny)." },
         { type: "gap", q: "Has she ___ (study) for the test?", answers: ["studied"], explain: "Spółgłoska + y → -ied: study → studied." },
         { type: "gap", q: "Tom isn't here. He's ___ (go) to the dentist.", answers: ["gone"], explain: "go – went – gone. Gone = poszedł i jeszcze nie wrócił." },
@@ -131,7 +131,7 @@ window.PRACTICE["present-perfect"] = {
       items: [
         { type: "choice", q: "Mum isn't at home. She's ___ to the supermarket.", options: ["been", "gone"], answer: 1, explain: "Mamy nie ma w domu – jest w sklepie → gone." },
         { type: "choice", q: "Have you ever ___ to Croatia?", options: ["gone", "been"], answer: 1, explain: "Doświadczenie życiowe (byłeś i wróciłeś) → been to." },
-        { type: "choice", q: "Where have you ___? I've been waiting for ages!", options: ["gone", "been"], answer: 1, explain: "Osoba już wróciła i rozmawiamy z nią → Where have you been?" },
+        { type: "choice", q: "Where have you ___? We were waiting for you!", options: ["gone", "been"], answer: 1, explain: "Osoba już wróciła i rozmawiamy z nią → Where have you been?" },
         { type: "choice", q: "Jack and Lily aren't here. They've ___ to the cinema.", options: ["gone", "been"], answer: 0, explain: "Nie ma ich tutaj – są w kinie → gone." },
         { type: "choice", q: "I've ___ to the dentist. My tooth doesn't hurt now!", options: ["been", "gone"], answer: 0, explain: "Mówiący wrócił i opowiada o wizycie → been." },
         { type: "choice", q: "Where's Peter? – He's ___ home. He wasn't feeling well.", options: ["been", "gone"], answer: 1, explain: "Peter jest teraz w domu, nie tutaj → gone home (bez to przed home)." },
@@ -165,7 +165,7 @@ window.PRACTICE["present-perfect"] = {
         { type: "write", task: "Zadaj pytanie o to, jak długo", q: "I've had this car for three years.", answers: ["How long have you had {this|that|your|the} car?", "How long have you had it?"], explain: "How long + have + you + III forma…? (nie: How long do you have…)." },
         { type: "write", task: "Napisz to samo, używając never", q: "I haven't been to Asia.", answers: ["I've never been to Asia.", "I have never been to Asia."], explain: "Never z twierdzącym have zastępuje haven't." },
         { type: "write", task: "Napisz jedno zdanie z since", q: "I met Tom in 2015. We are still friends.", answers: ["I've known {Tom|him} since 2015.", "{Tom and I|We} have been friends since 2015.", "I've been friends with Tom since 2015.", "{We've|Tom and I have} known each other since 2015."], explain: "Sytuacja trwa od 2015 roku do teraz → Present Perfect + since." },
-        { type: "write", task: "Napisz jedno zdanie z since", q: "She started working here in May. She still works here.", answers: ["She's worked here since May.", "She's been working here since May.", "She has worked here since May.", "She has been working here since May."], explain: "Zaczęła w maju i nadal pracuje → Present Perfect (z work możliwa też forma ciągła)." },
+        { type: "write", task: "Napisz jedno zdanie z since", q: "She got a job here in May. She still works here.", answers: ["She's worked here since May.", "She's been working here since May.", "She has worked here since May.", "She has been working here since May."], explain: "Zaczęła w maju i nadal pracuje → Present Perfect (z work możliwa też forma ciągła)." },
       ],
     },
     {

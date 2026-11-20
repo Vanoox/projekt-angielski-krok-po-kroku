@@ -524,3 +524,49 @@ mark { background: color-mix(in srgb, var(--warn) 30%, transparent); color: inhe
   .v-progress { margin-left: 0; }
   .set-body { padding: 0 10px 12px; }
 }
+
+/* ---------- Kolejność nauki (#/kolejnosc) ---------- */
+.order-page h1 { font-size: clamp(30px, 4.5vw, 42px); margin: 0 0 8px; }
+.order-summary { padding: 20px; margin: 8px 0 28px; }
+.order-total { display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between; }
+.order-total b { font-size: 22px; font-family: Fraunces, Georgia, serif; }
+.progress.big { height: 12px; margin: 14px 0 18px; }
+.order-levels { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; }
+.order-level { display: block; color: var(--text); padding: 10px 12px; border-radius: 10px; background: var(--surface-2); }
+.order-level:hover { text-decoration: none; outline: 1px solid var(--lvl); }
+.order-level-head { display: flex; align-items: center; gap: 8px; font-size: 13.5px; }
+.order-level-head b { font-weight: 600; flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.order-level .progress { margin: 8px 0 2px; }
+.order-group { margin: 0 0 28px; scroll-margin-top: calc(var(--topbar) + 16px); }
+.order-group-title { display: flex; align-items: center; gap: 10px; font-size: 22px; margin: 0 0 10px; padding-bottom: 6px; border-bottom: 3px solid var(--lvl); }
+.order-list { list-style: none; margin: 0; padding: 0; }
+.order-item a {
+  display: flex; align-items: center; gap: 10px; padding: 10px 12px; margin: 0 0 6px;
+  background: var(--surface); border: 1px solid var(--border); border-radius: 10px; color: var(--text);
+}
+.order-item a:hover { text-decoration: none; border-color: var(--text-3); }
+.order-num {
+  flex-shrink: 0; width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%;
+  background: var(--surface-2); color: var(--text-2); font-size: 13px; font-weight: 700;
+}
+.order-titles { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+.order-title { font-weight: 600; font-size: 15px; }
+.order-pl { color: var(--text-3); font-size: 13px; }
+.order-check { flex-shrink: 0; width: 22px; text-align: center; color: var(--ok); font-weight: 700; font-size: 16px; }
+.order-item.is-done .order-num { background: var(--ok-soft); color: var(--ok); }
+.order-item.is-done .order-title { color: var(--text-2); }
+.order-item.is-next a { border: 2px solid var(--accent); background: var(--accent-soft); box-shadow: var(--shadow); }
+.order-item.is-next .order-num { background: var(--accent); color: #fff; }
+.order-next-tag {
+  flex-shrink: 0; font-size: 11.5px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em;
+  color: #fff; background: var(--accent); padding: 2px 8px; border-radius: 99px;
+}
+@media (max-width: 960px) {
+  .order-levels { grid-template-columns: repeat(2, 1fr); }
+}
+@media (max-width: 640px) {
+  .order-summary { padding: 16px; }
+  .order-total .btn { width: 100%; justify-content: center; text-align: center; }
+  .order-item a { padding: 9px 10px; gap: 8px; }
+  .order-num { width: 26px; height: 26px; font-size: 12px; }
+}

@@ -6,11 +6,11 @@
 // Heurystyka – fałszywe alarmy są normalne (np. "had" jako "miał", "I'd like").
 const all = require('./all.json');
 const pos = {}; all.forEach((l, i) => (pos[l.id] = i));
-const PP = "(been|done|gone|seen|eaten|taken|given|written|known|made|left|lost|met|bought|sold|told|said|found|got|heard|forgotten|broken|spoken|come|become|begun|drunk|driven|flown|run|swum|sent|spent|stolen|thought|won|worn|\w+ed)";
+const PP = "(been|done|gone|seen|eaten|taken|given|written|known|made|left|lost|met|bought|sold|told|said|found|got|heard|forgotten|broken|spoken|come|become|begun|drunk|driven|flown|run|swum|sent|spent|stolen|thought|won|worn|\\w+ed)";
 const pats = {
   // B1
   'pp-cont': [/\b(have|has|'ve|haven't|hasn't)( \w+)? been \w+ing\b/i, 'present-perfect-continuous'],
-  'past-perf': [new RegExp("\b(had|'d)(n't)?( (already|just|never|ever|not))? " + PP + "\b", 'i'), 'past-perfect'],
+  'past-perf': [new RegExp("\\b(had|'d)(n't)?( (already|just|never|ever|not))? " + PP + "\\b", 'i'), 'past-perfect'],
   'used-to': [/\b(used to|use to)\b/i, 'used-to-would'],
   'too-enough': [/\btoo \w+ (for \w+ )?to\b|\b\w+ enough to\b|\bsuch (a|an) \w+|\bso \w+ that\b/i, 'too-enough-so-such'],
   'reported': [/\b(said|told (me|him|her|us|them)|asked (me|him|her|us|them)( if| whether)?)( that)? (he|she|they|I|we|you|it)\b/i, 'reported-speech'],
@@ -18,10 +18,10 @@ const pats = {
   'linking': [/\b(although|though|despite|in spite of|however|whereas|moreover|therefore|even though|unless)\b/i, 'linking-words'],
   // B2
   'future-cont': [/\b(will|'ll|won't) be \w+ing\b/i, 'future-continuous'],
-  'future-perf': [new RegExp("\b(will|'ll|won't) have (been )?" + PP + "\b", 'i'), 'future-perfect'],
+  'future-perf': [new RegExp("\\b(will|'ll|won't) have (been )?" + PP + "\\b", 'i'), 'future-perfect'],
   'past-perf-cont': [/\bhad(n't)? been \w+ing\b/i, 'past-perfect-continuous'],
-  'modal-perf': [new RegExp("\b(must|might|may|could|can't|couldn't|should|shouldn't)( not)? have " + PP + "\b", 'i'), 'modals-deduction'],
-  'would-have': [new RegExp("\b(would|wouldn't|'d)( not)? have " + PP + "\b", 'i'), 'conditional-3-mixed'],
+  'modal-perf': [new RegExp("\\b(must|might|may|could|can't|couldn't|should|shouldn't)( not)? have " + PP + "\\b", 'i'), 'modals-deduction'],
+  'would-have': [new RegExp("\\b(would|wouldn't|'d)( not)? have " + PP + "\\b", 'i'), 'conditional-3-mixed'],
   'wish': [/\b(wish|if only)\b/i, 'wish-if-only'],
   'causative': [/\b(have|has|had|having|get|gets|got|getting) (my|your|his|her|our|their|the|a|it) ?\w* (done|cut|repaired|fixed|cleaned|checked|painted|delivered|serviced|installed|stolen|tested|redecorated|dyed|built|made|washed|printed)\b/i, 'causative'],
 };

@@ -24,6 +24,17 @@ window.PRACTICE["causative"] = {
       { en: "break into (broke, broken)", pl: "włamać się do", ex: "He had his car broken into.", exPl: "Włamano mu się do samochodu." },
       { en: "hack", pl: "włamać się (na konto, do komputera)" },
       { en: "persuade", pl: "przekonać, namówić", note: "get sb to do something ≈ persuade sb to do something" },
+      // --- słowa z ćwiczeń ---
+      { en: "nail", pl: "paznokieć" },
+      { en: "porter", pl: "bagażowy, portier" },
+      { en: "expire", pl: "tracić ważność" },
+      { en: "renew", pl: "odnowić, przedłużyć (ważność)" },
+      { en: "salon", pl: "salon (kosmetyczny, fryzjerski)" },
+      { en: "swollen", pl: "spuchnięty" },
+      { en: "blood pressure", pl: "ciśnienie krwi" },
+      { en: "carpet", pl: "dywan, wykładzina" },
+      { en: "account", pl: "konto" },
+      { en: "brakes", pl: "hamulce" },
     ],
   },
 

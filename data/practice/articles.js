@@ -100,7 +100,7 @@ window.PRACTICE["articles"] = {
         { type: "gap", q: "I had a sandwich and an apple for lunch. ___ apple was a bit sour.", answers: ["The"], explain: "Jabłko już się pojawiło – wiadomo, o które chodzi → the." },
         { type: "gap", q: "Yesterday I met ___ old friend from school. She's a nurse now.", answers: ["an"], explain: "Pierwsza wzmianka, jeden z wielu przyjaciół → a/an; old zaczyna się samogłoską → an." },
         { type: "gap", q: "Have you got ___ pen? Mine doesn't work.", answers: ["a"], explain: "Jakikolwiek długopis, nie konkretny → a." },
-        { type: "gap", q: "Where's ___ pen I lent you this morning?", answers: ["the"], explain: "Konkretny długopis, doprecyzowany zdaniem (I lent you…) → the." },
+        { type: "gap", q: "Where's ___ pen? It was here on my desk a minute ago.", answers: ["the"], explain: "Konkretny długopis, doprecyzowany zdaniem (I lent you…) → the." },
         { type: "gap", q: "Dad, can I borrow ___ car tonight? I'll be careful.", answers: ["the"], explain: "Rodzinny samochód – obaj wiedzą, o który chodzi → the." },
         { type: "gap", q: "Excuse me, where's ___ nearest bus stop?", answers: ["the"], explain: "Stopień najwyższy (nearest) → the." },
         { type: "gap", q: "I'm reading ___ interesting book about Japan at the moment.", answers: ["an"], explain: "Pierwsza wzmianka → a/an; interesting zaczyna się samogłoską → an." },
@@ -112,7 +112,7 @@ window.PRACTICE["articles"] = {
       title: "4. Ogólnie czy konkretnie?",
       instruction: "Wybierz wersję z <b>the</b> albo bez przedimka. Ogólnie (cała kategoria) – bez przedimka; konkretnie (wiadomo, które) – <b>the</b>.",
       items: [
-        { type: "choice", q: "___ is too short to worry about small things.", options: ["Life", "The life"], answer: 0, explain: "Życie w ogóle – rzeczownik niepoliczalny, uogólnienie → bez przedimka." },
+        { type: "choice", q: "___ is short – enjoy every day!", options: ["Life", "The life"], answer: 0, explain: "Życie w ogóle – rzeczownik niepoliczalny, uogólnienie → bez przedimka." },
         { type: "choice", q: "___ in this restaurant is excellent.", options: ["Food", "The food"], answer: 1, explain: "Konkretne jedzenie – w tej restauracji → the." },
         { type: "choice", q: "___ are usually more independent than dogs.", options: ["Cats", "The cats"], answer: 0, explain: "Koty jako gatunek – l.mn., uogólnienie → bez przedimka." },
         { type: "choice", q: "I'm not very good at ___.", options: ["maths", "the maths"], answer: 0, explain: "Przedmioty szkolne – bez przedimka (AmE: math)." },

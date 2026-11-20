@@ -622,7 +622,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "He ___ (try) to call you, but your phone was off.",
+      "q": "He ___ (try) your number, but your phone was off.",
       "answers": [
         "tried"
       ],

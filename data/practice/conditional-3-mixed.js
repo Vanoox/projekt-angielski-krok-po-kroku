@@ -29,6 +29,14 @@ window.PRACTICE["conditional-3-mixed"] = {
       { en: "helmet", pl: "kask" },
       { en: "slippery", pl: "śliski" },
       { en: "if it hadn't been for…", pl: "gdyby nie… (w przeszłości)", ex: "If it hadn't been for the rain, we would have won.", exPl: "Gdyby nie deszcz, wygralibyśmy." },
+      // --- słowa z ćwiczeń ---
+      { en: "goalkeeper", pl: "bramkarz" },
+      { en: "be afraid of heights", pl: "mieć lęk wysokości" },
+      { en: "patience", pl: "cierpliwość" },
+      { en: "lose your temper", pl: "stracić panowanie nad sobą" },
+      { en: "salmon", pl: "łosoś" },
+      { en: "director", pl: "dyrektor" },
+      { en: "stomach ache", pl: "ból brzucha" },
     ],
   },
 

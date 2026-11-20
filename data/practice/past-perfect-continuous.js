@@ -21,6 +21,8 @@ window.PRACTICE["past-perfect-continuous"] = {
       { en: "wait for", pl: "czekać na" },
       { en: "turn up", pl: "pojawić się, przyjść (często niespodziewanie lub z opóźnieniem)" },
       { en: "flooded", pl: "zalany (wodą)" },
+      // --- słowa z ćwiczeń ---
+      { en: "proud (of)", pl: "dumny (z)" },
     ],
   },
 

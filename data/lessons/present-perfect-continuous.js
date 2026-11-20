@@ -513,11 +513,11 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "She's been ___ to call you all day.",
+      "q": "She's been ___ you all day. (call)",
       "options": [
-        "try",
-        "tried",
-        "trying"
+        "call",
+        "called",
+        "calling"
       ],
       "answer": 2,
       "explain": "Po has been – forma -ing."

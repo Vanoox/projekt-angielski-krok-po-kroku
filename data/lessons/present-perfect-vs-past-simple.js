@@ -425,7 +425,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "When ___ (you / start) learning English?",
+      "q": "When ___ (you / start) your new job?",
       "answers": [
         "did you start"
       ],

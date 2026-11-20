@@ -193,6 +193,7 @@
     const cur = currentLessonId();
     const h = location.hash;
     const quick = `<div class="nav-group nav-quick">
+      <a class="nav-item ${h.startsWith("#/kolejnosc") ? "active" : ""}" href="#/kolejnosc"><span class="nav-ico">🧭</span><span class="nav-title">Kolejność nauki</span></a>
       <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">📚</span><span class="nav-title">Słownictwo</span></a>
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">📝</span><span class="nav-title">Testy – pisanie zdań</span></a>
       <a class="nav-item ${h.startsWith("#/practice") ? "active" : ""}" href="#/practice"><span class="nav-ico">🎯</span><span class="nav-title">Trening mieszany</span></a>
@@ -211,6 +212,66 @@
     if (active) active.scrollIntoView({ block: "nearest" });
   }
 
+  // ---------- Kolejność nauki (#/kolejnosc) ----------
+  function renderOrder() {
+    if (!PATH.length) return `<div class="page empty"><h1>Brak lekcji</h1></div>`;
+    const percent = (d, n) => (n ? Math.round((d / n) * 100) : 0);
+    const nDone = PATH.filter((l) => state.done[l.id]).length;
+    const next = PATH.find((l) => !state.done[l.id]);
+    const levelBars = LEVELS.map((lv) => {
+      const ls = PATH.filter((l) => l.level === lv);
+      if (!ls.length) return "";
+      const d = ls.filter((l) => state.done[l.id]).length;
+      return `<a class="order-level" href="#/kolejnosc" data-jump="lvl-${lv}" data-level="${lv}">
+        <div class="order-level-head">${badge(lv)} <b>${LEVEL_INFO[lv].name}</b><span class="muted">${d}/${ls.length}</span></div>
+        <div class="progress" role="progressbar" aria-valuemin="0" aria-valuemax="${ls.length}" aria-valuenow="${d}" aria-label="Postęp ${lv}"><i style="width:${percent(d, ls.length)}%"></i></div>
+      </a>`;
+    }).join("");
+    const groups = LEVELS.map((lv) => {
+      const ls = PATH.filter((l) => l.level === lv);
+      if (!ls.length) return "";
+      return `<section class="order-group" id="lvl-${lv}" data-level="${lv}">
+        <h2 class="order-group-title">${badge(lv)} ${LEVEL_INFO[lv].name}</h2>
+        <ol class="order-list">${ls.map((l) => {
+          const n = PATH.indexOf(l) + 1;
+          const done = !!state.done[l.id];
+          const isNext = next && next.id === l.id;
+          return `<li class="order-item${done ? " is-done" : ""}${isNext ? " is-next" : ""}" data-level="${l.level}">
+            <a href="#/lesson/${l.id}">
+              <span class="order-num">${n}</span>
+              ${badge(l.level)}
+              <span class="order-titles"><span class="order-title">${esc(l.title)}</span>${l.titlePl ? `<span class="order-pl">${esc(l.titlePl)}</span>` : ""}</span>
+              ${isNext ? '<span class="order-next-tag">Teraz</span>' : ""}
+              <span class="order-check" aria-label="${done ? "Przerobione" : "Nieprzerobione"}">${done ? "✓" : ""}</span>
+            </a>
+          </li>`;
+        }).join("")}</ol>
+      </section>`;
+    }).join("");
+    return `<div class="page order-page">
+      <div class="crumbs"><a href="#/">Strona główna</a> · <span>Kolejność nauki</span></div>
+      <h1>Kolejność nauki</h1>
+      <p class="muted-p">Lekcje ułożone tak, jak warto się ich uczyć. Każda korzysta tylko z gramatyki i słówek z lekcji wcześniejszych. Lekcję oznaczysz jako przerobioną przyciskiem w lekcji albo zdając jej test (min. 80%).</p>
+      <div class="card order-summary">
+        <div class="order-total">
+          <div><b>${nDone} z ${PATH.length} lekcji</b> <span class="muted">(${percent(nDone, PATH.length)}%)</span></div>
+          ${next ? `<a class="btn primary" href="#/lesson/${next.id}">${nDone ? "Kontynuuj naukę" : "Zacznij naukę"}: ${esc(next.title)} →</a>` : `<span class="pill good">Wszystkie lekcje przerobione!</span>`}
+        </div>
+        <div class="progress big" role="progressbar" aria-valuemin="0" aria-valuemax="${PATH.length}" aria-valuenow="${nDone}" aria-label="Postęp całego kursu"><i style="width:${percent(nDone, PATH.length)}%"></i></div>
+        <div class="order-levels">${levelBars}</div>
+      </div>
+      ${groups}
+    </div>`;
+  }
+
+  function bindOrder() {
+    document.querySelectorAll(".order-page [data-jump]").forEach((a) => a.addEventListener("click", (e) => {
+      e.preventDefault();
+      const target = document.getElementById(a.dataset.jump);
+      if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
+    }));
+  }
+
   // ---------- Strona główna ----------
   function renderHome() {
     const nEx = PATH.reduce((s, l) => s + l.sections.filter((x) => x.type === "examples").reduce((a, x) => a + x.items.length, 0), 0);
@@ -227,6 +288,7 @@
         <p>Wszystkie najważniejsze tematy wyjaśnione po polsku: czasy, czasowniki modalne, tryby warunkowe, strona bierna i dużo więcej. Każda lekcja ma budowę, mnóstwo przykładów z tłumaczeniem, słownictwo, zestawy ćwiczeń i test z pisaniem całych zdań.</p>
         <div class="hero-actions">
           ${next ? `<a class="btn primary" href="#/lesson/${next.id}">${nDone ? "Kontynuuj" : "Zacznij od początku"}: ${esc(next.title)} →</a>` : `<a class="btn primary" href="#/practice">Wszystko przerobione! Trenuj →</a>`}
+          <a class="btn" href="#/kolejnosc">🧭 Kolejność nauki (${nDone}/${PATH.length})</a>
           ${overview ? `<a class="btn" href="#/lesson/tenses-overview">🗺️ Przegląd wszystkich czasów</a>` : ""}
         </div>
       </section>
@@ -1114,6 +1176,8 @@
       if (t) { bindVocabBlock(content.querySelector(".vocab-block"), t.groups, "vocab:" + t.id); title = `${t.titlePl} – Słownictwo`; }
     } else if (h.startsWith("#/vocab")) {
       content.innerHTML = renderVocabHome(); bindVocabHome(); title = `Słownictwo – ${title}`;
+    } else if (h.startsWith("#/kolejnosc")) {
+      content.innerHTML = renderOrder(); bindOrder(); title = `Kolejność nauki – ${title}`;
     } else if (h.startsWith("#/search/")) {
       const q = decodeURIComponent(h.slice(9));
       content.innerHTML = renderSearch(q); title = `Szukaj: ${q}`;

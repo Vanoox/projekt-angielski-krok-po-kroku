@@ -218,7 +218,7 @@ window.PRACTICE["prepositions-place"] = {
         { type: "write", q: "Do szkoły jeżdżę rowerem.", answers: ["I {go|get|travel} to school by {bike|bicycle}.", "I {cycle|ride my bike|ride a bike|ride my bicycle} to school."], explain: "Sposób podróżowania → by bike (bez przedimka)." },
         { type: "write", q: "On wyjął telefon z kieszeni.", answers: ["He {took|got|pulled} {his|the} phone out of his pocket.", "He took {his|the} phone from his pocket.", "He took out his phone from his pocket."], explain: "Ze środka czegoś → out of." },
         { type: "write", q: "Przeszliśmy przez most.", answers: ["We {walked|went} {across|over} the bridge.", "We crossed the bridge."], explain: "Przez most (na drugą stronę) → across / over." },
-        { type: "write", q: "Przyjechaliśmy na lotnisko za późno.", answers: ["We {arrived at|got to} the airport too late.", "We arrived too late at the airport."], explain: "Arrive at + konkretne miejsce (lotnisko, dworzec); get to – dotrzeć." },
+        { type: "write", q: "Przyjechaliśmy na lotnisko bardzo późno.", answers: ["We {arrived at|got to} the airport very late.", "We arrived very late at the airport."], explain: "Arrive at + konkretne miejsce (lotnisko, dworzec); get to – dotrzeć." },
         { type: "write", q: "Na niebie nie ma chmur.", answers: ["There {are no|aren't any} clouds in the sky."], explain: "Na niebie → in the sky." },
         { type: "write", q: "Ona pracuje w kawiarni na rogu.", answers: ["She works {in|at} the {café|cafe|coffee shop} {on|at} the corner."], explain: "Na rogu ulicy → on / at the corner." },
       ],

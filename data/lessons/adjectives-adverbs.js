@@ -586,7 +586,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I was so ___ that I fell asleep during the film.",
+      "q": "I was very ___, so I fell asleep during the film.",
       "options": [
         "bored",
         "boring",
@@ -608,7 +608,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "It was so noisy that I could ___ hear anything.",
+      "q": "It was very noisy and I could ___ hear anything.",
       "options": [
         "harder",
         "hard",

@@ -46,9 +46,9 @@ exam [A1]
 
 remotely [B2], becoming
 
-## 12. past-simple (A1) – 2 słów
+## 12. past-simple (A1) – 3 słów
 
-wrocław, ɪd
+wrocław, say [A1], ɪd
 
 ## 13. can-could (A1) – 6 słów
 
@@ -94,9 +94,9 @@ pm
 
 maria
 
-## 24. future-will (A2) – 1 słów
+## 24. future-will (A2) – 2 słów
 
-wo*
+wo*, calendar
 
 ## 25. going-to (A2) – 0 słów
 
@@ -194,35 +194,35 @@ staff [A2], weak, injury [B1]
 
 subject [A1]
 
-## 49. past-perfect-continuous (B2) – 3 słów
+## 49. past-perfect-continuous (B2) – 2 słów
 
-promoted [B1], mud, proud [A2]
+promoted [B1], mud
 
-## 50. future-continuous (B2) – 5 słów
+## 50. future-continuous (B2) – 1 słów
 
-gentlemen, popcorn, nap [B1], vacuuming [A2], client* [A2]
+gentlemen
 
-## 51. future-perfect (B2) – 4 słów
+## 51. future-perfect (B2) – 3 słów
 
-cure [B2], disease, loan [B1], luck [A1]
+cure [B2], disease, loan [B1]
 
 ## 52. tenses-overview (B2) – 0 słów
 
 
 
-## 53. modals-deduction (B2) – 11 słów
+## 53. modals-deduction (B2) – 3 słów
 
-cable, surprise, killed, mushrooms, poisonous, gps [B1], salesman, diamond, cross [B2], lid, sunscreen
+cable, surprise, killed
 
-## 54. conditional-3-mixed (B2) – 10 słów
+## 54. conditional-3-mixed (B2) – 2 słów
 
-organised [A2], goalkeeper, pewno, heights [A2], patience, temper [B1], salmon, director* [A2], stomach* [A1], ache* [A2]
+organised [A2], pewno
 
-## 55. wish-if-only (B2) – 6 słów
+## 55. wish-if-only (B2) – 4 słów
 
-ex-boyfriend, crazy, szkoda, że, przyszedłeś, merry [A2]
+ex-boyfriend, szkoda, że, przyszedłeś
 
-## 56. causative (B2) – 15 słów
+## 56. causative (B2) – 4 słów
 
-nails* [B2], flu [A2], jab [B2], snatched, secretary, porter, expired, renewed, salon*, swollen [B1], blood [A2], pressure [B1], carpets*, account* [A2], brakes*
+flu [A2], jab [B2], snatched, secretary
 

@@ -124,7 +124,7 @@ window.PRACTICE["countable-uncountable"] = {
         { type: "choice", q: "We had ___ at the party last night.", options: ["great time", "a great time", "great times"], answer: 1, explain: "Stałe wyrażenie: have a great/good time = świetnie się bawić." },
         { type: "choice", q: "Is there ___ for one more person in the car?", options: ["room", "a room", "rooms"], answer: 0, explain: "Room = miejsce, przestrzeń – niepoliczalne (a room = pokój)." },
         { type: "choice", q: "The job requires two years of ___.", options: ["experiences", "experience", "an experience"], answer: 1, explain: "Experience = doświadczenie zawodowe – niepoliczalne." },
-        { type: "choice", q: "Riding a camel was ___ – really amazing!", options: ["experience", "an experience", "experiences"], answer: 1, explain: "An experience = przeżycie – policzalne." },
+        { type: "choice", q: "Our trip to Japan was ___ – really amazing!", options: ["experience", "an experience", "experiences"], answer: 1, explain: "An experience = przeżycie – policzalne." },
       ],
     },
     {

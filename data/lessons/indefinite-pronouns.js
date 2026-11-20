@@ -449,7 +449,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "This one is too expensive. Have you got anything ___? (innego)",
+      "q": "I don't like this one. Have you got anything ___? (innego)",
       "answers": [
         "else"
       ],

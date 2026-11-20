@@ -368,7 +368,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "___ jeans are too small for me.",
+      "q": "___ jeans are very small.",
       "options": [
         "This",
         "That",

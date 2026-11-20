@@ -448,7 +448,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "We won't go out unless it ___ raining. (stop)",
+      "q": "We won't go out unless the rain ___. (stop)",
       "answers": [
         "stops"
       ],

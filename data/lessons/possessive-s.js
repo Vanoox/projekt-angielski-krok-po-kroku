@@ -393,7 +393,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "The ___ (children) bedroom is next to ours.",
+      "q": "The ___ (children) bedroom is next to the bathroom.",
       "answers": [
         "children's"
       ],
@@ -412,7 +412,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "Tom and Kate have one dog. It's ___ dog.",
+      "q": "Tom and Kate are married. This is ___ dog.",
       "options": [
         "Tom's and Kate's",
         "Tom and Kate's",

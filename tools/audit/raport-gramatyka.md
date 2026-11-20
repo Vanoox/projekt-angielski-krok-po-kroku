@@ -40,7 +40,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `test16` **much-many** (lekcja 22): How **many** people are at the party?
 - `sec9:examples` **prep-time** (lekcja 31): Thousands of tourists are in Kraków **in summer**.
 
-## 4. this-that – 11
+## 4. this-that – 12
 
 - `sec10:mistakes` **present-cont** (lekcja 11): That book **is interesting**.
 - `test7` **present-cont** (lekcja 11): These books **are boring**.
@@ -48,10 +48,11 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `exercise1` **there-is** (lekcja 9): Those birds on the roof over **there are** beautiful!
 - `practice0.1` **there-is** (lekcja 9): Those mountains over **there are** beautiful.
 - `sec4:examples` **much-many** (lekcja 22): How **much** are these? – They're €10 each.
-- `practice2.1` **much-many** (lekcja 22): These days **a lot of** people work from home.
+- `practice2.1` **much-many** (lekcja 22): These days **a lot of** shops are open on Sunday.
 - `practice3.5` **much-many** (lekcja 22): How **much** is that bag?
 - `test2` **much-many** (lekcja 22): How **much** are these sunglasses?
 - `sec5:examples` **prep-time** (lekcja 31): These days the shops are open **on Sunday**.
+- `practice2.1` **prep-time** (lekcja 31): These days a lot of shops are open **on Sunday**.
 - `practice2.7` **prep-time** (lekcja 31): I'm sorry, I'm busy **on Saturday**. – Oh, that's a pity.
 
 ## 5. possessive-s – 6
@@ -63,7 +64,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice0.7` **prep-time** (lekcja 31): My niece's birthday is **in June**.
 - `test3` **prep-time** (lekcja 31): Kasia and Marek's wedding is **in August**.
 
-## 6. present-simple – 65
+## 6. present-simple – 63
 
 - `test8` **some-any** (lekcja 23): Does your sister have **any** children?
 - `practice2.4` **much-many** (lekcja 22): It doesn't snow **much** in London.
@@ -120,8 +121,6 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `test4` **prep-time** (lekcja 31): Our train leaves **at 7**.30.
 - `test6` **prep-time** (lekcja 31): What do you do **at weekend**s?
 - `test24` **prep-time** (lekcja 31): My sister doesn't study **at weekend**s, but she studies every evening.
-- `practice0.5` **gerund-after-verb** (lekcja 39): He **enjoys cooking** for his friends.
-- `test2` **gerund-after-verb** (lekcja 39): Do you **like swimming**?
 - `sec5:examples` **adverb-ly** (lekcja 27): We **usually** have dinner at six.
 - `practice0.8` **adverb-ly** (lekcja 27): Dad **usually** relaxes in front of the TV after work.
 - `practice4.1` **adverb-ly** (lekcja 27): What time do you **usually** get up ?
@@ -247,7 +246,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice3.5` **some-any** (lekcja 23): There are … They're **some** letters for you. ___ on your desk.
 - `practice4.2` **some-any** (lekcja 23): There isn't **any** milk in the fridge.
 - `practice5.4` **some-any** (lekcja 23): There are **some** letters for you on the table.
-- `practice5.6` **some-any** (lekcja 23): Is there **anybody** here?
+- `practice5.6` **some-any** (lekcja 23): Is there **someone** here?
 - `practice5.8` **some-any** (lekcja 23): There aren't **any** lessons today.
 - `practice5.9` **some-any** (lekcja 23): There's **something** in your hair.
 - `test2` **some-any** (lekcja 23): There's **some** cheese in the fridge.
@@ -304,7 +303,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `test5` **prep-time** (lekcja 31): Never swim alone **at night**.
 - `sec11:examples` **adverb-ly** (lekcja 27): Could you speak more **slowly**, please?
 
-## 11. present-continuous – 13
+## 11. present-continuous – 14
 
 - `sec1:formula` **some-any** (lekcja 23): Are you waiting for **someone**? Is it raining?
 - `sec4:examples` **some-any** (lekcja 23): Listen! **Someone** is knocking at the door.
@@ -314,6 +313,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice9.0` **some-any** (lekcja 23): Hurry up! **Everyone** is waiting for you.
 - `practice9.6` **some-any** (lekcja 23): Please turn the TV off. **Nobody** is watching it at the moment.
 - `sec6:examples` **much-many** (lekcja 22): My brother is staying with us for **a few** days.
+- `test23` **much-many** (lekcja 22): **A lot of** people are working from home now.
 - `sec8:examples` **prep-time** (lekcja 31): We're flying to Malta **on Saturday**.
 - `practice9.7` **prep-time** (lekcja 31): What do / do you usually ___ **on Sunday**s?
 - `sec7:examples` **adverb-ly** (lekcja 27): More and more people are working **remotely**.
@@ -343,7 +343,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice7.11:q` **prep-time** (lekcja 31): I born **in 1**998.
 - `practice8.4` **prep-time** (lekcja 31): She was born **in 2**001.
 - `practice8.6` **prep-time** (lekcja 31): Why didn't you come to the party **on Saturday**?
-- `practice9.8` **prep-time** (lekcja 31): When did you start learning English? – **In 2**015.
+- `practice9.8` **prep-time** (lekcja 31): When did you start school? – **In 2**005.
 - `test2` **prep-time** (lekcja 31): Were you at home **on Sunday**?
 - `test5` **prep-time** (lekcja 31): My parents met each other **in 1**990.
 - `test18` **prep-time** (lekcja 31): I visited my uncle **in May**.
@@ -355,7 +355,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 
 - `test10:q` **will** (lekcja 24): I **will** can help you next week.
 - `sec10:examples` **some-any** (lekcja 23): We couldn't see **anything** – it was too dark.
-- `practice0.7` **some-any** (lekcja 23): It's too dark in here – I can't see **anything**.
+- `practice0.7` **some-any** (lekcja 23): It's very dark in here – I can't see **anything**.
 - `practice2.4` **some-any** (lekcja 23): She couldn't speak **any** English when she came to London.
 - `practice6.2` **some-any** (lekcja 23): I can't see **anything** without my glasses.
 - `sec4:examples` **much-many** (lekcja 22): Can you speak German? – Only **a little**.
@@ -541,10 +541,9 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `test14:q` **prep-time** (lekcja 31): We moved here **in 2**019.
 - `practice5.9` **adverb-ly** (lekcja 27): How often do you **usually** go swimming?
 
-## 18. present-simple-vs-continuous – 59
+## 18. present-simple-vs-continuous – 56
 
 - `sec4:examples` **going-to** (lekcja 25): We normally go to the seaside in summer, but this year we**'re going to the** mountains.
-- `practice2.8` **if** (lekcja 26): Look – the chef is tasting the sauce to check **if** it needs more salt.
 - `sec7:examples` **some-any** (lekcja 23): I need **some** help right now.
 - `sec16:mistakes` **some-any** (lekcja 23): Listen! **Somebody** is singing.
 - `practice1.2` **some-any** (lekcja 23): Do / need you ___ **any** help with that box?
@@ -560,8 +559,6 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `sec7:examples` **much-many** (lekcja 22): How **much** does this jacket cost?
 - `practice1.5` **much-many** (lekcja 22): How **much** do / cost these shoes ___?
 - `practice5.5` **much-many** (lekcja 22): How **much** does this dictionary cost?
-- `practice6.7` **much-many** (lekcja 22): This dress costs too **much**.
-- `practice6.7:q` **much-many** (lekcja 22): This dress is costing too **much**.
 - `sec1:compare` **prep-time** (lekcja 31): Water boils **at 1**00°C.
 - `sec4:examples` **prep-time** (lekcja 31): It rains a lot here **in November**. – Yes, and it's raining now, too!
 - `sec4:examples` **prep-time** (lekcja 31): We normally go to the seaside **in summer**, but this year we're going to the mountains.
@@ -639,10 +636,10 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice9.8` **much-many** (lekcja 22): How **many** times have you been to London?
 - `test21` **much-many** (lekcja 22): How **many** films have you seen this month?
 - `practice7.8:q` **prep-time** (lekcja 31): I met Tom **in 2**015. We are still friends.
-- `practice7.9:q` **prep-time** (lekcja 31): She started working here **in May**. She still works here.
+- `practice7.9:q` **prep-time** (lekcja 31): She got a job here **in May**. She still works here.
 - `sec8:examples` **adverb-ly** (lekcja 27): So far she's answered every question **correctly**.
 
-## 21. irregular-verbs – 29
+## 21. irregular-verbs – 34
 
 - `sec17:examples` **will** (lekcja 24): By Friday I**'ll** have spent all my money.
 - `sec17:examples` **some-any** (lekcja 23): When I arrived, **everyone** had gone home.
@@ -651,12 +648,17 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice4.2` **some-any** (lekcja 23): I've never won **anything** in my life.
 - `practice7.0` **some-any** (lekcja 23): **Someone** stole my wallet on the tram.
 - `practice7.6` **some-any** (lekcja 23): Has **anyone** seen my keys?
+- `practice7.10` **some-any** (lekcja 23): Oh no! **Somebody** has broken the vase.
+- `practice9.5` **some-any** (lekcja 23): **Someone** stole my wallet on the bus.
+- `practice9.5:q` **some-any** (lekcja 23): **Someone** stealed my wallet on the bus.
 - `test5` **some-any** (lekcja 23): She hasn't eaten **anything**.
 - `test5:q` **some-any** (lekcja 23): She didn't eat **anything**.
+- `test17` **some-any** (lekcja 23): **Someone** stole my car last week.
 - `sec16:examples` **much-many** (lekcja 22): She took **a lot of** photos on holiday.
 - `practice1.1` **much-many** (lekcja 22): How **much** did your new shoes cost ?
 - `practice3.6` **much-many** (lekcja 22): How **much** money have you spent this month?
-- `practice5.7` **much-many** (lekcja 22): I drank too **much** coffee yesterday.
+- `practice3.8` **much-many** (lekcja 22): I learnt **a lot of** new words last week.
+- `practice5.7` **much-many** (lekcja 22): I drank **a lot of** coffee yesterday.
 - `practice6.3` **much-many** (lekcja 22): My son has grown so **much** this year!
 - `test11` **much-many** (lekcja 22): We have sung this song **many** times.
 - `test11:q` **much-many** (lekcja 22): We have sang this song **many** times.
@@ -686,7 +688,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice5.1` **prep-time** (lekcja 31): There are a lot of tourists in Kraków **in the summer**.
 - `test12` **prep-time** (lekcja 31): We have a lot of rain **in November**.
 - `test12:q` **prep-time** (lekcja 31): We have much rain **in November**.
-- `practice2.5` **adverb-ly** (lekcja 27): **Unfortunately**, there's little hope of finding the dog now.
+- `practice2.5` **adverb-ly** (lekcja 27): Our dog is still lost. **Unfortunately**, there's little hope now.
 
 ## 23. indefinite-pronouns – 16
 
@@ -707,13 +709,12 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `sec6:examples` **gerund-after-verb** (lekcja 39): I'd **like something** hot to drink.
 - `exercise7` **gerund-after-verb** (lekcja 39): Would you **like something** to drink?
 
-## 24. future-will – 19
+## 24. future-will – 18
 
 - `sec5:examples` **prep-time** (lekcja 31): **In 2**050 most cars will be electric.
 - `practice3.3` **prep-time** (lekcja 31): Will you be at home **on Saturday**?
 - `practice6.6` **prep-time** (lekcja 31): We 're meeting Jack and Sue at the restaurant **at 8** tonight. It's all arranged.
 - `sec3:examples` **gerund-after-verb** (lekcja 39): I don't feel **like cooking**. I think I'll order a pizza.
-- `practice2.7` **gerund-after-verb** (lekcja 39): Will you **stop making** that noise? I'm trying to work!
 - `sec5:examples` **adverb-ly** (lekcja 27): She'll **probably** be tired after the flight.
 - `sec13:mistakes` **adverb-ly** (lekcja 27): He **probably** won't come.
 - `exercise4` **adverb-ly** (lekcja 27): He **probably** won't come.
@@ -766,7 +767,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 ## 28. comparatives-superlatives – 3
 
 - `practice0.2` **prep-time** (lekcja 31): The weather is nicer **in May** than in April.
-- `practice2.4` **prep-time** (lekcja 31): Driving **at night** is more dangerous than driving during the day.
+- `practice2.4` **prep-time** (lekcja 31): The roads are more dangerous **at night** than during the day.
 - `practice5.6` **prep-time** (lekcja 31): **In autumn** it gets darker and darker every evening.
 
 ## 29. articles – 12
@@ -784,7 +785,7 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `test19:q` **prep-time** (lekcja 31): I'll see you **at the Christmas**.
 - `sec6:examples` **gerund-after-verb** (lekcja 39): I **love walking** by the sea.
 
-## 30. must-have-to – 13
+## 30. must-have-to – 12
 
 - `sec16:formula` **would** (lekcja 42): I**'d love** to be able to play the piano.
 - `practice10.3` **would** (lekcja 42): I**'d love** to be able to speak Japanese.
@@ -798,7 +799,6 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice5.3` **prep-time** (lekcja 31): Next week you will have to work **on Saturday**.
 - `test2` **prep-time** (lekcja 31): My dad has to get up **at five o'clock**.
 - `sec3:examples` **gerund-after-verb** (lekcja 39): I really must **stop eating** so much chocolate.
-- `practice5.2` **gerund-after-verb** (lekcja 39): I **hate having** to get up so early.
 
 ## 32. should-advice – 4
 
@@ -807,12 +807,11 @@ Kolejność: `proponowana-kolejnosc.json`. Wykrywanie heurystyczne (wyrażenia r
 - `practice5.5` **would** (lekcja 42): If I were you, I **would** call her right now.
 - `practice6.6` **would** (lekcja 42): If I were you I **wouldn't** buy this phone.
 
-## 33. word-order – 4
+## 33. word-order – 3
 
 - `practice5.8` **would** (lekcja 42): I**'d like** to know who you spoke to.
 - `practice6.7` **would** (lekcja 42): I**'d like** to eat something sweet.
 - `practice6.7:q` **would** (lekcja 42): I**'d like** to eat sweet something.
-- `practice6.0` **gerund-after-verb** (lekcja 39): I **like swimming** very much.
 
 ## 36. past-perfect – 1
 

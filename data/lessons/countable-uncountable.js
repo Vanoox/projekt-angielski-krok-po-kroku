@@ -493,7 +493,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "My hair ___ too long. I need a haircut.",
+      "q": "My hair ___ very long. I need a haircut.",
       "options": [
         "is",
         "are",

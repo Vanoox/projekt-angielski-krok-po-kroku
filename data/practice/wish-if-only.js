@@ -23,6 +23,11 @@ window.PRACTICE["wish-if-only"] = {
       { en: "afford", pl: "pozwolić sobie na (finansowo)" },
       { en: "advice", pl: "rada", note: "niepoliczalne: your advice (nie: your advices)" },
       { en: "shout (at sb)", pl: "krzyczeć (na kogoś)" },
+      // --- słowa z ćwiczeń ---
+      { en: "drive somebody crazy", pl: "doprowadzać kogoś do szału" },
+      { en: "Merry Christmas", pl: "Wesołych Świąt" },
+      // --- słowa z ćwiczeń ---
+      { en: "Good luck!", pl: "Powodzenia!" },
     ],
   },
 

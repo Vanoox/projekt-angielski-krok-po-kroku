@@ -405,7 +405,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "At 10 tomorrow I ___ my driving test, so wish me luck!",
+      "q": "At 10 tomorrow I ___ my driving test, so I can't answer the phone.",
       "options": [
         "will have taken",
         "will be taking",

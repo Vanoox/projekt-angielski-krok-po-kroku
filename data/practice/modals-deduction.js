@@ -27,6 +27,15 @@ window.PRACTICE["modals-deduction"] = {
       { en: "misunderstand – misunderstood", pl: "źle zrozumieć" },
       { en: "doorbell", pl: "dzwonek do drzwi" },
       { en: "traffic jam", pl: "korek (uliczny)" },
+      // --- słowa z ćwiczeń ---
+      { en: "mushroom", pl: "grzyb" },
+      { en: "poisonous", pl: "trujący" },
+      { en: "GPS", pl: "nawigacja (GPS)" },
+      { en: "salesman", pl: "sprzedawca, akwizytor" },
+      { en: "diamond", pl: "diament" },
+      { en: "cross (the road)", pl: "przechodzić (przez ulicę)" },
+      { en: "lid", pl: "pokrywka, wieczko" },
+      { en: "sunscreen", pl: "krem z filtrem" },
     ],
   },
 

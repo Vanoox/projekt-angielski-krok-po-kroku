@@ -124,7 +124,7 @@ window.PRACTICE["passive-voice"] = {
         { type: "gap", q: "The report has to ___ (finish) by Friday.", answers: ["be finished"], explain: "Po has to: be + past participle. By Friday = „do piątku”, a nie wykonawca!" },
         { type: "gap", q: "I don't want ___ (disturb) while I'm working.", answers: ["to be disturbed"], explain: "Want + to + bezokolicznik; znaczenie bierne → to be disturbed." },
         { type: "gap", q: "Nobody likes ___ (criticise) in public.", answers: ["being criticised", "being criticized"], explain: "Po like używamy -ing; znaczenie bierne → being + past participle." },
-        { type: "gap", q: "I never got your letter. It might ___ (send) to the wrong address.", answers: ["have been sent"], explain: "Przypuszczenie o przeszłości → modalny + have been + past participle." },
+        { type: "gap", q: "I never got your letter. Maybe it ___ (send) to the wrong address.", answers: ["was sent"], explain: "Przeszłość, strona bierna → was + past participle." },
       ],
     },
     {
