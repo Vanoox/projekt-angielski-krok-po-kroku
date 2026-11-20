@@ -64,8 +64,8 @@ window.LESSONS.push({
         {
           "label": "Przed rzeczownikiem",
           "formula": "this / that + l.poj. lub niepoliczalny<br>these / those + l.mn.",
-          "example": "Can you see <b>those</b> mountains?",
-          "examplePl": "Widzisz tamte góry?"
+          "example": "<b>Those</b> mountains are beautiful.",
+          "examplePl": "Tamte góry są piękne."
         }
       ]
     },
@@ -88,12 +88,12 @@ window.LESSONS.push({
           "pl": "Kim jest tamten mężczyzna?"
         },
         {
-          "en": "<b>These</b> shoes are killing me!",
-          "pl": "Te buty mnie wykańczają!"
+          "en": "<b>These</b> shoes are new.",
+          "pl": "Te buty są nowe."
         },
         {
-          "en": "Look at <b>those</b> clouds. It's going to rain.",
-          "pl": "Popatrz na tamte chmury. Będzie padać."
+          "en": "<b>Those</b> clouds are very dark.",
+          "pl": "Tamte chmury są bardzo ciemne."
         },
         {
           "en": "Is <b>this</b> seat free?",
@@ -105,13 +105,13 @@ window.LESSONS.push({
           "note": "these samodzielnie"
         },
         {
-          "en": "Can I try <b>that</b> one, please?",
-          "pl": "Mogę przymierzyć tamten?",
+          "en": "Is <b>that</b> one cheap?",
+          "pl": "Czy tamten jest tani?",
           "note": "this/that one – zamiast powtarzania rzeczownika"
         },
         {
-          "en": "I don't like these trousers. I prefer <b>those</b> (ones).",
-          "pl": "Nie podobają mi się te spodnie. Wolę tamte."
+          "en": "These trousers are too small. <b>Those</b> (ones) are OK.",
+          "pl": "Te spodnie są za małe. Tamte są w porządku."
         },
         {
           "en": "What's <b>this</b>? – It's a phone charger.",
@@ -134,26 +134,26 @@ window.LESSONS.push({
           "pl": "Jestem bardzo zajęty w tym tygodniu."
         },
         {
-          "en": "What are you doing <b>this</b> evening?",
-          "pl": "Co robisz dziś wieczorem?",
+          "en": "Are you free <b>this</b> evening?",
+          "pl": "Masz czas dziś wieczorem?",
           "note": "this morning/afternoon/evening = dziś rano/po południu/wieczorem"
         },
         {
-          "en": "<b>These</b> days everyone has a smartphone.",
-          "pl": "W dzisiejszych czasach każdy ma smartfona."
+          "en": "<b>These</b> days the shops are open on Sunday.",
+          "pl": "W dzisiejszych czasach sklepy są otwarte w niedzielę."
         },
         {
-          "en": "I was only ten at <b>that</b> time.",
-          "pl": "Miałem wtedy tylko dziesięć lat."
+          "en": "I'm a student <b>this</b> year.",
+          "pl": "W tym roku jestem studentem."
         },
         {
-          "en": "In <b>those</b> days there was no internet.",
-          "pl": "W tamtych czasach nie było internetu."
+          "en": "It's very cold <b>this</b> morning.",
+          "pl": "Dziś rano jest bardzo zimno."
         },
         {
-          "en": "<b>That</b> was a great party last night!",
-          "pl": "To była świetna impreza wczoraj!",
-          "note": "coś, co już się skończyło → that"
+          "en": "<b>That</b>'s a great idea!",
+          "pl": "To świetny pomysł!",
+          "note": "reakcja na to, co ktoś powiedział → that"
         }
       ]
     },
@@ -206,7 +206,7 @@ window.LESSONS.push({
     {
       "type": "tip",
       "title": "This o tym, co nastąpi; that o tym, co już padło",
-      "html": "<p>Gdy nawiązujemy do czegoś, co ktoś <b>właśnie powiedział</b>, zwykle używamy <b>that</b>: <em>I've lost my job. – Oh no, <b>that's</b> terrible!</em> Gdy zapowiadamy coś, co <b>zaraz powiemy</b> – <b>this</b>: <em>Listen to <b>this</b>: …</em></p><p>Pamiętaj: <b>that</b> ma też inne znaczenie – spójnik „że” i zaimek „który”: <em>I think <b>that</b> he's right. The book <b>that</b> I bought…</em></p>"
+      "html": "<p>Gdy nawiązujemy do czegoś, co ktoś <b>właśnie powiedział</b>, zwykle używamy <b>that</b>: <em>The shop is closed today. – Oh no, <b>that's</b> terrible!</em> Gdy zapowiadamy coś, co <b>zaraz powiemy</b> – <b>this</b>: <em>Listen to <b>this</b>: …</em></p><p>Pamiętaj: <b>that</b> ma też inne znaczenia – „że” oraz „który”. Poznasz je w dalszych lekcjach.</p>"
     },
     {
       "type": "warning",
@@ -253,9 +253,9 @@ window.LESSONS.push({
           "reakcja na czyjeś słowa → that"
         ],
         [
-          "To było świetne!",
-          "<b>That</b> was great!",
-          "coś, co już się skończyło"
+          "To świetnie!",
+          "<b>That's</b> great!",
+          "reakcja na dobrą wiadomość → that"
         ],
         [
           "Co to za hałas?",
@@ -263,8 +263,8 @@ window.LESSONS.push({
           "dźwięk, który właśnie słyszymy – zwykle that"
         ],
         [
-          "Ten jest lepszy (niż tamten).",
-          "<b>This one</b> is better (than <b>that one</b>).",
+          "Ten jest tani, a tamten drogi.",
+          "<b>This one</b> is cheap and <b>that one</b> is expensive.",
           "one zastępuje powtarzany rzeczownik"
         ]
       ]
@@ -284,8 +284,8 @@ window.LESSONS.push({
           "why": "Information jest niepoliczalne – traktujemy je jak l.poj."
         },
         {
-          "wrong": "I love <b>this</b> jeans.",
-          "right": "I love <b>these</b> jeans.",
+          "wrong": "<b>This</b> jeans are new.",
+          "right": "<b>These</b> jeans are new.",
           "why": "Jeans – zawsze liczba mnoga."
         },
         {
@@ -330,11 +330,11 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "Look at ___ birds on the roof over there!",
+      "q": "___ birds on the roof over there are beautiful!",
       "options": [
-        "those",
-        "these",
-        "that"
+        "Those",
+        "These",
+        "That"
       ],
       "answer": 0,
       "explain": "Daleko + l.mn. → those."
@@ -349,7 +349,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I've passed my exam! – Wow, ___ great!",
+      "q": "It's my birthday today! – Wow, ___ great!",
       "options": [
         "this is",
         "that's",
@@ -360,7 +360,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "What are you doing ___ evening? (dziś wieczorem)",
+      "q": "Are you free ___ evening? (dziś wieczorem)",
       "answers": [
         "this"
       ],
@@ -379,15 +379,15 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "In ___ days people didn't have mobile phones. (w tamtych czasach)",
+      "q": "___ days phones are very expensive. (w dzisiejszych czasach)",
       "answers": [
-        "those"
+        "These"
       ],
-      "explain": "Odległość w czasie, l.mn. → in those days."
+      "explain": "Teraźniejszość, l.mn. → these days = w dzisiejszych czasach."
     },
     {
       "type": "choice",
-      "q": "Hello, ___ Marek. Can I speak to Agnieszka?",
+      "q": "Hello, ___ Marek. Is Agnieszka at home?",
       "options": [
         "I'm",
         "this is",
@@ -418,11 +418,11 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "Do you like these shoes? – No, I prefer ___ ones in the window.",
+      "q": "These shoes are very expensive. ___ ones in the window are cheap.",
       "options": [
-        "that",
-        "this",
-        "those"
+        "That",
+        "This",
+        "Those"
       ],
       "answer": 2,
       "explain": "Ones = l.mn., daleko (w witrynie) → those."

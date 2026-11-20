@@ -473,6 +473,94 @@ window.LESSONS.push({
       "html": "<p>Niektóre czasowniki opisują <b>stan</b>, a nie czynność, i zwykle nie występują w czasach Continuous (w żadnym z nich!):</p><ul><li>myślenie i wiedza: <em>know, understand, believe, remember, forget, mean</em>,</li><li>uczucia i preferencje: <em>like, love, hate, want, need, prefer</em>,</li><li>posiadanie: <em>have (= mieć), own, belong</em>,</li><li>inne: <em>seem, cost, contain, be</em> (w podstawowym znaczeniu).</li></ul><p>Dlatego: <em>I<b>'ve known</b> her for years</em> (nie: <em>have been knowing</em>), <em>She <b>wants</b> a new phone</em> (nie: <em>is wanting</em>). Uwaga: gdy <em>have</em> oznacza czynność, forma ciągła jest OK: <em>We<b>'re having</b> lunch.</em></p>"
     },
     {
+      "type": "table",
+      "title": "There is / there are we wszystkich czasach",
+      "headers": [
+        "Czas",
+        "L.poj. / niepoliczalne",
+        "L.mn."
+      ],
+      "rows": [
+        [
+          "Present Simple",
+          "there <b>is</b>",
+          "there <b>are</b>"
+        ],
+        [
+          "Past Simple",
+          "there <b>was</b>",
+          "there <b>were</b>"
+        ],
+        [
+          "Present Perfect",
+          "there <b>has been</b>",
+          "there <b>have been</b>"
+        ],
+        [
+          "Future (will)",
+          "there <b>will be</b>",
+          "there <b>will be</b>"
+        ],
+        [
+          "be going to",
+          "there <b>is going to be</b>",
+          "there <b>are going to be</b>"
+        ],
+        [
+          "z modalnymi",
+          "there <b>must / might / should / can be</b>",
+          "there <b>must / might / should / can be</b>"
+        ]
+      ]
+    },
+    {
+      "type": "examples",
+      "title": "Przykłady: przeszłość, przyszłość i inne czasy",
+      "items": [
+        {
+          "en": "<b>There was</b> a lot of traffic this morning.",
+          "pl": "Rano był duży ruch."
+        },
+        {
+          "en": "<b>There were</b> about fifty people at the wedding.",
+          "pl": "Na weselu było około pięćdziesięciu osób."
+        },
+        {
+          "en": "<b>Was there</b> anything interesting in the news?",
+          "pl": "Było coś ciekawego w wiadomościach?"
+        },
+        {
+          "en": "<b>There weren't</b> any tickets left.",
+          "pl": "Nie było już biletów."
+        },
+        {
+          "en": "<b>There's been</b> an accident on the motorway.",
+          "pl": "Na autostradzie był wypadek.",
+          "note": "there's been = there has been – świeża wiadomość"
+        },
+        {
+          "en": "<b>There have been</b> a lot of changes recently.",
+          "pl": "Ostatnio zaszło wiele zmian."
+        },
+        {
+          "en": "<b>There will be</b> a meeting on Monday.",
+          "pl": "W poniedziałek będzie zebranie."
+        },
+        {
+          "en": "<b>There's going to be</b> a storm.",
+          "pl": "Będzie burza."
+        },
+        {
+          "en": "<b>There must be</b> a mistake.",
+          "pl": "Musi być jakiś błąd."
+        },
+        {
+          "en": "<b>There used to be</b> a cinema here.",
+          "pl": "Kiedyś było tu kino."
+        }
+      ]
+    },
+    {
       "type": "mistakes",
       "title": "Typowe błędy",
       "items": [

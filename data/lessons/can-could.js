@@ -62,8 +62,8 @@ window.LESSONS.push({
           "pl": "Umiem pływać, ale nie umiem nurkować."
         },
         {
-          "en": "My grandma <b>can use</b> a smartphone better than me.",
-          "pl": "Moja babcia potrafi obsługiwać smartfon lepiej niż ja."
+          "en": "My grandma <b>can use</b> a smartphone.",
+          "pl": "Moja babcia potrafi obsługiwać smartfon."
         },
         {
           "en": "<b>Can</b> you <b>speak</b> German? – Only a little.",
@@ -202,8 +202,8 @@ window.LESSONS.push({
           "pl": "Mógłbyś zapytać Toma – on dużo wie o komputerach."
         },
         {
-          "en": "If you're bored, you <b>could help</b> me in the kitchen.",
-          "pl": "Jeśli się nudzisz, mógłbyś mi pomóc w kuchni."
+          "en": "You're bored? You <b>could help</b> me in the kitchen.",
+          "pl": "Nudzisz się? Mógłbyś mi pomóc w kuchni."
         },
         {
           "en": "What shall we do on Sunday? – Well, we <b>could have</b> a picnic.",
@@ -238,100 +238,6 @@ window.LESSONS.push({
       "type": "warning",
       "title": "Could czy was able to? – jedna konkretna sytuacja",
       "html": "<p>W twierdzeniach <b>could</b> opisuje <b>ogólną umiejętność</b> w przeszłości. Gdy mówimy, że <b>udało się</b> coś zrobić <b>w jednej konkretnej sytuacji</b>, używamy <b>was/were able to</b> albo <b>managed to</b>:</p><ul><li><em>The fire spread fast, but everyone <b>was able to</b> escape.</em> (…ale wszystkim udało się uciec.) – nie: <em>everyone could escape</em>.</li><li><em>I <b>managed to</b> find a parking space.</em> (Udało mi się znaleźć miejsce parkingowe.)</li></ul><p>W <b>przeczeniach</b> nie ma tego problemu: <em>I <b>couldn't</b> find</em> i <em>I <b>wasn't able to</b> find</em> są równie dobre. Z czasownikami zmysłów (see, hear) i <em>understand</em> could jest w porządku nawet w konkretnej sytuacji: <em>I could see the sea from my window.</em></p>"
-    },
-    {
-      "type": "formula",
-      "title": "Be able to – gdy can nie wystarcza",
-      "rows": [
-        {
-          "label": "Przyszłość",
-          "formula": "will <b>be able to</b> + bezokolicznik",
-          "example": "You <b>will be able to</b> speak English fluently in a year."
-        },
-        {
-          "label": "Present Perfect",
-          "formula": "have / has <b>been able to</b>",
-          "example": "I <b>haven't been able to</b> sleep well recently."
-        },
-        {
-          "label": "Po innym modalnym",
-          "formula": "might / should / must + <b>be able to</b>",
-          "example": "I <b>might be able to</b> help you tomorrow."
-        },
-        {
-          "label": "Bezokolicznik / -ing",
-          "formula": "to <b>be able to</b> / <b>being able to</b>",
-          "example": "I'd love <b>to be able to</b> play the piano."
-        }
-      ]
-    },
-    {
-      "type": "examples",
-      "title": "Przykłady: be able to",
-      "items": [
-        {
-          "en": "When will you <b>be able to</b> finish the report?",
-          "pl": "Kiedy będziesz w stanie skończyć raport?"
-        },
-        {
-          "en": "I <b>won't be able to</b> come on Friday.",
-          "pl": "Nie będę mógł przyjść w piątek."
-        },
-        {
-          "en": "She <b>has been able to</b> walk again since the operation.",
-          "pl": "Od operacji znowu może chodzić."
-        },
-        {
-          "en": "<b>Being able to</b> drive is very useful.",
-          "pl": "Umiejętność prowadzenia samochodu jest bardzo przydatna."
-        },
-        {
-          "en": "After three hours, they <b>were able to</b> reach the top.",
-          "pl": "Po trzech godzinach udało im się dotrzeć na szczyt.",
-          "note": "jedna konkretna sytuacja → was/were able to"
-        }
-      ]
-    },
-    {
-      "type": "table",
-      "title": "Can, could, be able to – zestawienie",
-      "headers": [
-        "Czas",
-        "Forma",
-        "Przykład"
-      ],
-      "rows": [
-        [
-          "Teraźniejszość",
-          "can / can't (am/is/are able to)",
-          "I <b>can</b> ski."
-        ],
-        [
-          "Przeszłość – ogólnie",
-          "could / couldn't",
-          "I <b>could</b> ski when I was six."
-        ],
-        [
-          "Przeszłość – konkretna sytuacja (+)",
-          "was/were able to, managed to",
-          "I <b>was able to</b> fix it."
-        ],
-        [
-          "Przyszłość",
-          "will / won't be able to",
-          "I'<b>ll be able to</b> ski soon."
-        ],
-        [
-          "Present Perfect",
-          "have/has been able to",
-          "I'<b>ve</b> never <b>been able to</b> ski."
-        ],
-        [
-          "Prośba",
-          "Can / Could / May I…? Can / Could you…?",
-          "<b>Could</b> you help me?"
-        ]
-      ]
     },
     {
       "type": "table",
@@ -373,9 +279,9 @@ window.LESSONS.push({
           "nie: <em>I could pass</em>"
         ],
         [
-          "Będę mógł ci pomóc.",
-          "I'<b>ll be able to</b> help you.",
-          "nie: <em>I will can</em>"
+          "Mogę ci jutro pomóc.",
+          "I <b>can</b> help you tomorrow.",
+          "o przyszłym planie można użyć can; nie: <em>I will can</em> (więcej w lekcji o must / have to)"
         ],
         [
           "Moglibyśmy pójść na spacer.",
@@ -405,8 +311,8 @@ window.LESSONS.push({
         },
         {
           "wrong": "I <b>will can</b> come tomorrow.",
-          "right": "I <b>will be able to</b> come tomorrow.",
-          "why": "Can nie ma formy przyszłej – zastępujemy go will be able to (albo po prostu: I can come tomorrow)."
+          "right": "I <b>can</b> come tomorrow.",
+          "why": "Can nie łączy się z will. O planie na jutro mówimy po prostu I can come tomorrow (forma will be able to – w lekcji o must / have to)."
         },
         {
           "wrong": "It was difficult, but finally I <b>could</b> open the door.",
@@ -474,12 +380,11 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "Don't worry, you ___ drive after a few lessons. (be able to – przyszłość)",
+      "q": "Don't worry, you ___ drive. It's easy! (umieć – teraz)",
       "answers": [
-        "will be able to",
-        "'ll be able to"
+        "can"
       ],
-      "explain": "Can nie ma formy przyszłej, więc używamy will be able to."
+      "explain": "Umiejętność → can + czasownik bez to."
     },
     {
       "type": "choice",
@@ -527,11 +432,12 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "I haven't ___ to contact him all week. (be able to)",
+      "q": "I ___ contact him yesterday. His phone was off. (nie mogłem)",
       "answers": [
-        "been able"
+        "couldn't",
+        "could not"
       ],
-      "explain": "Present Perfect: have/has + been able to."
+      "explain": "Przeszłość od can't → couldn't."
     },
     {
       "type": "choice",

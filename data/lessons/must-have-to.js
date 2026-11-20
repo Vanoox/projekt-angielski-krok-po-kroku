@@ -382,6 +382,100 @@ window.LESSONS.push({
       "html": "<ul><li><b>have to</b> w znaczeniu „musieć” wymawiamy [ˈhæf tə] – z <b>f</b>, nie v: <em>I have to go</em> [aɪ ˈhæf tə ɡəʊ].</li><li><b>has to</b> → [ˈhæs tə] – z <b>s</b>, nie z; <b>had to</b> → [ˈhæt tə].</li><li><b>mustn't</b> → [ˈmʌsnt] – pierwsze <b>t</b> jest nieme.</li><li><b>needn't</b> → [ˈniːdnt].</li></ul>"
     },
     {
+      "type": "formula",
+      "title": "Be able to – gdy can nie wystarcza",
+      "rows": [
+        {
+          "label": "Przyszłość",
+          "formula": "will <b>be able to</b> + bezokolicznik",
+          "example": "You <b>will be able to</b> speak English fluently in a year."
+        },
+        {
+          "label": "Present Perfect",
+          "formula": "have / has <b>been able to</b>",
+          "example": "I <b>haven't been able to</b> sleep well recently."
+        },
+        {
+          "label": "Po innym modalnym",
+          "formula": "might / should / must + <b>be able to</b>",
+          "example": "I <b>might be able to</b> help you tomorrow."
+        },
+        {
+          "label": "Bezokolicznik / -ing",
+          "formula": "to <b>be able to</b> / <b>being able to</b>",
+          "example": "I'd love <b>to be able to</b> play the piano."
+        }
+      ]
+    },
+    {
+      "type": "examples",
+      "title": "Przykłady: be able to",
+      "items": [
+        {
+          "en": "When will you <b>be able to</b> finish the report?",
+          "pl": "Kiedy będziesz w stanie skończyć raport?"
+        },
+        {
+          "en": "I <b>won't be able to</b> come on Friday.",
+          "pl": "Nie będę mógł przyjść w piątek."
+        },
+        {
+          "en": "She <b>has been able to</b> walk again since the operation.",
+          "pl": "Od operacji znowu może chodzić."
+        },
+        {
+          "en": "<b>Being able to</b> drive is very useful.",
+          "pl": "Umiejętność prowadzenia samochodu jest bardzo przydatna."
+        },
+        {
+          "en": "After three hours, they <b>were able to</b> reach the top.",
+          "pl": "Po trzech godzinach udało im się dotrzeć na szczyt.",
+          "note": "jedna konkretna sytuacja → was/were able to"
+        }
+      ]
+    },
+    {
+      "type": "table",
+      "title": "Can, could, be able to – zestawienie",
+      "headers": [
+        "Czas",
+        "Forma",
+        "Przykład"
+      ],
+      "rows": [
+        [
+          "Teraźniejszość",
+          "can / can't (am/is/are able to)",
+          "I <b>can</b> ski."
+        ],
+        [
+          "Przeszłość – ogólnie",
+          "could / couldn't",
+          "I <b>could</b> ski when I was six."
+        ],
+        [
+          "Przeszłość – konkretna sytuacja (+)",
+          "was/were able to, managed to",
+          "I <b>was able to</b> fix it."
+        ],
+        [
+          "Przyszłość",
+          "will / won't be able to",
+          "I'<b>ll be able to</b> ski soon."
+        ],
+        [
+          "Present Perfect",
+          "have/has been able to",
+          "I'<b>ve</b> never <b>been able to</b> ski."
+        ],
+        [
+          "Prośba",
+          "Can / Could / May I…? Can / Could you…?",
+          "<b>Could</b> you help me?"
+        ]
+      ]
+    },
+    {
       "type": "mistakes",
       "title": "Typowe błędy",
       "items": [

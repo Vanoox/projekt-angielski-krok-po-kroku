@@ -154,8 +154,8 @@ window.LESSONS.push({
           "pl": "Mogę otworzyć okno?"
         },
         {
-          "en": "<b>Have</b> you ever <b>been</b> to London?",
-          "pl": "Byłeś kiedyś w Londynie?"
+          "en": "<b>Can</b> you <b>swim</b>?",
+          "pl": "Umiesz pływać?"
         },
         {
           "en": "<b>Do</b> you <b>like</b> sushi?",
@@ -170,8 +170,8 @@ window.LESSONS.push({
           "pl": "Czy oni dzwonili do ciebie wczoraj?"
         },
         {
-          "en": "<b>Will</b> you <b>be</b> at home tonight?",
-          "pl": "Będziesz w domu dziś wieczorem?"
+          "en": "<b>Were</b> you at home last night?",
+          "pl": "Byłeś w domu wczoraj wieczorem?"
         },
         {
           "en": "<b>Is</b> it <b>raining</b>?",
@@ -196,10 +196,10 @@ window.LESSONS.push({
           "examplePl": "Czy twój tata pali? – Nie."
         },
         {
-          "label": "Z modalnym / have",
-          "formula": "Yes, … <b>can / will / has…</b> / No, … <b>can't / won't / hasn't…</b>",
-          "example": "<b>Have</b> you seen my keys? – No, I <b>haven't</b>.",
-          "examplePl": "Widziałeś moje klucze? – Nie."
+          "label": "Z can / have got",
+          "formula": "Yes, … <b>can / have…</b> / No, … <b>can't / haven't…</b>",
+          "example": "<b>Have</b> you got a pen? – No, I <b>haven't</b>.",
+          "examplePl": "Masz długopis? – Nie."
         },
         {
           "label": "Bez skrótu w „Yes”",
@@ -342,8 +342,8 @@ window.LESSONS.push({
           "pl": "Jak często widujesz rodziców?"
         },
         {
-          "en": "<b>How long</b> have you lived here?",
-          "pl": "Jak długo tu mieszkasz?"
+          "en": "<b>How long</b> is the film?",
+          "pl": "Jak długo trwa film?"
         },
         {
           "en": "<b>What</b> does „awkward” mean?",
@@ -603,8 +603,8 @@ window.LESSONS.push({
           "pl": "Czy to nie jest piękne?"
         },
         {
-          "en": "<b>Haven't</b> you <b>finished</b> yet?",
-          "pl": "Jeszcze nie skończyłeś?"
+          "en": "<b>Aren't</b> you <b>ready</b> yet?",
+          "pl": "Jeszcze nie jesteś gotowy?"
         },
         {
           "en": "<b>Why don't we</b> order a pizza?",
@@ -628,8 +628,8 @@ window.LESSONS.push({
       "title": "Przykłady: pytania pośrednie",
       "items": [
         {
-          "en": "Do you know <b>where the nearest pharmacy is</b>?",
-          "pl": "Wie pan, gdzie jest najbliższa apteka?"
+          "en": "Do you know <b>where the pharmacy is</b>?",
+          "pl": "Wie pan, gdzie jest apteka?"
         },
         {
           "en": "Could you tell me <b>what time the last bus leaves</b>?",

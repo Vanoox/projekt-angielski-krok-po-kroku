@@ -30,9 +30,9 @@ window.LESSONS.push({
         },
         {
           "label": "Czasownik posiłkowy / modalny",
-          "formula": "podmiot + have / can / will… + <b>przysłówek</b> + czasownik",
-          "example": "I have <b>never</b> been to Japan. You can <b>always</b> call me.",
-          "examplePl": "Nigdy nie byłem w Japonii. Zawsze możesz do mnie zadzwonić."
+          "formula": "podmiot + can / will… + <b>przysłówek</b> + czasownik",
+          "example": "You can <b>always</b> call me.",
+          "examplePl": "Zawsze możesz do mnie zadzwonić. (can = móc – więcej w lekcji o can)"
         },
         {
           "label": "Przeczenie",
@@ -106,12 +106,12 @@ window.LESSONS.push({
           "pl": "W poniedziałki zwykle jest bardzo zajęta."
         },
         {
-          "en": "I can <b>never</b> remember his name.",
-          "pl": "Nigdy nie mogę zapamiętać jego imienia."
+          "en": "I <b>never</b> remember his name.",
+          "pl": "Nigdy nie pamiętam jego imienia."
         },
         {
-          "en": "We have <b>always</b> lived in this town.",
-          "pl": "Od zawsze mieszkamy w tym mieście."
+          "en": "My parents are <b>always</b> at home on Sundays.",
+          "pl": "Moi rodzice w niedziele zawsze są w domu."
         },
         {
           "en": "He doesn't <b>usually</b> work on Saturdays.",
@@ -386,14 +386,14 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I've ___ been to Australia. I'd love to go!",
+      "q": "I ___ eat meat. I'm a vegetarian.",
       "options": [
         "always",
         "never",
         "usually"
       ],
       "answer": 1,
-      "explain": "Never stoi po czasowniku posiłkowym have."
+      "explain": "Never = nigdy; stoi przed zwykłym czasownikiem (eat)."
     },
     {
       "type": "gap",
@@ -430,7 +430,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "He is ___ late. I've never seen him on time! (zawsze)",
+      "q": "He is ___ late. He's never on time! (zawsze)",
       "answers": [
         "always"
       ],
@@ -440,12 +440,12 @@ window.LESSONS.push({
       "type": "choice",
       "q": "Which sentence is correct?",
       "options": [
-        "I can never find my keys.",
-        "I can't never find my keys.",
-        "I can find never my keys."
+        "I never find my keys.",
+        "I don't never find my keys.",
+        "I find never my keys."
       ],
       "answer": 0,
-      "explain": "Never stoi po czasowniku modalnym i zastępuje przeczenie."
+      "explain": "Never stoi przed zwykłym czasownikiem i samo tworzy przeczenie – nie dodajemy don't."
     }
   ]
 });

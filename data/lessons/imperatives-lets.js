@@ -91,8 +91,8 @@ window.LESSONS.push({
           "pl": "Nie dotykaj! To gorące."
         },
         {
-          "en": "<b>Don't worry</b>. Everything will be fine.",
-          "pl": "Nie martw się. Wszystko będzie dobrze."
+          "en": "<b>Don't worry</b>. It's OK.",
+          "pl": "Nie martw się. Wszystko w porządku."
         },
         {
           "en": "<b>Don't forget</b> your keys.",
@@ -170,8 +170,8 @@ window.LESSONS.push({
           "note": "don't ever = mocniejsze never"
         },
         {
-          "en": "<b>You stay</b> here, and I'll get the car.",
-          "pl": "Ty zostań tutaj, a ja przyprowadzę samochód.",
+          "en": "<b>You sit</b> here, and Tom, <b>you sit</b> there.",
+          "pl": "Ty usiądź tutaj, a ty, Tomku, tam.",
           "note": "you – tylko gdy kontrastujemy osoby"
         },
         {
@@ -179,14 +179,13 @@ window.LESSONS.push({
           "pl": "Niech wszyscy usiądą, proszę."
         },
         {
-          "en": "<b>Hurry up</b>, or we'll miss the bus.",
-          "pl": "Pospiesz się, bo spóźnimy się na autobus.",
-          "note": "rozkaz + or = „bo inaczej”"
+          "en": "<b>Hurry up</b>! The bus is here.",
+          "pl": "Pospiesz się! Autobus już jest.",
+          "note": "hurry up = pospiesz się"
         },
         {
-          "en": "<b>Study</b> hard and you'll pass.",
-          "pl": "Ucz się pilnie, a zdasz.",
-          "note": "rozkaz + and = „a wtedy”"
+          "en": "<b>Study</b> hard – the exam is on Monday.",
+          "pl": "Ucz się pilnie – egzamin jest w poniedziałek."
         }
       ]
     },
@@ -336,7 +335,7 @@ window.LESSONS.push({
     {
       "type": "text",
       "title": "Jak być uprzejmym?",
-      "html": "<p>Sam tryb rozkazujący może brzmieć po angielsku <b>dość ostro</b> – Anglicy są bardzo wyczuleni na grzeczność. Gdy o coś prosisz (a nie wydajesz polecenia), złagodź formę:</p><ul><li>dodaj <b>please</b>: <em>Please close the door. / Close the door, please.</em></li><li>użyj pytania: <b>Can you…? / Could you…? / Would you mind + -ing?</b></li><li>dodaj doczepkę <b>will you? / would you?</b>: <em>Pass me the salt, would you?</em></li></ul>"
+      "html": "<p>Sam tryb rozkazujący może brzmieć po angielsku <b>dość ostro</b> – Anglicy są bardzo wyczuleni na grzeczność. Gdy o coś prosisz (a nie wydajesz polecenia), złagodź formę:</p><ul><li>dodaj <b>please</b>: <em>Please close the door. / Close the door, please.</em></li><li>użyj pytania: <b>Can you…? / Could you…?</b> (can = móc, could – grzeczniej; więcej w lekcji o can i could): <em>Can you help me, please?</em></li></ul>"
     },
     {
       "type": "examples",
@@ -356,9 +355,9 @@ window.LESSONS.push({
           "note": "could – grzeczniej niż can"
         },
         {
-          "en": "<b>Would you mind</b> opening the window?",
-          "pl": "Czy mógłbyś otworzyć okno?",
-          "note": "po mind: czasownik + -ing"
+          "en": "<b>Open</b> the window, <b>please</b>.",
+          "pl": "Otwórz okno, proszę.",
+          "note": "please łagodzi polecenie"
         },
         {
           "en": "<b>Could I</b> have the bill, please?",
@@ -406,9 +405,9 @@ window.LESSONS.push({
           "why": "Prośba w formie samego rozkazu brzmi niegrzecznie – użyj Can/Could… please."
         },
         {
-          "wrong": "Would you mind <b>to open</b> the window?",
-          "right": "Would you mind <b>opening</b> the window?",
-          "why": "Po mind zawsze forma -ing."
+          "wrong": "Close <b>please</b> the door.",
+          "right": "Close the door, <b>please</b>. / <b>Please</b> close the door.",
+          "why": "Please stawiamy na początku albo na końcu prośby, nie w środku."
         },
         {
           "wrong": "<b>Let's we</b> go!",
@@ -497,11 +496,11 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "Would you mind ___ (help) me with this box?",
+      "q": "___ (help) me with this box, please!",
       "answers": [
-        "helping"
+        "Help"
       ],
-      "explain": "Po would you mind – czasownik z -ing."
+      "explain": "Prośba w trybie rozkazującym: forma podstawowa (help) + please."
     },
     {
       "type": "choice",

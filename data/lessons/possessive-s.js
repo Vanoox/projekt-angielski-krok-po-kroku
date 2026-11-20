@@ -137,16 +137,16 @@ window.LESSONS.push({
           "note": "children – l.mn. bez -s → 's"
         },
         {
-          "en": "Have you seen the <b>dog's</b> lead?",
-          "pl": "Widziałeś smycz psa?"
+          "en": "Where's the <b>dog's</b> lead?",
+          "pl": "Gdzie jest smycz psa?"
         },
         {
           "en": "Where's <b>Mark's</b> office?",
           "pl": "Gdzie jest biuro Marka?"
         },
         {
-          "en": "<b>Tom and Anna's</b> wedding was amazing.",
-          "pl": "Ślub Toma i Anny był niesamowity.",
+          "en": "<b>Tom and Anna's</b> wedding is in June.",
+          "pl": "Ślub Toma i Anny jest w czerwcu.",
           "note": "jeden wspólny ślub"
         },
         {
@@ -174,8 +174,8 @@ window.LESSONS.push({
       "title": "Przykłady: of i rzeczowniki złożone",
       "items": [
         {
-          "en": "I didn't like <b>the end of the film</b>.",
-          "pl": "Nie podobało mi się zakończenie filmu."
+          "en": "<b>The end of the film</b> is great.",
+          "pl": "Zakończenie filmu jest świetne."
         },
         {
           "en": "Write your name at <b>the top of the page</b>.",
@@ -236,8 +236,8 @@ window.LESSONS.push({
       "title": "Przykłady: 's zamiast polskiego przymiotnika",
       "items": [
         {
-          "en": "She writes <b>children's</b> books.",
-          "pl": "Ona pisze książki dla dzieci.",
+          "en": "These are <b>children's</b> books.",
+          "pl": "To są książki dla dzieci.",
           "note": "książki dla dzieci = children's books"
         },
         {
@@ -249,17 +249,17 @@ window.LESSONS.push({
           "pl": "Dzień Matki w Polsce jest 26 maja."
         },
         {
-          "en": "We met on <b>Valentine's Day</b>.",
-          "pl": "Poznaliśmy się w walentynki."
+          "en": "<b>Valentine's Day</b> is on 14 February.",
+          "pl": "Walentynki są 14 lutego."
         },
         {
-          "en": "Let's meet at <b>McDonald's</b>.",
-          "pl": "Spotkajmy się w McDonaldzie.",
+          "en": "My son is at <b>McDonald's</b>.",
+          "pl": "Mój syn jest w McDonaldzie.",
           "note": "nazwy sklepów i restauracji z 's"
         },
         {
-          "en": "I need <b>a week's</b> holiday.",
-          "pl": "Potrzebuję tygodnia urlopu.",
+          "en": "It's <b>a week's</b> holiday.",
+          "pl": "To tygodniowy urlop.",
           "note": "też: a one-week holiday"
         }
       ]
@@ -274,28 +274,28 @@ window.LESSONS.push({
       "title": "Przykłady: miejsca i wyrażenia czasu",
       "items": [
         {
-          "en": "I've got an appointment at the <b>dentist's</b>.",
-          "pl": "Mam wizytę u dentysty."
+          "en": "My mum is at the <b>dentist's</b>.",
+          "pl": "Moja mama jest u dentysty."
         },
         {
-          "en": "We're spending Christmas at <b>my aunt's</b>.",
-          "pl": "Spędzamy święta u cioci."
+          "en": "The children are at <b>my aunt's</b>.",
+          "pl": "Dzieci są u cioci."
         },
         {
           "en": "Whose phone is this? – It's <b>Piotr's</b>.",
           "pl": "Czyj to telefon? – Piotra."
         },
         {
-          "en": "Have you read <b>today's</b> paper?",
-          "pl": "Czytałeś dzisiejszą gazetę?"
+          "en": "Where's <b>today's</b> paper?",
+          "pl": "Gdzie jest dzisiejsza gazeta?"
         },
         {
           "en": "The hotel is <b>ten minutes'</b> walk from the beach.",
           "pl": "Hotel jest 10 minut spacerem od plaży."
         },
         {
-          "en": "Did you go to <b>Sarah's</b> party?",
-          "pl": "Byłeś na imprezie Sary?"
+          "en": "Are you at <b>Sarah's</b> party?",
+          "pl": "Jesteś na imprezie Sary?"
         }
       ]
     },
@@ -339,8 +339,8 @@ window.LESSONS.push({
           "why": "Przy rzeczach zwykle używamy of."
         },
         {
-          "wrong": "I was at <b>the doctor</b> yesterday.",
-          "right": "I was at <b>the doctor's</b> yesterday.",
+          "wrong": "I'm at <b>the doctor</b> now.",
+          "right": "I'm at <b>the doctor's</b> now.",
           "why": "„U lekarza” (w gabinecie) = at the doctor's."
         },
         {
@@ -401,7 +401,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I didn't understand ___.",
+      "q": "Is ___ sad?",
       "options": [
         "the end of the film",
         "the film's end",
@@ -423,7 +423,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "I can't talk now – I'm at the ___ (hairdresser).",
+      "q": "Sorry, I'm busy now – I'm at the ___ (hairdresser).",
       "answers": [
         "hairdresser's"
       ],
@@ -442,7 +442,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "Have you seen ___ (today) news?",
+      "q": "___ (today) news is very good.",
       "answers": [
         "today's"
       ],
@@ -461,7 +461,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "We spent the weekend at my ___ (grandma).",
+      "q": "The kids are at my ___ (grandma) this weekend.",
       "answers": [
         "grandma's"
       ],
@@ -469,7 +469,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "This shop sells ___ shoes.",
+      "q": "These are ___ shoes. (damskie)",
       "options": [
         "womens'",
         "woman's",

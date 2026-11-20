@@ -194,6 +194,21 @@ window.PRACTICE["must-have-to"] = {
         { type: "write", q: "Nie wolno nam było rozmawiać na lekcjach.", answers: ["We {weren't allowed to|couldn't} {talk|speak} {during|in} (the) lessons.", "We {weren't allowed to|couldn't} {talk|speak} {during|in} class."], explain: "Zakaz w przeszłości → weren't allowed to / couldn't (mustn't nie ma przeszłości)." },
       ],
     },
+    {
+      title: "11. Be able to",
+      instruction: "Uzupełnij zdania właściwą formą <b>be able to</b>. Pomyśl, jakiego czasu lub jakiej formy wymaga zdanie.",
+      items: [
+        { type: "gap", q: "I ___ come to your wedding next month – I'll be abroad. (not / be able to)", answers: ["won't be able to", "will not be able to"], explain: "Przyszłość, przeczenie → won't be able to (can nie ma formy przyszłej)." },
+        { type: "gap", q: "If you practise every day, you ___ play this song in a month. (be able to)", answers: ["will be able to"], explain: "Przyszłość → will be able to." },
+        { type: "gap", q: "Since the accident, he ___ walk without a stick. (not / be able to – present perfect)", answers: ["hasn't been able to", "has not been able to"], explain: "Since → present perfect: hasn't been able to." },
+        { type: "gap", q: "I'd love ___ speak Japanese. (be able to)", answers: ["to be able to"], explain: "Po would love potrzebny bezokolicznik z to; can go nie ma → to be able to." },
+        { type: "gap", q: "You might ___ get a cheaper ticket online. (be able to)", answers: ["be able to"], explain: "Dwa modalne nie mogą stać obok siebie (might can ✗) → might be able to." },
+        { type: "gap", q: "___ walk to work is a great advantage. (be able to – forma -ing)", answers: ["Being able to"], explain: "Podmiot zdania w formie -ing → Being able to." },
+        { type: "gap", q: "___ you ___ help me tomorrow? (be able to – przyszłość)", answers: [["Will"], ["be able to"]], explain: "Pytanie w przyszłości: Will + podmiot + be able to?" },
+        { type: "choice", q: "Sorry, I ___ finish the report by Friday.", options: ["won't can", "won't be able to", "don't able to"], answer: 1, explain: "Can nie ma formy przyszłej → won't be able to." },
+        { type: "choice", q: "We ___ contact her since Monday – her phone is off.", options: ["haven't been able to", "couldn't", "can't"], answer: 0, explain: "Since Monday → present perfect: haven't been able to." },
+      ],
+    },
   ],
 
   test: [

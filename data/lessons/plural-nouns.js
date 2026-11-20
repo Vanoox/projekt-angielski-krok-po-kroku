@@ -68,16 +68,16 @@ window.LESSONS.push({
       "title": "Przykłady: formy regularne",
       "items": [
         {
-          "en": "I've got two <b>sisters</b> and three <b>brothers</b>.",
-          "pl": "Mam dwie siostry i trzech braci."
+          "en": "My <b>sisters</b> are teachers.",
+          "pl": "Moje siostry są nauczycielkami."
         },
         {
           "en": "The <b>buses</b> are late again.",
           "pl": "Autobusy znowu się spóźniają."
         },
         {
-          "en": "Can you wash the <b>dishes</b>?",
-          "pl": "Możesz pozmywać naczynia?"
+          "en": "The <b>dishes</b> are in the kitchen.",
+          "pl": "Naczynia są w kuchni."
         },
         {
           "en": "Warsaw and Kraków are big <b>cities</b>.",
@@ -89,20 +89,20 @@ window.LESSONS.push({
           "note": "samogłoska + y → -s"
         },
         {
-          "en": "The <b>leaves</b> are falling.",
-          "pl": "Liście opadają."
+          "en": "The <b>leaves</b> are yellow.",
+          "pl": "Liście są żółte."
         },
         {
-          "en": "Put the <b>knives</b> in the drawer.",
-          "pl": "Włóż noże do szuflady."
+          "en": "The <b>knives</b> are very sharp.",
+          "pl": "Noże są bardzo ostre."
         },
         {
-          "en": "I need a kilo of <b>tomatoes</b> and some <b>potatoes</b>.",
-          "pl": "Potrzebuję kilograma pomidorów i trochę ziemniaków."
+          "en": "The <b>tomatoes</b> are red and the <b>potatoes</b> are cheap.",
+          "pl": "Pomidory są czerwone, a ziemniaki tanie."
         },
         {
-          "en": "She takes a lot of <b>photos</b>.",
-          "pl": "Ona robi dużo zdjęć."
+          "en": "Your <b>photos</b> are beautiful.",
+          "pl": "Twoje zdjęcia są piękne."
         }
       ]
     },
@@ -192,37 +192,37 @@ window.LESSONS.push({
       "title": "Przykłady: formy nieregularne",
       "items": [
         {
-          "en": "There are three <b>women</b> and two <b>men</b> in the team.",
-          "pl": "W zespole są trzy kobiety i dwóch mężczyzn."
+          "en": "The <b>women</b> are from Spain and the <b>men</b> are from Italy.",
+          "pl": "Kobiety są z Hiszpanii, a mężczyźni z Włoch."
         },
         {
-          "en": "How many <b>children</b> have they got?",
-          "pl": "Ile mają dzieci?"
+          "en": "How many <b>children</b> are in the class?",
+          "pl": "Ile dzieci jest w klasie?"
         },
         {
-          "en": "My <b>feet</b> hurt.",
-          "pl": "Bolą mnie stopy."
+          "en": "Your <b>feet</b> are very big!",
+          "pl": "Masz bardzo duże stopy! (dosł. Twoje stopy są bardzo duże)"
         },
         {
-          "en": "Brush your <b>teeth</b>!",
-          "pl": "Umyj zęby!"
+          "en": "Her <b>teeth</b> are very white.",
+          "pl": "Ona ma bardzo białe zęby. (dosł. Jej zęby są bardzo białe)"
         },
         {
-          "en": "We've got <b>mice</b> in the kitchen!",
-          "pl": "Mamy myszy w kuchni!"
+          "en": "The <b>mice</b> are in the kitchen!",
+          "pl": "Myszy są w kuchni!"
         },
         {
-          "en": "The farmer has got fifty <b>sheep</b>.",
-          "pl": "Rolnik ma pięćdziesiąt owiec.",
+          "en": "The <b>sheep</b> are black.",
+          "pl": "Owce są czarne.",
           "note": "nie: sheeps"
         },
         {
-          "en": "I caught three <b>fish</b>.",
-          "pl": "Złapałem trzy ryby."
+          "en": "The <b>fish</b> are very big.",
+          "pl": "Ryby są bardzo duże."
         },
         {
-          "en": "Two <b>people</b> are waiting outside.",
-          "pl": "Na zewnątrz czekają dwie osoby."
+          "en": "Two <b>people</b> are at the door.",
+          "pl": "Przy drzwiach są dwie osoby."
         }
       ]
     },
@@ -240,25 +240,25 @@ window.LESSONS.push({
           "pl": "Te dżinsy są za ciasne."
         },
         {
-          "en": "I need a new <b>pair of trousers</b>.",
-          "pl": "Potrzebuję nowych spodni.",
+          "en": "It's a new <b>pair of trousers</b>.",
+          "pl": "To nowe spodnie.",
           "note": "jedna para: a pair of"
         },
         {
-          "en": "Where <b>are</b> my <b>glasses</b>? I can't find <b>them</b>.",
-          "pl": "Gdzie są moje okulary? Nie mogę ich znaleźć."
+          "en": "Where <b>are</b> my <b>glasses</b>? Are <b>they</b> in the car?",
+          "pl": "Gdzie są moje okulary? Są w samochodzie?"
         },
         {
           "en": "<b>The scissors are</b> in the top drawer.",
           "pl": "Nożyczki są w górnej szufladzie."
         },
         {
-          "en": "Most <b>people</b> here <b>speak</b> English.",
-          "pl": "Większość ludzi tutaj mówi po angielsku."
+          "en": "The <b>people</b> here <b>are</b> very nice.",
+          "pl": "Ludzie tutaj są bardzo mili."
         },
         {
-          "en": "<b>The police are</b> looking for the thief.",
-          "pl": "Policja szuka złodzieja.",
+          "en": "<b>The police are</b> here.",
+          "pl": "Policja jest tutaj.",
           "note": "police + czasownik w l.mn."
         },
         {
@@ -287,24 +287,14 @@ window.LESSONS.push({
           "<b>this</b> box → <b>these</b> boxes, <b>that</b> man → <b>those</b> men"
         ],
         [
-          "<b>is</b> / <b>was</b>",
-          "<b>are</b> / <b>were</b>",
+          "<b>is</b>",
+          "<b>are</b>",
           "The baby <b>is</b> asleep. → The babies <b>are</b> asleep."
-        ],
-        [
-          "<b>has</b> / he works",
-          "<b>have</b> / they work",
-          "The child <b>has</b> a dog. → The children <b>have</b> a dog."
-        ],
-        [
-          "<b>there is</b>",
-          "<b>there are</b>",
-          "<b>There's</b> a mouse in the kitchen. → <b>There are</b> mice in the kitchen."
         ],
         [
           "<b>it</b>",
           "<b>they / them</b>",
-          "I like this photo. <b>It</b>'s great. → I like these photos. <b>They</b>'re great."
+          "The photo is great. <b>It</b>'s new. → The photos are great. <b>They</b>'re new."
         ]
       ]
     },
@@ -318,8 +308,8 @@ window.LESSONS.push({
       "title": "Przykłady: liczba przed rzeczownikiem",
       "items": [
         {
-          "en": "We've got a <b>six-year-old</b> daughter.",
-          "pl": "Mamy sześcioletnią córkę."
+          "en": "She's a <b>six-year-old</b> girl.",
+          "pl": "To sześcioletnia dziewczynka."
         },
         {
           "en": "Our daughter is six <b>years</b> old.",
@@ -327,20 +317,20 @@ window.LESSONS.push({
           "note": "tu years z -s – nie stoi przed rzeczownikiem"
         },
         {
-          "en": "We stayed in a <b>four-star</b> hotel.",
-          "pl": "Mieszkaliśmy w czterogwiazdkowym hotelu."
+          "en": "It's a <b>four-star</b> hotel.",
+          "pl": "To czterogwiazdkowy hotel."
         },
         {
           "en": "It's a <b>two-hour</b> flight.",
           "pl": "To dwugodzinny lot."
         },
         {
-          "en": "About two <b>hundred</b> people came to the meeting.",
-          "pl": "Na spotkanie przyszło około dwustu osób."
+          "en": "Two <b>hundred</b> people are at the meeting.",
+          "pl": "Na spotkaniu jest dwieście osób."
         },
         {
-          "en": "<b>Thousands of</b> tourists visit Kraków every year.",
-          "pl": "Co roku Kraków odwiedzają tysiące turystów."
+          "en": "<b>Thousands of</b> tourists are in Kraków in summer.",
+          "pl": "Latem w Krakowie są tysiące turystów."
         },
         {
           "en": "Is there a <b>shoe shop</b> near here?",
@@ -449,7 +439,7 @@ window.LESSONS.push({
   "exercises": [
     {
       "type": "gap",
-      "q": "I've got two ___ (child).",
+      "q": "The two ___ (child) are in the car.",
       "answers": [
         "children"
       ],
@@ -457,7 +447,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "There are a lot of ___ in the park.",
+      "q": "The ___ in the park are very nice.",
       "options": [
         "peoples",
         "persons",
@@ -468,7 +458,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "Put all the ___ (box) in the garage.",
+      "q": "All the ___ (box) are in the garage.",
       "answers": [
         "boxes"
       ],
@@ -495,7 +485,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "The cat caught two ___.",
+      "q": "Two ___ are in the kitchen!",
       "options": [
         "mouses",
         "mices",
@@ -514,7 +504,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I need a new ___ glasses.",
+      "q": "It's a new ___ glasses.",
       "options": [
         "pair of",
         "piece of",
@@ -533,18 +523,18 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "The police ___ the man now.",
+      "q": "The police ___ here now.",
       "options": [
-        "is questioning",
-        "are questioning",
-        "questions"
+        "is",
+        "are",
+        "am"
       ],
       "answer": 1,
       "explain": "Police łączy się z czasownikiem w l.mn."
     },
     {
       "type": "gap",
-      "q": "We saw a lot of ___ (sheep) on the hills.",
+      "q": "The ___ (sheep) on the hill are white.",
       "answers": [
         "sheep"
       ],

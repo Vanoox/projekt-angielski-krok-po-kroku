@@ -194,8 +194,8 @@ window.LESSONS.push({
           "note": "po be w mowie potocznej: me"
         },
         {
-          "en": "My sister is taller than <b>me</b>.",
-          "pl": "Moja siostra jest wyższa ode mnie.",
+          "en": "My sister looks like <b>me</b>.",
+          "pl": "Moja siostra jest do mnie podobna.",
           "note": "po than – zwykle forma dopełnienia"
         },
         {
@@ -242,8 +242,8 @@ window.LESSONS.push({
           "note": "they = jedna osoba, gdy płeć jest nieznana lub nieważna"
         },
         {
-          "en": "<b>You</b> never know what will happen.",
-          "pl": "Nigdy nie wiadomo, co się stanie.",
+          "en": "<b>You</b> never know.",
+          "pl": "Nigdy nie wiadomo.",
           "note": "you = ogólnie, każdy"
         }
       ]
@@ -261,8 +261,8 @@ window.LESSONS.push({
           "pl": "Czy to twój płaszcz? – Nie, nie mój."
         },
         {
-          "en": "<b>Their</b> house is bigger than <b>ours</b>.",
-          "pl": "Ich dom jest większy niż nasz."
+          "en": "<b>Their</b> house is big, but <b>ours</b> is small.",
+          "pl": "Ich dom jest duży, a nasz mały."
         },
         {
           "en": "Tom loves <b>his</b> job.",
@@ -346,8 +346,8 @@ window.LESSONS.push({
       "title": "Przykłady: own, on my own",
       "items": [
         {
-          "en": "I'd love to have <b>my own</b> flat.",
-          "pl": "Chciałbym mieć własne mieszkanie."
+          "en": "I want <b>my own</b> flat.",
+          "pl": "Chcę mieć własne mieszkanie."
         },
         {
           "en": "They grow <b>their own</b> vegetables.",
@@ -386,8 +386,8 @@ window.LESSONS.push({
           "pl": "Tom i Kate kochają się (nawzajem)."
         },
         {
-          "en": "We've known <b>each other</b> for years.",
-          "pl": "Znamy się od lat."
+          "en": "We know <b>each other</b> very well.",
+          "pl": "Znamy się bardzo dobrze."
         },
         {
           "en": "They don't talk to <b>each other</b> anymore.",

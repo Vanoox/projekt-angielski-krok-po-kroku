@@ -185,25 +185,25 @@ window.LESSONS.push({
           "pl": "Zwykle jem śniadanie o siódmej."
         },
         {
-          "en": "She<b>'s having</b> a shower. Can she call you back?",
-          "pl": "Ona bierze prysznic. Może oddzwonić?",
-          "note": "forma ciągła – tylko przy czynności"
+          "en": "She <b>has</b> a shower every evening.",
+          "pl": "Ona bierze prysznic co wieczór.",
+          "note": "czynność – bez got"
         },
         {
-          "en": "We <b>had</b> a great time at the party.",
-          "pl": "Świetnie się bawiliśmy na imprezie."
+          "en": "We always <b>have</b> a great time at parties.",
+          "pl": "Zawsze świetnie się bawimy na imprezach."
         },
         {
-          "en": "<b>Did</b> you <b>have</b> lunch? – Not yet.",
-          "pl": "Jadłeś obiad? – Jeszcze nie."
+          "en": "<b>Do</b> you <b>have</b> lunch at work?",
+          "pl": "Jesz obiad w pracy?"
         },
         {
-          "en": "Let's <b>have</b> a break.",
-          "pl": "Zróbmy przerwę."
+          "en": "We <b>have</b> a break at eleven.",
+          "pl": "Mamy przerwę o jedenastej."
         },
         {
-          "en": "Can I <b>have</b> a look?",
-          "pl": "Mogę zobaczyć/rzucić okiem?"
+          "en": "They <b>have</b> dinner at six.",
+          "pl": "Oni jedzą kolację o szóstej."
         },
         {
           "en": "<b>Have</b> a nice day!",
@@ -228,7 +228,7 @@ window.LESSONS.push({
           "html": "<p>Bez got. Pytania z do/does/did. Możliwa forma ciągła.</p>",
           "examples": [
             "I <b>have</b> a shower every morning.",
-            "We<b>'re having</b> dinner now."
+            "We <b>have</b> dinner at six."
           ]
         }
       ]
@@ -364,12 +364,11 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "She can't talk now. She ___ (have) a shower.",
+      "q": "She ___ (have) a shower every evening.",
       "answers": [
-        "'s having",
-        "is having"
+        "has"
       ],
-      "explain": "Have a shower to czynność, więc może być w formie ciągłej."
+      "explain": "Have a shower to czynność – bez got; she → has."
     },
     {
       "type": "gap",
@@ -382,14 +381,14 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "When I was a child, I ___ a dog.",
+      "q": "I ___ dinner at seven every day.",
       "options": [
-        "had got",
-        "had",
-        "have got"
+        "have got",
+        "have",
+        "has"
       ],
       "answer": 1,
-      "explain": "W przeszłości używamy had (have got praktycznie tylko w teraźniejszym)."
+      "explain": "Have dinner = jeść kolację (czynność) – bez got."
     }
   ]
 });

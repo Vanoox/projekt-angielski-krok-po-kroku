@@ -136,94 +136,6 @@ window.LESSONS.push({
       ]
     },
     {
-      "type": "table",
-      "title": "There + be w innych czasach",
-      "headers": [
-        "Czas",
-        "L.poj. / niepoliczalne",
-        "L.mn."
-      ],
-      "rows": [
-        [
-          "Present Simple",
-          "there <b>is</b>",
-          "there <b>are</b>"
-        ],
-        [
-          "Past Simple",
-          "there <b>was</b>",
-          "there <b>were</b>"
-        ],
-        [
-          "Present Perfect",
-          "there <b>has been</b>",
-          "there <b>have been</b>"
-        ],
-        [
-          "Future (will)",
-          "there <b>will be</b>",
-          "there <b>will be</b>"
-        ],
-        [
-          "be going to",
-          "there <b>is going to be</b>",
-          "there <b>are going to be</b>"
-        ],
-        [
-          "z modalnymi",
-          "there <b>must / might / should / can be</b>",
-          "there <b>must / might / should / can be</b>"
-        ]
-      ]
-    },
-    {
-      "type": "examples",
-      "title": "Przykłady: przeszłość, przyszłość i inne czasy",
-      "items": [
-        {
-          "en": "<b>There was</b> a lot of traffic this morning.",
-          "pl": "Rano był duży ruch."
-        },
-        {
-          "en": "<b>There were</b> about fifty people at the wedding.",
-          "pl": "Na weselu było około pięćdziesięciu osób."
-        },
-        {
-          "en": "<b>Was there</b> anything interesting in the news?",
-          "pl": "Było coś ciekawego w wiadomościach?"
-        },
-        {
-          "en": "<b>There weren't</b> any tickets left.",
-          "pl": "Nie było już biletów."
-        },
-        {
-          "en": "<b>There's been</b> an accident on the motorway.",
-          "pl": "Na autostradzie był wypadek.",
-          "note": "there's been = there has been – świeża wiadomość"
-        },
-        {
-          "en": "<b>There have been</b> a lot of changes recently.",
-          "pl": "Ostatnio zaszło wiele zmian."
-        },
-        {
-          "en": "<b>There will be</b> a meeting on Monday.",
-          "pl": "W poniedziałek będzie zebranie."
-        },
-        {
-          "en": "<b>There's going to be</b> a storm.",
-          "pl": "Będzie burza."
-        },
-        {
-          "en": "<b>There must be</b> a mistake.",
-          "pl": "Musi być jakiś błąd."
-        },
-        {
-          "en": "<b>There used to be</b> a cinema here.",
-          "pl": "Kiedyś było tu kino."
-        }
-      ]
-    },
-    {
       "type": "compare",
       "title": "There is vs It is",
       "items": [
@@ -397,14 +309,14 @@ window.LESSONS.push({
           "why": "W pytaniu inwersja: are there."
         },
         {
-          "wrong": "<b>There will have</b> a party.",
-          "right": "<b>There will be</b> a party.",
+          "wrong": "<b>There have</b> two windows in my room.",
+          "right": "<b>There are</b> two windows in my room.",
           "why": "W konstrukcji there zawsze występuje be (nie have)."
         },
         {
-          "wrong": "<b>It was</b> a lot of people at the concert.",
-          "right": "<b>There were</b> a lot of people at the concert.",
-          "why": "Istnienie/obecność w przeszłości → there was/were."
+          "wrong": "<b>It is</b> a lot of people here.",
+          "right": "<b>There are</b> a lot of people here.",
+          "why": "Istnienie/obecność → there is/are, nie it is."
         },
         {
           "wrong": "<b>Haven't</b> any bread.",
@@ -462,7 +374,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "There ___ (not / be) any milk left. Can you buy some?",
+      "q": "There ___ (not / be) any milk in the fridge.",
       "answers": [
         "isn't",
         "is not",
@@ -483,31 +395,31 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "There ___ (be) a terrible storm last night.",
+      "q": "There ___ (be) a big problem with my phone.",
       "answers": [
-        "was"
+        "is",
+        "'s"
       ],
-      "explain": "Przeszłość, l.poj. → there was."
+      "explain": "Jeden problem (l.poj.) → there is."
     },
     {
       "type": "choice",
-      "q": "___ a lot of people at the concert yesterday.",
+      "q": "___ a lot of people at the station.",
       "options": [
-        "There was",
-        "It was",
-        "There were"
+        "There is",
+        "It is",
+        "There are"
       ],
       "answer": 2,
-      "explain": "Przeszłość, l.mn. (people) → there were."
+      "explain": "L.mn. (people) → there are."
     },
     {
       "type": "gap",
-      "q": "There ___ (will / be) a test next Friday.",
+      "q": "___ there a bank near here? (be)",
       "answers": [
-        "will be",
-        "'ll be"
+        "Is"
       ],
-      "explain": "Przyszłość: there will be (w każdej liczbie)."
+      "explain": "Pytanie, l.poj. → Is there…?"
     },
     {
       "type": "choice",

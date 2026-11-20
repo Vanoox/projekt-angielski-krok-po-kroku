@@ -3,7 +3,7 @@ window.LESSONS.push({
   "id": "prepositions-time",
   "title": "Prepositions of time: at, on, in and more",
   "titlePl": "Przyimki czasu: at, on, in i inne",
-  "level": "A1",
+  "level": "A2",
   "category": "Przyimki",
   "summary": "Jak powiedzieć, kiedy coś się dzieje: at (godziny, święta), on (dni, daty), in (miesiące, lata, pory dnia) oraz for, since, during, until, by, ago i in w znaczeniu „za”.",
   "sections": [

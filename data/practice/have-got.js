@@ -26,6 +26,11 @@ window.PRACTICE["have-got"] = {
       { en: "have a break", pl: "zrobić przerwę" },
       { en: "have a good time", pl: "dobrze się bawić" },
       { en: "have a look", pl: "rzucić okiem, zobaczyć" },
+      { en: "balcony", pl: "balkon" },
+      { en: "smile", pl: "uśmiech" },
+      { en: "blue", pl: "niebieski" },
+      { en: "at the moment", pl: "w tej chwili, obecnie" },
+      { en: "problem", pl: "problem" },
     ],
   },
 
@@ -78,27 +83,16 @@ window.PRACTICE["have-got"] = {
       items: [
         { type: "choice", q: "I usually ___ breakfast at 7.", options: ["have got", "have", "'ve got"], answer: 1, explain: "Have breakfast = jeść śniadanie (czynność) – bez got." },
         { type: "choice", q: "She ___ long dark hair.", options: ["'s got", "'s having", "is"], answer: 0, explain: "Wygląd = posiadanie → has got. Posiadanie nie występuje w formie ciągłej." },
-        { type: "choice", q: "Can I call you back? I ___ a shower.", options: ["have got", "'m having", "have"], answer: 1, explain: "Have a shower to czynność trwająca teraz → forma ciągła." },
-        { type: "choice", q: "We ___ a great time at the party last night.", options: ["had", "had got", "have got"], answer: 0, explain: "Have a good time = czynność; przeszłość → had." },
+        { type: "choice", q: "I ___ a shower every morning.", options: ["have got", "'ve got", "have"], answer: 2, explain: "Have a shower (czynność, nawyk) – bez got." },
+        { type: "choice", q: "We usually ___ a great time at parties.", options: ["have", "have got", "'ve got"], answer: 0, explain: "Have a good time = dobrze się bawić (czynność) – bez got." },
         { type: "choice", q: "___ you ___ any brothers or sisters?", options: ["Do … got", "Have … got", "Are … having"], answer: 1, explain: "Posiadanie: Have you got…? (albo Do you have…?). Nie mieszamy do z got." },
-        { type: "gap", q: "Let's ___ a break – I'm tired.", answers: ["have"], explain: "Have a break (czynność) – bez got." },
+        { type: "gap", q: "We ___ a break at eleven every day.", answers: ["have"], explain: "Have a break (czynność) – bez got." },
         { type: "gap", q: "What time do you usually ___ lunch?", answers: ["have"], explain: "Pytanie z do + have lunch (czynność)." },
-        { type: "gap", q: "Sorry, I can't come. I ___ a headache. (have got)", answers: ["'ve got", "have got"], explain: "Dolegliwość = posiadanie → I've got a headache." },
+        { type: "gap", q: "Sorry, I'm tired. I ___ a headache. (have got)", answers: ["'ve got", "have got"], explain: "Dolegliwość = posiadanie → I've got a headache." },
       ],
     },
     {
-      title: "5. Przeszłość: had / didn't have",
-      instruction: "Uzupełnij zdania w czasie przeszłym. Pamiętaj: <b>have got</b> praktycznie nie występuje w przeszłości – mówimy <b>had</b>, <b>didn't have</b>, <b>Did … have?</b>",
-      items: [
-        { type: "gap", q: "When I was a child, I ___ (have) a cat.", answers: ["had"], explain: "Przeszłość od have (posiadanie) → had." },
-        { type: "gap", q: "We ___ (not / have) a car when I was young.", answers: ["didn't have", "did not have"], explain: "Przeczenie w przeszłości: didn't have." },
-        { type: "gap", q: "___ you ___ a good time in Spain?", answers: [["Did"], ["have"]], explain: "Pytanie w przeszłości: Did + you + have." },
-        { type: "gap", q: "She ___ (have) a cold last week.", answers: ["had"], explain: "Last week → przeszłość: had." },
-        { type: "choice", q: "I ___ time to call you yesterday, sorry.", options: ["hadn't got", "didn't have", "haven't got"], answer: 1, explain: "Przeszłość: didn't have (hadn't got jest rzadkie i brzmi nienaturalnie)." },
-      ],
-    },
-    {
-      title: "6. Ułóż zdania",
+      title: "5. Ułóż zdania",
       instruction: "Klikaj wyrazy w odpowiedniej kolejności.",
       items: [
         { type: "order", q: "Ona ma dwóch braci.", answers: ["She has got two brothers."], explain: "Podmiot + has got + dopełnienie." },
@@ -110,7 +104,7 @@ window.PRACTICE["have-got"] = {
       ],
     },
     {
-      title: "7. Przetłumacz na angielski",
+      title: "6. Przetłumacz na angielski",
       instruction: "Napisz całe zdanie po angielsku. Akceptowane są obie konstrukcje: <b>have got</b> i <b>have</b> z do/does.",
       items: [
         { type: "write", q: "Mam nowy telefon.", answers: ["I've got a new phone.", "I have a new phone."], explain: "Posiadanie: I've got / I have." },
@@ -131,7 +125,7 @@ window.PRACTICE["have-got"] = {
     { type: "write", task: "Przetłumacz", q: "Ona nie ma dzieci.", answers: ["She hasn't got any children.", "She doesn't have any children.", "She has no children.", "She's got no children."], explain: "W przeczeniach z rzeczownikiem w l.mn. zwykle dodajemy any." },
     { type: "write", task: "Przetłumacz", q: "Czy masz chwilę?", answers: ["Have you got a minute?", "Do you have a minute?", "Have you got a moment?", "Do you have a moment?"], explain: "Have you got / Do you have a minute?" },
     { type: "write", task: "Przetłumacz", q: "Zwykle jemy kolację o ósmej.", answers: ["We usually have {dinner|supper} at {eight|8} (o'clock).", "Usually we have {dinner|supper} at {eight|8} (o'clock)."], explain: "Have dinner to czynność – nigdy z got." },
-    { type: "write", task: "Przetłumacz", q: "Kiedy byłem dzieckiem, miałem rower.", answers: ["When I was a child, I had a bike.", "I had a bike when I was a child.", "When I was a kid, I had a bike.", "I had a bike when I was a kid.", "When I was a child, I had a bicycle.", "I had a bicycle when I was a child."], explain: "W przeszłości: had (nie had got)." },
+    { type: "write", task: "Przetłumacz", q: "Zwykle jem obiad o drugiej.", answers: ["I usually have {lunch|dinner} at {two|2}.", "I usually have {lunch|dinner} at {two|2} o'clock."], explain: "Have lunch = jeść obiad (czynność) – bez got." },
     { type: "write", task: "Zamień na przeczenie", q: "He has got a sister.", answers: ["He hasn't got a sister.", "He has not got a sister."], explain: "has got → hasn't got." },
     { type: "write", task: "Zamień na pytanie", q: "They have got a big house.", answers: ["Have they got a big house?"], explain: "Have + podmiot + got…?" },
     { type: "write", task: "Zamień na pytanie", q: "Your mum has a car.", answers: ["Does your mum have a car?", "Does your mom have a car?"], explain: "Samo have → pytanie z does; po does: have." },

@@ -184,6 +184,22 @@ window.PRACTICE["tenses-overview"] = {
         { type: "write", q: "Pociąg odjeżdża o 7:30 (według rozkładu).", answers: ["The train {leaves|departs|goes} at {7:30|7.30|half past seven|seven thirty}."], explain: "Rozkład jazdy → Present Simple." },
       ],
     },
+    {
+      title: "10. There was, there were, there will be…",
+      instruction: "Uzupełnij zdania odpowiednią formą <b>there + be</b> w czasie wskazanym przez kontekst lub podpowiedź.",
+      items: [
+        { type: "gap", q: "There ___ (be) a lot of snow last winter.", answers: ["was"], explain: "Last winter → przeszłość; snow niepoliczalne → there was." },
+        { type: "gap", q: "There ___ (be) twenty people at my birthday party last Saturday.", answers: ["were"], explain: "Przeszłość + l.mn. → there were." },
+        { type: "gap", q: "___ there any problems yesterday?", answers: ["Were"], explain: "Pytanie w przeszłości + l.mn. → Were there…?" },
+        { type: "gap", q: "There ___ (not / be) any shops here ten years ago.", answers: ["weren't", "were not"], explain: "Ago → przeszłość; shops – l.mn. → there weren't." },
+        { type: "gap", q: "When I was a child, there ___ (not / be) a computer in our house.", answers: ["wasn't", "was not"], explain: "Przeszłość + l.poj. → there wasn't." },
+        { type: "gap", q: "There ___ (will / be) a lot of people at the concert tomorrow.", answers: ["will be", "'ll be"], explain: "Przyszłość: there will be – ta sama forma dla l.poj. i l.mn." },
+        { type: "gap", q: "Don't worry, there ___ (will not / be) any problems.", answers: ["won't be", "will not be"], explain: "Przeczenie w przyszłości: there won't be." },
+        { type: "gap", q: "There ___ (be – present perfect) a lot of rain this month.", answers: ["has been", "'s been"], explain: "Present perfect + niepoliczalne (rain) → there has been." },
+        { type: "gap", q: "There ___ (be – present perfect) three accidents on this road this year.", answers: ["have been", "'ve been"], explain: "Present perfect + l.mn. → there have been." },
+        { type: "gap", q: "Look at those clouds! There ___ (be going to) a storm.", answers: ["is going to be", "'s going to be"], explain: "Przewidywanie na podstawie tego, co widzimy: there is going to be." },
+      ],
+    },
   ],
 
   test: [

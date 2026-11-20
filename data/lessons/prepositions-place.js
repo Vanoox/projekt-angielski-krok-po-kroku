@@ -100,8 +100,8 @@ window.LESSONS.push({
           "pl": "Mieszkamy na trzecim piętrze."
         },
         {
-          "en": "Turn left and you'll see it <b>on</b> the right.",
-          "pl": "Skręć w lewo, a zobaczysz to po prawej."
+          "en": "Turn left. The bank is <b>on</b> the right.",
+          "pl": "Skręć w lewo. Bank jest po prawej."
         },
         {
           "en": "Someone is <b>at</b> the door.",
@@ -380,8 +380,8 @@ window.LESSONS.push({
           "pl": "Szliśmy wzdłuż rzeki."
         },
         {
-          "en": "A man was running <b>towards</b> us.",
-          "pl": "Jakiś mężczyzna biegł w naszą stronę."
+          "en": "A man is running <b>towards</b> us.",
+          "pl": "Jakiś mężczyzna biegnie w naszą stronę."
         },
         {
           "en": "We climbed <b>up</b> the hill and ran <b>down</b> the other side.",
@@ -537,7 +537,7 @@ window.LESSONS.push({
     },
     {
       "type": "choice",
-      "q": "I'll meet you ___ the bus stop.",
+      "q": "Let's meet ___ the bus stop.",
       "options": [
         "in",
         "at",

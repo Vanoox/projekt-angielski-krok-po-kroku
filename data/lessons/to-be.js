@@ -114,7 +114,7 @@ window.LESSONS.push({
     {
       "type": "tip",
       "title": "Małe słowa, które zobaczysz w przykładach",
-      "html": "<p>W przykładach poniżej pojawiają się słowa, które dokładnie omawiamy w kolejnych lekcjach. Na razie wystarczy, że będziesz wiedzieć, co znaczą:</p><ul><li><b>a / an</b> – „jakiś, jeden”, stoi przed rzeczownikiem w l.poj., też przed zawodem: <em>She's <b>a</b> nurse. He's <b>an</b> engineer.</em> Po polsku tego słowa nie tłumaczymy. <b>an</b> stawiamy przed samogłoską.</li><li><b>the</b> – „ten, ta, to” – konkretny, wiadomo który: <em><b>The</b> keys are on the table.</em> (nasze klucze)</li><li><b>my</b> – mój, <b>your</b> – twój / wasz, <b>his</b> – jego, <b>her</b> – jej, <b>our</b> – nasz, <b>their</b> – ich: <em><b>My</b> sister is a doctor.</em></li><li><b>this</b> – ten / to (blisko), <b>that</b> – tamten / to (dalej): <em>What's <b>this</b>?</em></li><li><b>'s</b> po imieniu lub rzeczowniku to zwykle skrót od <b>is</b> (<em>Tom's here.</em> = Tom is here). Ale <em>Tom's car</em> (z rzeczownikiem po 's) to „samochód Toma” – to tzw. dopełniacz saksoński, który poznasz w osobnej lekcji.</li></ul><p>Przedimki a / an / the omawiamy w następnej lekcji, zaimki my / your… i dopełniacz 's – kilka lekcji dalej.</p>"
+      "html": "<p>W przykładach poniżej pojawiają się słowa, które dokładnie omawiamy w kolejnych lekcjach. Na razie wystarczy, że będziesz wiedzieć, co znaczą:</p><ul><li><b>a / an</b> – „jakiś, jeden”, stoi przed rzeczownikiem w l.poj., też przed zawodem: <em>She's <b>a</b> nurse. He's <b>an</b> engineer.</em> Po polsku tego słowa nie tłumaczymy. <b>an</b> stawiamy przed samogłoską.</li><li><b>the</b> – „ten, ta, to” – konkretny, wiadomo który: <em><b>The</b> keys are on the table.</em> (nasze klucze)</li><li><b>my</b> – mój, <b>your</b> – twój / wasz, <b>his</b> – jego, <b>her</b> – jej, <b>our</b> – nasz, <b>their</b> – ich: <em><b>My</b> sister is a doctor.</em></li><li><b>me</b> – mnie / mi, <b>him</b> – jego / mu, <b>her</b> – ją / jej, <b>us</b> – nas / nam, <b>them</b> – ich / im (np. po przyimku): <em>Is this for <b>me</b>?</em></li><li><b>this</b> – ten / to (blisko), <b>that</b> – tamten / to (dalej): <em>What's <b>this</b>?</em></li><li><b>'s</b> po imieniu lub rzeczowniku to zwykle skrót od <b>is</b> (<em>Tom's here.</em> = Tom is here). Ale <em>Tom's car</em> (z rzeczownikiem po 's) to „samochód Toma” – to tzw. dopełniacz saksoński, który poznasz w osobnej lekcji.</li></ul><p>Przedimki a / an / the omawiamy w następnej lekcji, this / that i dopełniacz 's – kilka lekcji dalej, a wszystkie zaimki (my, me, mine, myself…) – w osobnej lekcji po czasie przeszłym.</p>"
     },
     {
       "type": "examples",
@@ -184,8 +184,8 @@ window.LESSONS.push({
       "title": "Przykłady: samopoczucie i stany (tu Polacy mówią „mam” lub „jest mi”)",
       "items": [
         {
-          "en": "I<b>'m</b> cold. Can you close the window?",
-          "pl": "Zimno mi. Możesz zamknąć okno?",
+          "en": "I<b>'m</b> cold. The window is open.",
+          "pl": "Zimno mi. Okno jest otwarte.",
           "note": "nie: It is cold to me"
         },
         {
@@ -388,48 +388,6 @@ window.LESSONS.push({
       "html": "<p>Wybór <b>is</b> / <b>are</b> zależy od tego, czy rzeczownik jest po angielsku w liczbie pojedynczej, czy mnogiej – a to nie zawsze pokrywa się z polskim:</p><ul><li><b>people</b> (ludzie) to l.mn.: <em>People <b>are</b> very friendly here.</em></li><li><b>hair</b> (włosy), <b>money</b> (pieniądze), <b>news</b> (wiadomości), <b>advice</b> (rady) są niepoliczalne, więc łączą się z <b>is</b>: <em>Your hair <b>is</b> wet. The money <b>is</b> in the drawer. The news <b>is</b> good.</em></li><li><b>jeans, trousers, glasses, scissors</b> są zawsze w l.mn.: <em>My jeans <b>are</b> dirty.</em></li><li><b>my family, my class, my team</b> – zwykle <b>is</b>: <em>My family <b>is</b> big.</em> (w brytyjskim angielskim słychać też <em>are</em>)</li><li>dwie osoby połączone <b>and</b> = they: <em>Tom and Anna <b>are</b> friends.</em> Uwaga na <b>my friend and I</b> = we → <b>are</b>.</li></ul>"
     },
     {
-      "type": "compare",
-      "title": "To be czy do / does?",
-      "items": [
-        {
-          "label": "To be (am / is / are)",
-          "html": "<p>gdy po czasowniku stoi <b>rzeczownik, przymiotnik, wiek lub miejsce</b> – w zdaniu nie ma innego czasownika. Pytamy, odwracając szyk: <b>Are you…?</b></p>",
-          "examples": [
-            {
-              "en": "<b>Are</b> you a student?",
-              "pl": "Jesteś studentem?"
-            },
-            {
-              "en": "She <b>isn't</b> hungry.",
-              "pl": "Ona nie jest głodna."
-            },
-            {
-              "en": "<b>Is</b> he at home?",
-              "pl": "Czy on jest w domu?"
-            }
-          ]
-        },
-        {
-          "label": "Do / does + czasownik",
-          "html": "<p>gdy w zdaniu jest <b>inny czasownik</b> (work, like, live, speak, agree…). Pytania i przeczenia tworzymy wtedy z <b>do / does</b>, a be w ogóle się nie pojawia.</p>",
-          "examples": [
-            {
-              "en": "<b>Do</b> you work here?",
-              "pl": "Pracujesz tutaj?"
-            },
-            {
-              "en": "She <b>doesn't</b> like fish.",
-              "pl": "Ona nie lubi ryb."
-            },
-            {
-              "en": "<b>Does</b> he live in Gdańsk?",
-              "pl": "Czy on mieszka w Gdańsku?"
-            }
-          ]
-        }
-      ]
-    },
-    {
       "type": "mistakes",
       "title": "Typowe błędy Polaków",
       "items": [
@@ -479,9 +437,9 @@ window.LESSONS.push({
           "why": "Agree (zgadzać się) to czasownik – nie dodajemy przed nim be. Tak samo: I live, I work, I like (nie: I'm live)."
         },
         {
-          "wrong": "<b>Are you like</b> pizza?",
-          "right": "<b>Do you like</b> pizza?",
-          "why": "W zdaniu jest inny czasownik (like), więc pytanie tworzymy z do, nie z be."
+          "wrong": "Where <b>you are</b> from?",
+          "right": "Where <b>are you</b> from?",
+          "why": "W pytaniu z where, what, how… szyk też się zmienia: słowo pytające + be + podmiot."
         },
         {
           "wrong": "<b>Its</b> my phone.",

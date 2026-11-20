@@ -421,7 +421,7 @@ window.LESSONS.push({
     },
     {
       "type": "gap",
-      "q": "What ___ (you / do)? I can hear a strange noise!",
+      "q": "What ___ (you / do)? There's a strange noise!",
       "answers": [
         "are you doing"
       ],

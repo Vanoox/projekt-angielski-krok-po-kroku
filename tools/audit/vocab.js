@@ -7,7 +7,7 @@ const TV = JSON.parse(fs.readFileSync(__dirname + '/vocab.json'));
 
 function vwords(en) {
   const s = new Set();
-  String(en).replace(/<[^>]*>/g, '').replace(/\((BrE|AmE)\)/g, '').toLowerCase().split(/[^a-z'\-]+/).forEach((t) => {
+  String(en).replace(/<[^>]*>/g, '').replace(/\((BrE|AmE)\)/g, '').toLowerCase().split(/[^\p{L}'\-]+/u).forEach((t) => {
     t = t.replace(/^'+|'+$/g, '');
     if (!t) return;
     s.add(t); s.add(lem(t));
