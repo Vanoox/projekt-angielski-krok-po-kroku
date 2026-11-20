@@ -652,6 +652,39 @@ a.level-test:hover { text-decoration: none; }
   .order-num { width: 26px; height: 26px; font-size: 12px; }
 }
 
+/* ---------- Dziennik nauki: seria dni + kalendarz aktywności ---------- */
+.activity { padding: 18px 20px; margin: 0 0 28px; display: flex; flex-wrap: wrap; gap: 14px 32px; align-items: flex-start; }
+.act-main { flex: 1 1 260px; min-width: 0; }
+.act-stats { display: flex; flex-wrap: wrap; gap: 10px 24px; }
+.act-stat { display: flex; align-items: center; gap: 10px; }
+.act-stat b { display: block; font-family: Fraunces, Georgia, serif; font-size: 20px; line-height: 1.2; }
+.act-stat span { color: var(--text-3); font-size: 13px; }
+.act-ico { display: grid; place-items: center; width: 38px; height: 38px; border-radius: 50%; background: var(--surface-2); color: var(--text-3); }
+.act-ico .ic { width: 20px; height: 20px; }
+.act-streak.on .act-ico { background: var(--warn-soft); color: var(--warn); }
+.act-hint { margin: 10px 0 0; color: var(--text-2); font-size: 14px; }
+.act-calwrap { flex: 0 1 auto; min-width: 0; width: 100%; max-width: 360px; }
+.act-cal { display: flex; gap: 3px; }
+.act-col { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; gap: 3px; }
+.act-col:first-child { overflow: visible; }
+.act-m { height: 14px; font-size: 11px; line-height: 14px; color: var(--text-3); white-space: nowrap; overflow: visible; }
+.act-d { aspect-ratio: 1; font-size: 10px; line-height: 1; color: var(--text-3); display: flex; align-items: center; white-space: nowrap; }
+.act-c { display: block; aspect-ratio: 1; border-radius: 3px; background: var(--surface-2); }
+.act-l1 { background: color-mix(in srgb, var(--ok) 28%, var(--surface-2)); }
+.act-l2 { background: color-mix(in srgb, var(--ok) 52%, var(--surface-2)); }
+.act-l3 { background: color-mix(in srgb, var(--ok) 76%, var(--surface-2)); }
+.act-l4 { background: var(--ok); }
+.act-future { visibility: hidden; }
+.act-today { outline: 1.5px solid var(--text-2); outline-offset: 1px; }
+.act-legend { display: flex; align-items: center; justify-content: flex-end; gap: 3px; margin-top: 8px; font-size: 11.5px; color: var(--text-3); }
+.act-legend .act-c { width: 11px; }
+.act-legend .act-c:first-child { margin-left: 4px; }
+.act-legend .act-c:last-child { margin-right: 4px; }
+@media (max-width: 640px) {
+  .activity { padding: 16px; }
+  .act-calwrap { max-width: none; }
+}
+
 /* ---------- Sprawdziany powtórkowe (#/sprawdzian/…) ---------- */
 .order-cp a { border-style: dashed; background: var(--surface-2); }
 .order-cp .order-num { background: transparent; font-size: 17px; }

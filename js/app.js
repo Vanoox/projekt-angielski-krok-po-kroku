@@ -33,6 +33,7 @@
     "book-open": '<path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2zM22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/>',
     briefcase: '<rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/>',
     archive: '<path d="M21 8v13H3V8M1 3h22v5H1zM10 12h4"/>',
+    flame: '<path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>',
     calendar: '<rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
   };
@@ -154,6 +155,7 @@
     mistakes: store.get("mistakes", {}),
     srs: store.get("srs", {}),
     srsNew: store.get("srsNew", 10),
+    activity: store.get("activity", {}),
   });
   const state = loadState();
   const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
@@ -185,6 +187,102 @@
     store.set("mistakes", state.mistakes);
   }
 
+  // ---------- Dziennik nauki (eng-activity) ----------
+  // { "RRRR-MM-DD" (data lokalna): { t: zadania, ok: w tym poprawne, w: ocenione słówka, a?: 1 } }.
+  // Zadania: każda odpowiedź w renderExercises (lekcje, zestawy, testy, trening, sprawdziany, Moje błędy,
+  // quizy ze słówek); słówka: każda ocena fiszki (rateWord). a: 1 = dzień przybliżony z historii (migrateActivity).
+  const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
+  const dayTotal = (e) => (e ? (e.t || 0) + (e.w || 0) : 0);
+  function logActivity(d) {
+    const k = today(), e = { ...(state.activity[k] || {}) };
+    for (const [f, n] of Object.entries(d)) e[f] = (e[f] || 0) + n;
+    delete e.a; // od teraz dzień ma prawdziwe dane (przybliżenie było dolnym oszacowaniem, więc tylko dopisujemy)
+    state.activity[k] = e;
+    store.set("activity", state.activity);
+  }
+  // Historia sprzed dziennika (raz – gdy eng-activity jeszcze nie ma, także po wczytaniu starej kopii): PRZYBLIŻENIE
+  // z lastSeen w eng-mistakes (1 zadanie w dniu ostatniej odpowiedzi; poprawne, gdy pudełko > 1) i eng-srs
+  // (1 słówko w dniu ostatniej oceny). Wcześniejsze odpowiedzi nadpisał nowszy lastSeen, więc dni i liczby są zaniżone.
+  function migrateActivity(s) {
+    if (store.get("activity", null) !== null) return;
+    const act = {};
+    const add = (iso, f) => {
+      const d = new Date(iso);
+      if (!iso || isNaN(d)) return;
+      const k = dayStr(d), e = act[k] || (act[k] = { a: 1 });
+      for (const [x, n] of Object.entries(f)) e[x] = (e[x] || 0) + n;
+    };
+    Object.values(s.mistakes || {}).forEach((m) => isObj(m) && add(m.lastSeen, { t: 1, ok: m.box > 1 ? 1 : 0 }));
+    Object.values(s.srs || {}).forEach((m) => isObj(m) && add(m.lastSeen, { w: 1 }));
+    s.activity = act;
+    store.set("activity", act);
+  }
+  const dayDate = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
+  const shiftDay = (k, n) => { const d = dayDate(k); d.setDate(d.getDate() + n); return dayStr(d); };
+  // Seria = dni z rzędu z choć 1 zadaniem albo słówkiem, bez dni przerwy. Bieżąca seria kończy się dziś,
+  // a jeśli dziś jeszcze nic nie zrobiono – wczoraj (seria trwa do końca dnia, w którym można ją przedłużyć).
+  function streakInfo() {
+    const act = state.activity, on = (k) => dayTotal(act[k]) > 0;
+    const days = Object.keys(act).filter((k) => DAY_RE.test(k) && on(k)).sort();
+    let best = 0, run = 0, prev = "";
+    for (const k of days) { run = prev && shiftDay(prev, 1) === k ? run + 1 : 1; best = Math.max(best, run); prev = k; }
+    const t = today(), todayDone = on(t);
+    let cur = 0;
+    for (let k = todayDone ? t : shiftDay(t, -1); on(k); k = shiftDay(k, -1)) cur++;
+    return { current: cur, best, days: days.length, todayDone };
+  }
+  const dni = (n) => `${n} ${n === 1 ? "dzień" : "dni"}`;
+  // Kalendarz jak na GitHubie: kolumny = tygodnie (pn–nd), ostatnie ACT_WEEKS tygodni + bieżący.
+  // Odcień wg liczby zadań + słówek w dniu (ACT_STEPS = dolne progi poziomów 1–4).
+  const ACT_WEEKS = 16, ACT_STEPS = [1, 10, 25, 50];
+  const actLevel = (n) => ACT_STEPS.reduce((lv, s, i) => (n >= s ? i + 1 : lv), 0);
+  const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
+  function activityHtml() {
+    const s = streakInfo(), t = today(), now = dayDate(t);
+    const start = new Date(now);
+    start.setDate(start.getDate() - ((now.getDay() + 6) % 7) - ACT_WEEKS * 7); // poniedziałek ACT_WEEKS tygodni temu
+    const cols = [`<span class="act-m"></span>` + ["pn", "", "śr", "", "pt", "", "nd"].map((d) => `<span class="act-d">${d}</span>`).join("")];
+    let lastMonthCol = -9;
+    for (let w = 0; w <= ACT_WEEKS; w++) {
+      const cells = [];
+      let label = "";
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(start); d.setDate(start.getDate() + w * 7 + i);
+        const k = dayStr(d);
+        if (d.getDate() === 1) label = MONTHS_SHORT[d.getMonth()];
+        if (k > t) { cells.push(`<span class="act-c act-future"></span>`); continue; }
+        const e = state.activity[k], n = dayTotal(e);
+        const date = d.toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" });
+        const info = n ? [e.t ? `${zadan(e.t)} (dobrze: ${e.ok || 0})` : "", e.w ? `${slowek(e.w)} w fiszkach` : ""].filter(Boolean).join(", ") + (e.a ? " – przybliżone z historii" : "") : "bez nauki";
+        cells.push(`<span class="act-c act-l${actLevel(n)}${k === t ? " act-today" : ""}" title="${date}: ${info}"></span>`);
+      }
+      // Nazwa miesiąca nad tygodniem z 1. dniem miesiąca; nad pierwszym tygodniem bez 1. dnia – jego miesiąc, o ile
+      // do końca miesiąca zostało ponad tydzień (inaczej nazwy by na siebie nachodziły).
+      if (!label && w === 0 && start.getDate() <= 22) label = MONTHS_SHORT[start.getMonth()];
+      if (label && w - lastMonthCol < 3) label = "";
+      if (label) lastMonthCol = w;
+      cols.push(`<span class="act-m">${label}</span>` + cells.join(""));
+    }
+    const hint = !s.days ? "Zrób pierwsze zadanie albo oceń słówko w fiszkach – tu zobaczysz swoje dni nauki."
+      : s.todayDone ? "Dziś już się uczysz – seria trwa."
+      : s.current ? `Zrób dziś choć jedno zadanie albo słówko, żeby nie przerwać serii.`
+      : "Zrób dziś choć jedno zadanie albo słówko i zacznij nową serię.";
+    return `<section class="card activity" aria-label="Dziennik nauki">
+      <div class="act-main">
+      <div class="act-stats">
+        <div class="act-stat act-streak${s.current ? " on" : ""}"><span class="act-ico" aria-hidden="true">${icon("flame")}</span><div><b>${dni(s.current)}</b><span>z rzędu</span></div></div>
+        <div class="act-stat"><div><b>${dni(s.best)}</b><span>najdłuższa seria</span></div></div>
+        <div class="act-stat"><div><b>${s.days}</b><span>${plural(s.days, "dzień", "dni", "dni")} nauki w sumie</span></div></div>
+      </div>
+      <p class="act-hint">${hint}</p>
+      </div>
+      <div class="act-calwrap">
+      <div class="act-cal" role="img" aria-label="Kalendarz aktywności z ostatnich ${ACT_WEEKS} tygodni">${cols.map((c) => `<div class="act-col">${c}</div>`).join("")}</div>
+      <div class="act-legend" aria-hidden="true">Mniej ${[0, 1, 2, 3, 4].map((l) => `<span class="act-c act-l${l}"></span>`).join("")} Więcej</div>
+      </div>
+    </section>`;
+  }
+
   // ---------- Słówka na dziś: pudełka dla słówek (eng-srs) ----------
   // Wpis: { box: 1–6, due: "RRRR-MM-DD", deck: talia, z której słowo trafiło do powtórek,
   //         first: dzień pierwszej oceny (do dziennego limitu nowych słówek), lastSeen: ISO }.
@@ -195,6 +293,7 @@
   const NEW_CHOICES = [5, 10, 15, 20];
   const SRS_ROUND = 20;
   function rateWord(k, rating, deck) { // rating: 0 = nie wiem, 1 = trudne, 2 = wiem
+    logActivity({ w: 1 }); // każda ocena liczy się do dziennika, także przed terminem
     const prev = state.srs[k];
     let box;
     if (rating === 0) box = 1;
@@ -528,6 +627,7 @@
         <div class="order-levels">${levelBars}</div>
         <a class="order-backup-link" href="#/kolejnosc/kopia" data-jump="kopia">${icon("save")} Kopia postępu – pobierz albo wczytaj z pliku</a>
       </div>
+      ${activityHtml()}
       ${backupReminder()}
       ${groups}
       ${backupSectionHtml()}
@@ -563,6 +663,8 @@
     "eng-srs": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
     "eng-srsNew": (v) => NEW_CHOICES.includes(v),
     "eng-theme": (v) => v === "light" || v === "dark",
+    "eng-activity": (v) => isObj(v) && Object.entries(v).every(([k, e]) => DAY_RE.test(k) && isObj(e) &&
+      ["t", "ok", "w"].every((f) => e[f] === undefined || (Number.isFinite(e[f]) && e[f] >= 0))),
   };
   // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
   const ratio = (s) => s.correct / s.total;
@@ -576,6 +678,20 @@
     "eng-known": (a, b) => { // suma słówek oznaczonych jako „znam”
       const out = { ...a };
       for (const [k, words] of Object.entries(b)) out[k] = { ...(out[k] || {}), ...words };
+      return out;
+    },
+    // Dziennik nauki: dla każdego dnia większa wartość każdego pola (nie suma – ta sama kopia wczytana dwa razy
+    // nie może podwoić liczb). Znacznik przybliżenia „a” zostaje tylko wtedy, gdy obie strony mają dzień przybliżony.
+    "eng-activity": (a, b) => {
+      const out = { ...a };
+      for (const [k, e] of Object.entries(b)) {
+        const c = out[k];
+        if (!c) { out[k] = e; continue; }
+        const m = {};
+        for (const f of ["t", "ok", "w"]) { const n = Math.max(c[f] || 0, e[f] || 0); if (n) m[f] = n; }
+        if (c.a && e.a) m.a = 1;
+        out[k] = m;
+      }
       return out;
     },
   };
@@ -649,6 +765,7 @@
       words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
       mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => TASKS.has(k)).length,
       srs: Object.keys(data["eng-srs"] || {}).filter((k) => WORDS.has(k)).length,
+      days: Object.values(data["eng-activity"] || {}).filter((e) => dayTotal(e) > 0).length,
     };
   }
   const fmtDate = (iso, time) => {
@@ -729,15 +846,15 @@
       const cur = readAll(), merged = mergeData(cur, data);
       const [sF, sC, sM] = [data, cur, merged].map(backupStats);
       const row = (label, k) => `<tr><td>${label}</td><td>${sF[k]}</td><td>${sC[k]}</td><td>${sM[k]}</td></tr>`;
-      const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes && !sF.srs;
+      const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes && !sF.srs && !sF.days;
       panel.innerHTML = `<div class="backup-preview">
         <h3>Kopia${date && fmtDate(date) ? ` z ${fmtDate(date, true)}` : ""}</h3>
         ${empty ? `<p class="backup-msg warn">Ta kopia nie zawiera żadnego postępu (same ustawienia albo nic).</p>` : ""}
         <div class="backup-table"><table>
           <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
-          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Słówka w powtórkach", "srs")}${row("Zadania w „Moich błędach”", "mistakes")}</tbody>
+          <tbody>${row("Przerobione lekcje", "done")}${row("Wyniki zadań i testów", "scores")}${row("Słówka „znam”", "words")}${row("Słówka w powtórkach", "srs")}${row("Zadania w „Moich błędach”", "mistakes")}${row("Dni nauki", "days")}</tbody>
         </table></div>
-        <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
+        <p><b>Połącz</b> – zostaje wszystko z obu miejsc: lekcje przerobione tu lub tam, lepszy z dwóch wyników, wszystkie znane słówka i dni nauki. Ustawienia (motyw, poziomy w menu) zostają z tego urządzenia.<br>
         <b>Zastąp</b> – postęp z tego urządzenia zostanie <b>usunięty</b> i zastąpiony kopią.</p>
         <div class="backup-actions">
           <button class="btn primary" type="button" data-act="merge">Połącz</button>
@@ -755,6 +872,7 @@
       if (!writeAll(data, replace)) return fail("Nie udało się zapisać postępu (brak miejsca w przeglądarce?).");
       Object.assign(state, loadState());
       migrateKnown(state);
+      migrateActivity(state);
       const t = localStorage.getItem("eng-theme");
       if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
       syncThemeColor();
@@ -1118,7 +1236,15 @@
     let finished = false;
     // „Moje błędy”: zapis każdej odpowiedzi. Pominięte pytanie w teście (sprawdzanie na końcu) się nie liczy,
     // „Pokaż odpowiedź” – tak. Samoocena „Moja odpowiedź też jest poprawna” cofa zapisany błąd.
+    // Dziennik nauki: każde zadanie z odpowiedzią (te same zasady pomijania), samoocena dolicza „dobrze”.
+    const trackActivity = (ctl, upgrade) => {
+      if (upgrade) { if (ctl.aLogged && !ctl.aOk) { ctl.aOk = true; logActivity({ ok: 1 }); } return; }
+      if (deferred && ctl.result.given == null) return;
+      ctl.aLogged = true; ctl.aOk = !!ctl.result.ok;
+      logActivity({ t: 1, ok: ctl.aOk ? 1 : 0 });
+    };
     const track = (ctl, upgrade) => {
+      trackActivity(ctl, upgrade);
       const key = KEY_OF.get(ctl.ex);
       if (!key) return; // np. quiz ze słówek
       if (upgrade) {
@@ -2289,6 +2415,7 @@
   window.__ENG = { matches, expandAnswer, vocabMatch, variants };
 
   migrateKnown(state);
+  migrateActivity(state);
   renderLevelFilter();
   route();
 })();
