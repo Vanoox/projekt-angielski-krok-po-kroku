@@ -1447,6 +1447,8 @@
         <a class="btn small" href="#/lesson/${l.id}/vocab">${icon("type")} Przećwicz słówka →</a>` : ""}
       </div>` : "";
     const nPractice = practiceCount(l);
+    const toc = titled.map(({ s, i }) => ({ id: `s-${i}-${slug(s.title || s.type)}`, label: stripTags(s.title || (s.type === "formula" ? "Budowa" : s.type === "examples" ? "Przykłady" : "Typowe błędy")) }));
+    if ((l.exercises || []).length) toc.push({ id: "exercises", label: "Szybki sprawdzian" });
     return `
       <div class="toolbar">
         <label class="toggle"><input type="checkbox" id="plToggle" ${state.showPl ? "checked" : ""}> Pokaż tłumaczenia</label>
@@ -1454,14 +1456,52 @@
         <a class="btn small" href="#exercises" data-scroll="exercises">${icon("pen")} Sprawdzian (${(l.exercises || []).length})</a>
         <button class="btn small" id="doneBtn"></button>
       </div>
-      <nav class="toc">${titled.map(({ s, i }) => `<a href="#s-${i}-${slug(s.title || s.type)}" data-scroll="s-${i}-${slug(s.title || s.type)}">${stripTags(s.title || (s.type === "formula" ? "Budowa" : s.type === "examples" ? "Przykłady" : "Typowe błędy"))}</a>`).join("")}</nav>
+      <div class="lesson-body">
+      ${toc.length ? `<aside class="toc-col"><details class="toc"${TOC_WIDE.matches ? " open" : ""}>
+        <summary>${icon("list")} Spis treści <span class="toc-n">${toc.length}</span></summary>
+        <nav aria-label="Spis treści"><ol class="toc-list">${toc.map((t) => `<li><a href="#${t.id}" data-scroll="${t.id}">${t.label}</a></li>`).join("")}</ol></nav>
+      </details></aside>` : ""}
+      <div class="lesson-main">
       ${prep}
       ${l.sections.map(renderSection).join("")}
       ${exercisesShell("Szybki sprawdzian", { id: "exercises" })}
       ${nPractice || l.test.length ? `<div class="card next-steps"><b>Co dalej?</b>
         ${nPractice ? `<a class="btn" href="#/lesson/${l.id}/practice">${icon("pen")} Więcej ćwiczeń (${nPractice})</a>` : ""}
-        ${l.test.length ? `<a class="btn primary" href="#/lesson/${l.id}/test">${icon("test")} Test – pisanie zdań (${l.test.length})</a>` : ""}</div>` : ""}`;
+        ${l.test.length ? `<a class="btn primary" href="#/lesson/${l.id}/test">${icon("test")} Test – pisanie zdań (${l.test.length})</a>` : ""}</div>` : ""}
+      </div></div>`;
   }
+
+  // ---------- Spis treści lekcji ----------
+  // Szeroki ekran: stała prawa kolumna (zawsze rozwinięta). Węższy: zwinięte <details>.
+  const TOC_WIDE = window.matchMedia("(min-width: 1280px)");
+  let tocCleanup = null;
+  function bindToc(art) {
+    const toc = art.querySelector("details.toc"); if (!toc) return;
+    toc.open = TOC_WIDE.matches;
+    toc.querySelector("summary").addEventListener("click", (e) => { if (TOC_WIDE.matches) e.preventDefault(); });
+    const col = toc.closest(".toc-col");
+    const links = [...toc.querySelectorAll("a[data-scroll]")];
+    const targets = links.map((a) => document.getElementById(a.dataset.scroll));
+    let cur = -2;
+    // Aktywna sekcja = ostatni nagłówek, który minął linię na 30% wysokości okna.
+    const update = () => {
+      const line = window.innerHeight * 0.3;
+      let k = -1;
+      targets.forEach((t, j) => { if (t && t.getBoundingClientRect().top < line) k = j; });
+      if (k === cur) return;
+      cur = k;
+      links.forEach((a, j) => { a.classList.toggle("active", j === k); if (j === k) a.setAttribute("aria-current", "location"); else a.removeAttribute("aria-current"); });
+      const a = links[k];
+      if (a && col.scrollHeight > col.clientHeight + 1 && (a.offsetTop < col.scrollTop || a.offsetTop + a.offsetHeight > col.scrollTop + col.clientHeight)) col.scrollTop = a.offsetTop - col.clientHeight / 2;
+    };
+    let raf = 0;
+    const onScroll = () => { if (!raf) raf = requestAnimationFrame(() => { raf = 0; update(); }); };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    window.addEventListener("resize", onScroll);
+    tocCleanup = () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
+    update();
+  }
+  TOC_WIDE.addEventListener && TOC_WIDE.addEventListener("change", () => { const d = document.querySelector("details.toc"); if (d) d.open = TOC_WIDE.matches; });
 
   function renderLessonVocab(l) {
     return `<section class="block"><h2>Słownictwo do tej lekcji</h2>
@@ -1516,6 +1556,7 @@
     const l = BY_ID[id]; if (!l) return;
     const tab = lessonTab();
     const art = $("#lesson");
+    bindToc(art);
     if (tab === "vocab" && l.vocab) {
       bindVocabBlock(art.querySelector(".vocab-block"), [{ items: l.vocab.items }], "lesson:" + l.id);
       return;
@@ -2099,6 +2140,7 @@
     const content = $("#content");
     document.body.classList.remove("nav-open");
     if (!h.startsWith("#/")) return; // kotwice wewnątrz strony
+    if (tocCleanup) { tocCleanup(); tocCleanup = null; }
     let title = "Gramatyka angielska A1–B2";
     const sameLesson = currentLessonId() && lastRoute === currentLessonId();
     if (h.startsWith("#/lesson/")) {
@@ -2160,7 +2202,12 @@
       return;
     }
     const sc = e.target.closest("[data-scroll]");
-    if (sc) { e.preventDefault(); const t = document.getElementById(sc.dataset.scroll); if (t) t.scrollIntoView({ behavior: "smooth" }); }
+    if (sc) {
+      e.preventDefault();
+      const d = sc.closest("details.toc");
+      if (d && !TOC_WIDE.matches) d.open = false; // na telefonie zwiń spis, potem przewiń
+      const t = document.getElementById(sc.dataset.scroll); if (t) t.scrollIntoView({ behavior: "smooth" });
+    }
   }, true);
   $("#levelFilter").addEventListener("click", (e) => {
     const b = e.target.closest(".chip"); if (!b) return;

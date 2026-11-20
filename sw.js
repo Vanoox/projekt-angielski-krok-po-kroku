@@ -16,11 +16,11 @@
 //  - wszystko inne – zwykle z sieci.
 
 // BUILD:START
-const VERSION = "5d283c99e6";
+const VERSION = "5fe94e5692";
 const SHELL = [
   "./",
-  "css/style.css?v=ed4901b519",
-  "js/app.js?v=1cb6c7fe17",
+  "css/style.css?v=094189df70",
+  "js/app.js?v=97a8fffc9b",
   "data/bundle.js?v=374964a8d6",
   "manifest.webmanifest",
   "icons/apple-touch-icon.png",
