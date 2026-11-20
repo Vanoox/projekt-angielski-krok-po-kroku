@@ -13,7 +13,7 @@
     "Przymiotniki i przysłówki", "Przyimki", "Czasowniki modalne", "Tryby warunkowe",
     "Konstrukcje zdaniowe", "Słownictwo i łączniki",
   ];
-  const TYPE_LABEL = { choice: "wybór", gap: "luka", write: "pisanie zdania", order: "układanie zdania" };
+  const TYPE_LABEL = { choice: "wybór", gap: "luka", write: "pisanie zdania", order: "układanie zdania", dictation: "dyktando" };
 
   // ---------- Dane ----------
   const PRACTICE = window.PRACTICE || {};
@@ -53,10 +53,31 @@
   // (e = szybki sprawdzian, p0, p1… = zestawy ćwiczeń, t = test) ~ skrót treści (typ, pytanie, opcje, odpowiedzi).
   // Zmiana treści zadania w data/ daje nowy klucz – stary wpis w eng-mistakes jest wtedy po prostu pomijany.
   const hashStr = (s) => { let x = 0x811c9dc5; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193); } return (x >>> 0).toString(36); };
+  // Dyktando: zdania z przykładów w teorii lekcji (sekcje „examples”, pole en). Pomijamy zdania, których nie da się
+  // jednoznacznie zapisać ze słuchu: z liczbami i walutą (25 / twenty-five), wariantami „A / B”, nawiasami, strzałkami,
+  // wielokropkiem, cudzysłowem, oraz bardzo krótkie (< 3 słów) i bardzo długie (> 16 słów).
+  const DICT_SKIP = /[\/=→←[\]()…_;:"“”„&<>\d£€$%+*#@]|\.\.|\s-\s/;
+  function dictText(html) {
+    const t = String(html || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")
+      .replace(/\s+/g, " ").replace(/\s+([,.!?])/g, "$1").replace(/^[–—]\s*/, "").trim();
+    if (!t || DICT_SKIP.test(t) || !/[.?!]$/.test(t)) return "";
+    const n = t.split(" ").length;
+    return n >= 3 && n <= 16 ? t : "";
+  }
+  PATH.forEach((l) => {
+    const seen = new Set();
+    l.dict = [];
+    l.sections.filter((s) => s.type === "examples").forEach((s) => (s.items || []).forEach((e) => {
+      const t = dictText(e.en), k = t.toLowerCase();
+      if (!t || seen.has(k)) return;
+      seen.add(k);
+      l.dict.push({ type: "dictation", say: t, answers: [t], pl: e.pl || "", explain: e.pl ? `<span class="d-pl">Po polsku: ${e.pl}</span>` : "" });
+    }));
+  });
   const TASKS = new Map(); // klucz → { ex, lesson, src, instr }
   const KEY_OF = new WeakMap(); // obiekt zadania → klucz
   PATH.forEach((l) => {
-    const srcs = [["e", l.exercises || [], ""], ...l.practice.map((p, i) => ["p" + i, p.items || [], p.instruction || ""]), ["t", l.test, ""]];
+    const srcs = [["e", l.exercises || [], ""], ...l.practice.map((p, i) => ["p" + i, p.items || [], p.instruction || ""]), ["t", l.test, ""], ["d", l.dict, ""]];
     for (const [src, items, instr] of srcs) items.forEach((ex) => {
       const base = `${l.id}~${src}~${hashStr([ex.type, ex.q || "", (ex.options || []).join("|"), JSON.stringify(ex.answers ?? ex.answer ?? "")].join("#"))}`;
       let k = base, n = 2;
@@ -291,7 +312,7 @@
     const gRaw = given.trim().split(/\s+/), gN = gRaw.map((w) => normalize(w));
     let best = null;
     // Jeśli uczeń nie używał skrótów, porównujemy z pełną formą wzorca (has not ↔ hasn't), żeby nie zaznaczać fałszywych różnic.
-    const fullForm = (s) => { const t = s.split(/\s+/); return t.map((w, i) => { const v = tokenVariants(normalize(w), normalize(t[i + 1] || "")); return /'/.test(w) && v.length > 1 ? v[v.length - 1] : w; }).join(" "); };
+    const fullForm = (s) => { const t = s.split(/\s+/); return t.map((w, i) => { const v = tokenVariants(normalize(w), normalize(t[i + 1] || "")); if (!/'/.test(w) || v.length < 2) return w; const f = v[v.length - 1]; return /^[A-Z]/.test(w) ? f.charAt(0).toUpperCase() + f.slice(1) : f; }).join(" "); };
     const useFull = !/['’]/.test(given);
     for (const a of answers) for (const e0 of expandAnswer(a)) {
       const e = useFull ? fullForm(e0) : e0;
@@ -314,17 +335,27 @@
     voice = vs.find((v) => v.lang === "en-GB" && /natural|online|google/i.test(v.name))
       || vs.find((v) => v.lang === "en-GB") || vs.find((v) => /^en[-_]/i.test(v.lang)) || null;
   }
-  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = pickVoice; }
-  function speak(text, btn) {
+  // Dyktando bez angielskiego głosu nie ma sensu – pokazujemy czytelny komunikat (aktualizowany, gdy przeglądarka doczyta głosy).
+  function ttsProblem(failed) {
+    if (!("speechSynthesis" in window)) return "Twoja przeglądarka nie potrafi czytać tekstu na głos, więc dyktando nie zadziała. Otwórz stronę w Chrome, Edge albo Safari.";
+    if ((speechSynthesis.getVoices().length && !voice) || failed) return "Nie udało się znaleźć angielskiego głosu w tym urządzeniu – zdania mogą nie być czytane albo brzmieć z polskim akcentem. Dodaj głos angielski w ustawieniach systemu (Android: Ustawienia → Zamiana tekstu na mowę, Windows: Ustawienia → Czas i język → Mowa, iPhone: Ustawienia → Dostępność → Treść mówiona → Głosy) albo otwórz stronę w innej przeglądarce.";
+    return "";
+  }
+  const ttsWarnHtml = (failed) => { const p = ttsProblem(failed); return p ? `<div class="callout warning"><h3>⚠️ Brak głosu angielskiego</h3><div class="prose">${p}</div></div>` : ""; };
+  const syncTtsWarn = (failed) => document.querySelectorAll(".tts-warn").forEach((el) => { el.innerHTML = ttsWarnHtml(failed); });
+  if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = () => { pickVoice(); syncTtsWarn(); }; }
+  function speak(text, btn, rate, onFail) {
     if (!("speechSynthesis" in window)) { alert("Twoja przeglądarka nie obsługuje odczytu na głos."); return; }
     speechSynthesis.cancel();
-    document.querySelectorAll(".speak.playing").forEach((b) => b.classList.remove("playing"));
+    document.querySelectorAll(".speak.playing, .d-btn.playing").forEach((b) => b.classList.remove("playing"));
     const say = stripTags(text).replace(/\s*\/\s*/g, ". ").replace(/[→=]/g, ". ").replace(/(^|\s)[–—](\s|$)/g, ". ");
     const u = new SpeechSynthesisUtterance(say);
     u.lang = voice ? voice.lang : "en-GB";
     if (voice) u.voice = voice;
-    u.rate = 0.92;
-    if (btn) { btn.classList.add("playing"); u.onend = u.onerror = () => btn.classList.remove("playing"); }
+    u.rate = rate || 0.92;
+    u.onend = () => { if (btn) btn.classList.remove("playing"); };
+    u.onerror = (e) => { if (btn) btn.classList.remove("playing"); if (onFail && !/interrupted|canceled/.test(e.error || "")) onFail(e.error); };
+    if (btn) btn.classList.add("playing");
     speechSynthesis.speak(u);
   }
   // Uwaga: przekazuj tu wyłącznie tekst ANGIELSKI (tłumaczenia trzymamy w osobnych polach).
@@ -788,6 +819,12 @@
         <div class="w-wrap"><textarea class="w-input" rows="1" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Napisz całe zdanie po angielsku…" aria-label="Twoja odpowiedź"></textarea></div>
         <div class="gap-actions"></div><div class="fb"></div></div>`;
     }
+    if (ex.type === "dictation") {
+      return `<div class="card exercise write dictation" data-i="${i}">${src}${task}<div class="ex-q">${num}<div class="d-controls">
+          <button class="btn small d-btn d-play" title="Odtwórz zdanie">▶ Odtwórz</button><button class="btn small d-btn d-slow" title="Odtwórz wolniej">🐢 Wolniej</button><span class="d-count muted"></span></div></div>
+        <div class="w-wrap"><textarea class="w-input" rows="1" autocomplete="off" autocapitalize="sentences" spellcheck="false" placeholder="Zapisz po angielsku to, co słyszysz…" aria-label="Twoja odpowiedź"></textarea></div>
+        <div class="gap-actions"></div><div class="fb"></div></div>`;
+    }
     if (ex.type === "order") {
       return `<div class="card exercise order" data-i="${i}">${src}${task}<div class="ex-q">${num}<div class="w-prompt">${ex.q || "Ułóż zdanie z podanych wyrazów."}</div></div>${hint}
         <div class="o-line" aria-label="Twoje zdanie"><span class="o-placeholder">Klikaj wyrazy w kolejności…</span></div>
@@ -821,7 +858,7 @@
       ctl.lock();
       if (actions) actions.innerHTML = "";
       show(res.ok, res.extra);
-      if (ex.type === "write" && !res.ok && res.given) {
+      if ((ex.type === "write" || ex.type === "dictation") && !res.ok && res.given) {
         const b = document.createElement("button");
         b.className = "btn small accept"; b.textContent = "✓ Moja odpowiedź też jest poprawna";
         b.title = "Automat zna tylko podane warianty. Jeśli jesteś pewien/pewna, że Twoje zdanie jest poprawne – zalicz je.";
@@ -896,8 +933,21 @@
       return ctl;
     }
 
-    if (ex.type === "write") {
+    if (ex.type === "write" || ex.type === "dictation") {
       const ta = card.querySelector(".w-input");
+      if (ex.type === "dictation") {
+        let plays = 0;
+        const cnt = card.querySelector(".d-count");
+        const play = (btn, rate) => {
+          speak(ex.say, btn, rate, (err) => syncTtsWarn(err));
+          plays++; cnt.textContent = plays > 1 ? `odtworzono ${plays}×` : "";
+          if (!done) ta.focus({ preventScroll: true });
+        };
+        card.querySelector(".d-play").addEventListener("click", (e) => play(e.currentTarget));
+        card.querySelector(".d-slow").addEventListener("click", (e) => play(e.currentTarget, 0.7));
+        // Ctrl+spacja w polu – odtwórz jeszcze raz (bez odrywania rąk od klawiatury).
+        ta.addEventListener("keydown", (e) => { if (e.key === " " && (e.ctrlKey || e.metaKey)) { e.preventDefault(); play(card.querySelector(".d-play")); } });
+      }
       const grow = () => { ta.style.height = "auto"; ta.style.height = ta.scrollHeight + "px"; };
       ta.addEventListener("input", () => { grow(); if (deferred) report(ctl, false, true); });
       ta.addEventListener("keydown", (e) => {
@@ -911,8 +961,8 @@
         const all = ex.answers.map((a) => esc(displayAnswer(a)));
         if (!v) return { ok: false, given: null, extra: `<div class="w-correct">Poprawnie: <b>${all[0]}</b> ${speakBtn(firstVariant(ex.answers[0]))}${all.length > 1 ? `<div class="muted">Inne poprawne: ${all.slice(1).join(" · ")}</div>` : ""}</div>` };
         const ok = matches(v, ex.answers);
-        const extra = ok
-          ? ` ${speakBtn(v)}${(() => { const o = ex.answers.filter((a) => !matches(v, [a])).map((a) => esc(displayAnswer(a))); return o.length ? `<div class="muted">Inne poprawne wersje: ${o.join(" · ")}</div>` : ""; })()}`
+        const extra = ok && ex.type === "dictation" ? ` <b>${esc(ex.say)}</b> ${speakBtn(ex.say)}`
+          : ok ? ` ${speakBtn(v)}${(() => { const o = ex.answers.filter((a) => !matches(v, [a])).map((a) => esc(displayAnswer(a))); return o.length ? `<div class="muted">Inne poprawne wersje: ${o.join(" · ")}</div>` : ""; })()}`
           : diffHtml(v, ex.answers) + (all.length > 1 ? `<div class="muted">Wszystkie akceptowane: ${all.join(" · ")}</div>` : "");
         return { ok, given: v, extra };
       };
@@ -1280,6 +1330,7 @@
     { id: "vocab", label: "🔤 Słownictwo", count: (l) => (l.vocab && l.vocab.items || []).length },
     { id: "practice", label: "✍️ Ćwiczenia", count: (l) => (l.exercises || []).length + practiceCount(l) },
     { id: "test", label: "📝 Test", count: (l) => l.test.length },
+    { id: "dictation", label: "🎧 Dyktando", count: (l) => l.dict.length },
   ];
   function lessonTab() { const m = location.hash.match(/^#\/lesson\/[\w-]+\/(\w+)/); return m ? m[1] : ""; }
 
@@ -1295,6 +1346,7 @@
     if (tab === "vocab" && l.vocab) body = renderLessonVocab(l);
     else if (tab === "practice") body = renderLessonPractice(l);
     else if (tab === "test" && l.test.length) body = renderLessonTest(l);
+    else if (tab === "dictation" && l.dict.length) body = renderLessonDictation(l);
     else body = renderLessonTheory(l);
     return `<article class="page lesson ${state.showPl ? "" : "hide-pl"}" id="lesson">
       <div class="lesson-head">
@@ -1376,6 +1428,19 @@
     </section>`;
   }
 
+  // ---------- Dyktando ----------
+  const DICT_ROUND = 10;
+  const dictIntro = (more) => `<div class="tts-warn">${ttsWarnHtml()}</div>
+    <div class="ex-intro">Kliknij <b>▶ Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>🐢 Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}</div>`;
+  function renderLessonDictation(l) {
+    const s = state.scores[l.id + "::dict"];
+    return `<section class="block">
+      <h2>🎧 Dyktando</h2>
+      <p class="muted-p">Zdania z przykładów w tej lekcji (${l.dict.length}) – za każdym razem ${Math.min(DICT_ROUND, l.dict.length)} losowych. Najpierw przeczytaj teorię, potem sprawdź, czy rozpoznajesz te zdania ze słuchu.${s ? ` Najlepszy wynik: ${scorePill(s)}` : ""}</p>
+      <div id="dictBox">${exercisesShell("Posłuchaj i zapisz", { h3: true, retryLabel: "Nowe zdania" })}</div>
+    </section>`;
+  }
+
   function bindLesson(id) {
     const l = BY_ID[id]; if (!l) return;
     const tab = lessonTab();
@@ -1408,6 +1473,14 @@
         if (d.open) mount();
         d.addEventListener("toggle", () => { if (d.open) mount(); });
       });
+      return;
+    }
+    if (tab === "dictation" && l.dict.length) {
+      const box = $("#dictBox").firstElementChild;
+      box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro());
+      const run = () => renderExercises(box, shuffle(l.dict).slice(0, DICT_ROUND).map((ex) => ({ ex })), { key: l.id + "::dict" });
+      run();
+      box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
       return;
     }
     if (tab === "test" && l.test.length) {
@@ -1502,7 +1575,7 @@
       </div>`;
   }
   function bindSetup(cfg, pool, start) {
-    const info = () => { $("#pInfo").textContent = `Dostępnych pytań: ${pool().length}`; };
+    const info = () => { $("#pInfo").textContent = `Dostępnych pytań: ${pool().length}` + (cfg.src === "dictation" ? ` (${reachLabel()})` : ""); };
     document.querySelectorAll(".practice-setup .chips").forEach((box) => box.addEventListener("click", (e) => {
       const b = e.target.closest(".chip"); if (!b) return;
       const f = box.dataset.f, v = b.dataset.v;
@@ -1513,7 +1586,10 @@
     $("#pStart").addEventListener("click", start);
     info();
   }
-  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań" };
+  const SRC = { all: "Wszystkie", choice: "Wybór i luki", write: "Pisanie zdań", order: "Układanie zdań", dictation: "🎧 Dyktando" };
+  // Dyktando w treningu: tylko lekcje do bieżącej włącznie (pierwsza nieprzerobiona na ścieżce) – żeby nie dyktować zdań z gramatyką, której jeszcze nie było.
+  const reachIdx = () => { const i = PATH.findIndex((l) => !state.done[l.id]); return i < 0 ? PATH.length - 1 : i; };
+  const reachLabel = () => reachIdx() ? `lekcje 1–${reachIdx() + 1}` : "lekcja 1";
   function renderPractice() {
     return `<div class="page">
       <div class="hero"><h1>🎯 Trening mieszany</h1><p>Losowe zadania z wielu lekcji (sprawdzane od razu) — dobry sposób, żeby sprawdzić, czy umiesz rozpoznać właściwą konstrukcję, gdy nie wiesz, z jakiej lekcji jest zadanie.</p></div>
@@ -1522,15 +1598,19 @@
     </div>`;
   }
   function bindPractice() {
-    const pool = () => lessonPool(practiceCfg).flatMap((l) => [
+    const pool = () => practiceCfg.src === "dictation"
+      ? lessonPool(practiceCfg).filter((l) => PATH.indexOf(l) <= reachIdx()).flatMap((l) => l.dict.map((ex) => ({ ex, lesson: l })))
+      : lessonPool(practiceCfg).flatMap((l) => [
       ...(l.exercises || []).map((ex) => ({ ex, lesson: l })),
       ...l.practice.flatMap((p) => (p.items || []).map((ex) => ({ ex: withTask(ex, ex.task || p.instruction), lesson: l }))),
     ]).filter(({ ex }) => practiceCfg.src === "all" || (practiceCfg.src === "choice" ? ["choice", "gap"].includes(ex.type) : ex.type === practiceCfg.src));
     const start = () => {
       const items = shuffle(pool()).slice(0, practiceCfg.count);
       const box = $("#pBox");
-      if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.</div>`; return; }
+      const dict = practiceCfg.src === "dictation", cur = PATH[reachIdx()];
+      if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.${dict ? ` Dyktando obejmuje lekcje do bieżącej włącznie (teraz: ${lessonNo(cur)}. ${esc(cur.title)}).` : ""}</div>`; return; }
       box.innerHTML = exercisesShell("Pytania", { retryLabel: "Nowe losowanie" });
+      if (dict) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro(` Zdania z lekcji do bieżącej włącznie (${reachLabel()}, teraz: <a href="#/lesson/${cur.id}">${esc(cur.title)}</a>).`));
       renderExercises(box.firstElementChild, items, { showSource: true });
       box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
       box.scrollIntoView();
@@ -1697,7 +1777,7 @@
   const SESSION_MAX = 20;
   const zadan = (n) => `${n} ${n === 1 ? "zadanie" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "zadania" : "zadań"}`;
   let mistakesCfg = { level: "", lesson: "" };
-  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
+  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
   const dueLabel = (m) => {
     const d = Math.round((Date.parse(m.due) - Date.parse(today())) / DAY);
     return d <= 0 ? "<b>na dziś</b>" : d === 1 ? "jutro" : `za ${d} dni`;
@@ -1735,7 +1815,7 @@
       return `<div class="card m-group">
         <div class="m-head"><div class="m-title"><a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a> ${badge(l.level)}<span class="muted">${xs.length} zad.${nDue ? ` · ${nDue} na dziś` : ""}</span></div>
           <div class="m-actions"><button class="btn small" data-mrun="${l.id}">Ćwicz teraz</button><a class="btn small" href="#/lesson/${l.id}" title="Teoria i ćwiczenia z tej lekcji">Powtórz lekcję →</a></div></div>
-        <ul class="m-list">${xs.map((x) => { const q = stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
+        <ul class="m-list">${xs.map((x) => { const q = x.ex.type === "dictation" ? "🎧 " + stripTags(x.ex.pl || "Zapisz zdanie ze słuchu.") : stripTags(x.ex.q || "Ułóż zdanie z wyrazów."); return `<li><span class="m-q">${esc(q.length > 160 ? q.slice(0, 157) + "…" : q)}</span>
           <span class="m-meta">${srcLabel(x)} · ${TYPE_LABEL[x.ex.type]} · pudełko ${x.m.box}/${BOX_DAYS.length} · powtórka ${dueLabel(x.m)}${x.m.wrong > 1 ? ` · błędy: ${x.m.wrong}` : ""}</span></li>`; }).join("")}</ul>
       </div>`;
     }).join("");
