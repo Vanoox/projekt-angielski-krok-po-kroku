@@ -16,10 +16,10 @@
 //  - wszystko inne – zwykle z sieci.
 
 // BUILD:START
-const VERSION = "615655a3e3";
+const VERSION = "46c68988ff";
 const SHELL = [
   "./",
-  "css/style.css?v=139c2d5169",
+  "css/style.css?v=8534e9018c",
   "js/app.js?v=88ba9d29a8",
   "js/activity.js?v=7cdbdbad83",
   "js/backup.js?v=344521916e",
