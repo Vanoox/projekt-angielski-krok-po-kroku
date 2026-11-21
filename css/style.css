@@ -618,22 +618,23 @@ a.level-test:hover { text-decoration: none; }
 .level-test .lt-score:empty { display: none; }
 
 /* home – kafelki funkcji */
-.feature-cards { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin: 0 0 32px; }
+.feature-cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 0 0 32px; }
 @media (min-width: 961px) and (max-width: 1180px) { .feature-cards { grid-template-columns: repeat(2, 1fr); } }
 .feature { padding: 16px 18px; display: flex; flex-direction: column; gap: 2px; color: var(--text); }
 .feature:hover { border-color: var(--accent); text-decoration: none; }
 .feature .f-ico { font-size: 24px; }
 .feature b { font-size: 17px; }
 .feature span:last-child { color: var(--text-2); font-size: 14px; }
-/* Ostatni kafelek sam w rzędzie – na całą szerokość, ikona z lewej (3 kolumny: 7 kafelków; 2 kolumny: nieparzysta liczba). */
-.feature-cards > .feature:last-child:nth-child(3n+1) { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
-.feature-cards > .feature:last-child:nth-child(3n+1) .f-ico { grid-row: span 2; }
+/* 8 kafelków: > 1180 px – 4 kolumny (4 + 4), 961–1180 px – 2 kolumny (4 rzędy), telefon – 1 kolumna.
+   Na przyszłość: ostatni kafelek sam w rzędzie – na całą szerokość, ikona z lewej (4 kolumny: 4n+1 kafelków; 2 kolumny: nieparzysta liczba). */
+.feature-cards > .feature:last-child:nth-child(4n+1) { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr; column-gap: 14px; align-items: center; }
+.feature-cards > .feature:last-child:nth-child(4n+1) .f-ico { grid-row: span 2; }
 @media (min-width: 961px) and (max-width: 1180px) {
-  .feature-cards > .feature:last-child:nth-child(3n+1) { grid-column: auto; display: flex; }
+  .feature-cards > .feature:last-child:nth-child(4n+1) { grid-column: auto; display: flex; }
   .feature-cards > .feature:last-child:nth-child(odd) { grid-column: 1 / -1; display: grid; }
   .feature-cards > .feature:last-child:nth-child(odd) .f-ico { grid-row: span 2; }
 }
-@media (max-width: 960px) { .feature-cards > .feature:last-child:nth-child(3n+1) { display: flex; } }
+@media (max-width: 960px) { .feature-cards > .feature:last-child:nth-child(4n+1) { display: flex; } }
 .anki-dl { display: flex; align-items: center; gap: 16px; padding: 16px 18px; margin: 0 0 32px; border-left: 4px solid var(--accent); }
 .anki-dl .f-ico { font-size: 28px; }
 .anki-txt { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; }
@@ -1374,3 +1375,50 @@ a.level-test:hover { text-decoration: none; }
   .dl-tools .rd-voice { grid-column: 1 / -1; }
 }
 @media (prefers-reduced-motion: reduce) { .dl-bubble { transition: none; } }
+
+/* rozmowy z wyborem odpowiedzi (#/rozmowy) – dymki z dialogów (.dl-*): rozmówca z lewej, „Ty” z prawej */
+.chat > .callout { margin-bottom: 16px; }
+.ch-goal-line { display: flex; align-items: flex-start; gap: 8px; }
+.ch-goal-line .ic { width: 18px; height: 18px; flex: none; margin-top: 3px; color: var(--accent); }
+.ch-log { margin-top: 16px; }
+.ch-log:empty { display: none; }
+.ch-worse .dl-bubble { background: var(--warn-soft); }
+.ch-note { align-self: center; display: flex; align-items: flex-start; gap: 6px; max-width: 92%; padding: 6px 12px; border-radius: 10px; background: var(--surface-2); color: var(--text-2); font-size: 14px; }
+.ch-note .ic { width: 15px; height: 15px; flex: none; margin-top: 2px; color: var(--accent); }
+.ch-note-bad { background: var(--warn-soft); color: var(--text); }
+.ch-note-bad .ic { color: var(--warn); }
+.ch-choices { padding: 14px 16px; margin: 0 0 18px; border-left: 4px solid var(--accent); }
+.ch-ask { display: flex; flex-wrap: wrap; align-items: baseline; gap: 4px 12px; margin: 0 0 10px; font-size: 17px; }
+.ch-ask .kbd-hint { color: var(--text-3); font-family: Inter, sans-serif; font-size: 13px; font-weight: 400; letter-spacing: 0; }
+.ch-opts { display: flex; flex-direction: column; gap: 8px; }
+.ch-opt { display: flex; align-items: center; gap: 6px; }
+.ch-opt .speak { flex: none; }
+.ch-pick { flex: 1; min-width: 0; display: flex; align-items: flex-start; gap: 10px; padding: 10px 14px; border: 1px solid var(--border); border-radius: 12px; background: var(--surface); color: var(--text); font: inherit; font-size: 16.5px; line-height: 1.45; text-align: left; cursor: pointer; overflow-wrap: anywhere; }
+.ch-pick:hover:not(:disabled) { border-color: var(--accent); background: var(--accent-soft); }
+.ch-pick:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+.ch-num { flex: none; display: inline-grid; place-items: center; width: 24px; height: 24px; margin-top: 1px; border-radius: 50%; background: var(--surface-2); color: var(--text-2); font-size: 13px; font-weight: 700; }
+.ch-pick.bad { border-color: var(--bad); background: var(--bad-soft); color: var(--text-2); cursor: default; }
+.ch-pick.bad .ch-txt { text-decoration: line-through; }
+.ch-pick.bad .ch-num { background: var(--bad); color: var(--on-accent); }
+.ch-fb { display: flex; align-items: flex-start; gap: 6px; margin: 10px 0 0; font-size: 14.5px; }
+.ch-fb:empty { display: none; }
+.ch-fb .ic { width: 16px; height: 16px; flex: none; margin-top: 3px; color: var(--bad); }
+.ch-sum { padding: 18px 20px; margin: 0 0 18px; border-left: 4px solid var(--ok); }
+.ch-sum.is-fail { border-left-color: var(--warn); }
+.ch-sum h2 { display: flex; align-items: center; gap: 8px; margin: 0 0 8px; font-size: 22px; }
+.ch-sum h2 .ic { width: 22px; height: 22px; color: var(--ok); }
+.ch-sum.is-fail h2 .ic { color: var(--warn); }
+.ch-sum p { margin: 0 0 8px; }
+.ch-sum h3 { margin: 16px 0 8px; font-size: 16px; }
+.ch-keep { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.ch-keep li { display: flex; flex-direction: column; gap: 2px; padding: 8px 12px; border-radius: 10px; background: var(--surface-2); }
+.ch-keep b { font-weight: 600; }
+.ch-keep .speak { display: inline-grid; width: 26px; height: 26px; vertical-align: middle; margin: -3px 0 0 4px; }
+.ch-keep-pl { color: var(--text-2); font-size: 14.5px; }
+.ch-again { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 14px; margin-top: 16px; }
+.ch-again .muted .ic { width: 16px; height: 16px; vertical-align: -3px; }
+@media (max-width: 600px) {
+  .ch-choices { padding: 12px; }
+  .ch-pick { padding: 9px 11px; font-size: 16px; gap: 8px; }
+  .ch-sum { padding: 16px 14px; }
+}

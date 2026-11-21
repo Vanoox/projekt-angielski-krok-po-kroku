@@ -145,3 +145,38 @@ window.DIALOGUES.push({
 - **Kolejność nauki i audyt** jak w czytankach: `node tools/audit/reading.js [id]` sprawdza też dialogi (kwestie i pytania). Słowo spoza słówek → `glossary` (lista „Nowe słowa i zwroty” nad dialogiem, do przejrzenia przed słuchaniem). Przeczytaj każdą kwestię i tłumaczenie samodzielnie.
 - **Pytania** sprawdzają rozumienie ze słuchu (tekst jest domyślnie ukryty i odsłania się sam po sprawdzeniu wszystkich pytań). Trafiają do „Moich błędów” (źródło „dialog …”, z linkiem do dialogu).
 - Po zmianach: `node tools/validate.js` i `node tools/build-index.js`.
+
+## Rozmowy z wyborem odpowiedzi (`data/chats/*.js` → `window.CHATS`)
+
+Rozgałęziony dialog (strona `#/rozmowy`): rozmówca mówi kwestię, uczeń wybiera jedną z 2–3 odpowiedzi, a rozmowa idzie dalej zależnie od wyboru. Pliki według poziomu (`a1.js`, `a2.js`, …):
+
+```js
+window.CHATS = window.CHATS || [];
+window.CHATS.push({
+  id: "train-ticket",                // kebab-case, unikalne (także względem czytanek i dialogów – audyt filtruje po id); wynik w scores pod "chat:train-ticket"
+  title: "Buying a train ticket", titlePl: "Bilet na pociąg",
+  level: "A1", after: "questions",   // jak w czytankach: odblokowanie po lekcji after, poziom nie niższy niż jej poziom
+  topic: "Podróże",                  // opcjonalnie
+  setting: "Jesteś na dworcu…",      // sytuacja po polsku
+  goal: "Kup bilet powrotny do Oksfordu na jutro rano…", // cel po polsku – podsumowanie mówi, czy został osiągnięty
+  partner: { name: "Kasjer", g: "m" },                   // rozmówca (uczeń to „Ty”); g – płeć do wyboru głosu
+  glossary: { "platform": "peron" },                     // opcjonalnie: zwroty spoza słówek lekcji 1…after
+  start: "n1",
+  nodes: {
+    n1: { say: "Good morning. How can I help you?", pl: "Dzień dobry. W czym mogę pomóc?", options: [
+      { en: "Good morning. I'd like a ticket to Oxford, please.", pl: "Dzień dobry. Poproszę bilet do Oksfordu.", ok: true, next: "n2" },
+      { en: "Good morning. I like a ticket to Oxford, please.", feedback: "„I like” znaczy „lubię”…" },          // bez next – ponowny wybór
+      { en: "That's very expensive! Give me a cheap ticket.", next: "w1", feedback: "…Zobacz, jak zareaguje." }, // z next – gorsza ścieżka
+    ] },
+    end: { say: "You're welcome. Have a good trip!", pl: "Nie ma za co. Miłej podróży!", end: "ok" },
+    "end-no": { say: "OK. Next, please!", pl: "Dobrze. Następna osoba, proszę!", end: "fail", note: "Odchodzisz bez biletu…" },
+  },
+});
+```
+
+- **Dobra odpowiedź** (`ok: true`): ma `next` i `pl` (trafia do listy „Kwestie do zapamiętania” w podsumowaniu); opcjonalny `feedback` pokazuje się jako notka.
+- **Zła odpowiedź**: zawsze `feedback` po polsku – dlaczego nie (błąd gramatyczny, nieuprzejmie, nie na temat). Bez `next` – informacja i ponowny wybór (najczęstszy przypadek: błędy gramatyczne i odpowiedzi nie na temat). Z `next` – rozmowa idzie gorszą ścieżką (np. po niegrzecznej odpowiedzi rozmówca jest chłodniejszy); z gorszej ścieżki można wrócić na dobrą albo dojść do końca `end: "fail"` (cel nieosiągnięty, `note` wyjaśnia dlaczego).
+- **Wynik** `chat:<id>` = kroki, w których pierwszy wybór był dobry / liczba kroków. Każdy krok liczy się do dziennika i celu dziennego. Rozmowy nie trafiają do „Moich błędów”.
+- **Walidator** sprawdza graf: każdy `next` istnieje, wszystkie węzły osiągalne ze `start`, brak pętli, z każdego węzła da się dojść do końca, 2–3 odpowiedzi w węźle, co najmniej jedna dobra; same dobre odpowiedzi zawsze prowadzą do `end: "ok"` w 5–8 krokach. Teksty `say` / `en` bez HTML i prostych cudzysłowów, zakończone `.` `!` `?` (polskie litery tylko w nazwach: Gdańsk, Kraków).
+- **Kolejność nauki i audyt**: `node tools/audit/reading.js [id]` sprawdza kwestie rozmówcy i wszystkie odpowiedzi (także złe – uczeń je czyta; ich celowych błędów gramatycznych audyt nie zgłasza). Przeczytaj każdą kwestię, tłumaczenie i informację samodzielnie.
+- Po zmianach: `node tools/validate.js` i `node tools/build-index.js`.

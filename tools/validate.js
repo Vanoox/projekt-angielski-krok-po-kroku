@@ -1,5 +1,5 @@
 // Walidator danych. Użycie:
-//   node tools/validate.js                 – wszystko (lekcje, ćwiczenia, słownictwo, czytanki)
+//   node tools/validate.js                 – wszystko (lekcje, ćwiczenia, słownictwo, czytanki, dialogi, rozmowy)
 //   node tools/validate.js data/practice/have-got.js data/lessons/have-got.js   – wybrane pliki (+ kontekst lekcji)
 // Kod wyjścia 1 = są błędy.
 const fs = require("fs");
@@ -19,13 +19,13 @@ const listJs = (d) => (fs.existsSync(path.join(ROOT, d)) ? fs.readdirSync(path.j
 let files = process.argv.slice(2).map((f) => path.resolve(f));
 const only = files.length ? new Set(files) : null;
 // Zawsze ładujemy wszystkie lekcje (potrzebne do sprawdzenia id/requires), błędy raportujemy tylko dla wskazanych plików.
-const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab"), ...listJs("data/reading"), ...listJs("data/dialogues")];
+const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab"), ...listJs("data/reading"), ...listJs("data/dialogues"), ...listJs("data/chats")];
 
 const errors = [];
 const sandbox = { window: {} };
 const fileOf = new Map();
 for (const file of all) {
-  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, R: (sandbox.window.READING || []).length, D: (sandbox.window.DIALOGUES || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
+  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, R: (sandbox.window.READING || []).length, D: (sandbox.window.DIALOGUES || []).length, C: (sandbox.window.CHATS || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
   try {
     vm.runInNewContext(fs.readFileSync(file, "utf8"), sandbox, { filename: file });
   } catch (e) {
@@ -36,6 +36,7 @@ for (const file of all) {
   (sandbox.window.VOCAB || []).slice(before.V).forEach((t) => fileOf.set("V:" + t.id, file));
   (sandbox.window.READING || []).slice(before.R).forEach((r) => fileOf.set("R:" + r.id, file));
   (sandbox.window.DIALOGUES || []).slice(before.D).forEach((d) => fileOf.set("D:" + d.id, file));
+  (sandbox.window.CHATS || []).slice(before.C).forEach((c) => fileOf.set("C:" + c.id, file));
   Object.keys(sandbox.window.PRACTICE || {}).filter((k) => !before.P.includes(k)).forEach((k) => fileOf.set("P:" + k, file));
 }
 const report = (key) => !only || only.has(fileOf.get(key));
@@ -312,6 +313,99 @@ for (const d of DL) {
   (d.questions || []).forEach((x, i) => { dlQuestions++; checkExercise(x, (m) => err(`pytanie ${i}: ${m}`), ctx); });
 }
 
+// ---------- rozmowy z wyborem odpowiedzi (data/chats/*.js → window.CHATS, format: tools/FORMAT.md) ----------
+// Graf: węzeł z wyborem { say, pl, options: [{ en, pl?, next?, ok?, feedback? }] } albo końcowy { say, pl, end: "ok"|"fail", note? }.
+// Sprawdzamy: każdy next istnieje, wszystkie węzły osiągalne ze start, brak pętli, z każdego węzła da się dojść do końca,
+// dobre odpowiedzi (ok) zawsze prowadzą dalej i kończą się celem osiągniętym (end "ok") po 5–8 krokach.
+const CH = sandbox.window.CHATS || [];
+const cids = new Set();
+let chNodes = 0, chOptions = 0;
+const enLine = (s) => typeof s === "string" && s.trim() && !/[<>"]/.test(s) && /[.!?][”’]?$/.test(s.trim())
+  && !/[ąćęłńóśźż]/i.test(s.replace(/(^|[\s(])\p{Lu}\p{L}*/gu, "")); // polskie litery tylko w nazwach (Gdańsk, Kraków)
+for (const c of CH) {
+  const key = "C:" + c.id;
+  const where = `${path.relative(ROOT, fileOf.get(key) || "?")} → ${c.id || "(brak id)"}`;
+  const err = (m) => { if (report(key)) errors.push(`${where}: ${m}`); };
+  if (!c.id || !/^[a-z0-9-]+$/.test(c.id)) err("id musi być kebab-case");
+  if (cids.has(c.id)) err("zduplikowane id rozmowy");
+  cids.add(c.id);
+  for (const k of ["title", "titlePl", "setting", "goal"]) if (typeof c[k] !== "string" || !c[k].trim() || /[<>]/.test(c[k])) err(`brak ${k} (tekst bez HTML)`);
+  if ("topic" in c && (typeof c.topic !== "string" || !c.topic.trim())) err("topic musi być niepustym tekstem");
+  if (!LEVELS.includes(c.level)) err(`level musi być jednym z ${LEVELS}`);
+  const after = lessons.find((l) => l.id === c.after);
+  if (!after) err(`after: nieznana lekcja „${c.after}”`);
+  else if (LEVELS.indexOf(c.level) < LEVELS.indexOf(after.level)) err(`level ${c.level} niższy niż poziom lekcji after (${after.level})`);
+  const p = c.partner;
+  if (!p || typeof p.name !== "string" || !p.name.trim() || /[<>]/.test(p.name)) err("brak partner: { name, g }");
+  else if ("g" in p && !["m", "f"].includes(p.g)) err(`partner.g: "m" albo "f"`);
+  if ("glossary" in c) {
+    if (!c.glossary || typeof c.glossary !== "object" || Array.isArray(c.glossary)) err("glossary musi być obiektem { słowo: tłumaczenie }");
+    else for (const [w, t] of Object.entries(c.glossary)) {
+      if (!w.trim() || /[<>]/.test(w) || w !== w.trim()) err(`glossary: złe hasło „${w}”`);
+      if (typeof t !== "string" || !t.trim()) err(`glossary „${w}”: brak tłumaczenia`);
+    }
+  }
+  const N = c.nodes && typeof c.nodes === "object" && !Array.isArray(c.nodes) ? c.nodes : null;
+  if (!N) { err("brak nodes: { id: węzeł }"); continue; }
+  if (!N[c.start]) err(`start: nie ma węzła „${c.start}”`);
+  for (const [id, n] of Object.entries(N)) {
+    chNodes++;
+    const nw = `węzeł ${id}`;
+    if (!/^[a-z0-9-]+$/i.test(id)) err(`${nw}: id tylko litery, cyfry i „-”`);
+    if (!n || typeof n !== "object") { err(`${nw}: pusty`); continue; }
+    if (!enLine(n.say)) err(`${nw}: say – kwestia rozmówcy po angielsku, bez HTML i prostych cudzysłowów, zakończona . ! albo ?`);
+    if (typeof n.pl !== "string" || !n.pl.trim() || /[<>]/.test(n.pl)) err(`${nw}: brak pl (tłumaczenie, bez HTML)`);
+    if ("end" in n) {
+      if (!["ok", "fail"].includes(n.end)) err(`${nw}: end musi być "ok" albo "fail"`);
+      if ("options" in n) err(`${nw}: węzeł końcowy nie ma options`);
+      if ("note" in n && (typeof n.note !== "string" || !n.note.trim() || /[<>]/.test(n.note))) err(`${nw}: note – tekst po polsku bez HTML`);
+      continue;
+    }
+    if (!Array.isArray(n.options) || n.options.length < 2 || n.options.length > 3) { err(`${nw}: options – 2 albo 3 odpowiedzi (albo end: "ok"/"fail")`); continue; }
+    if (!n.options.some((o) => o && o.ok)) err(`${nw}: potrzebna co najmniej jedna dobra odpowiedź (ok: true)`);
+    const seen = new Set();
+    n.options.forEach((o, i) => {
+      chOptions++;
+      const ow = `${nw}, odpowiedź ${i + 1}`;
+      if (!o || !enLine(o.en)) { err(`${ow}: en – po angielsku, bez HTML i prostych cudzysłowów, zakończona . ! albo ?`); return; }
+      const k = o.en.trim().toLowerCase();
+      if (seen.has(k)) err(`${ow}: powtórzona odpowiedź`);
+      seen.add(k);
+      if ("ok" in o && typeof o.ok !== "boolean") err(`${ow}: ok musi być true/false`);
+      if ("next" in o && !N[o.next]) err(`${ow}: next – nie ma węzła „${o.next}”`);
+      if (o.ok && !("next" in o)) err(`${ow}: dobra odpowiedź musi mieć next`);
+      if (o.ok && (typeof o.pl !== "string" || !o.pl.trim())) err(`${ow}: dobra odpowiedź potrzebuje pl (lista „do zapamiętania”)`);
+      if ("pl" in o && (typeof o.pl !== "string" || /[<>]/.test(o.pl))) err(`${ow}: pl bez HTML`);
+      if (!o.ok && (typeof o.feedback !== "string" || !o.feedback.trim() || /[<>]/.test(o.feedback))) err(`${ow}: zła odpowiedź potrzebuje feedback (po polsku, dlaczego nie; bez HTML)`);
+      if (o.ok && "feedback" in o && (typeof o.feedback !== "string" || /[<>]/.test(o.feedback))) err(`${ow}: feedback bez HTML`);
+    });
+  }
+  if (!N[c.start]) continue;
+  // Osiągalność, pętle, dojście do końca.
+  const edges = (id) => (N[id] && !("end" in N[id]) && Array.isArray(N[id].options) ? N[id].options.filter((o) => o && "next" in o && N[o.next]).map((o) => o.next) : []);
+  const state = {}; // 1 – w trakcie, 2 – gotowe
+  let cycle = false;
+  const dfs = (id) => { state[id] = 1; for (const t of edges(id)) { if (state[t] === 1) cycle = true; else if (!state[t]) dfs(t); } state[id] = 2; };
+  dfs(c.start);
+  if (cycle) err("graf ma pętlę – rozmowa musi zawsze iść do przodu");
+  const unreachable = Object.keys(N).filter((id) => !state[id]);
+  if (unreachable.length) err(`węzły nieosiągalne ze start: ${unreachable.join(", ")}`);
+  if (!cycle) {
+    const canEnd = {};
+    const ends = (id) => (id in canEnd ? canEnd[id] : (canEnd[id] = "end" in N[id] || edges(id).some(ends)));
+    Object.keys(state).forEach((id) => { if (!ends(id)) err(`węzeł ${id}: nie da się z niego dojść do końca rozmowy`); });
+    // Ścieżki samych dobrych odpowiedzi: zawsze kończą się „ok”, 5–8 wyborów.
+    const lens = [];
+    const walk = (id, steps) => {
+      const n = N[id];
+      if ("end" in n) { if (n.end !== "ok") err(`same dobre odpowiedzi prowadzą do końca „fail” (węzeł ${id})`); lens.push(steps); return; }
+      (n.options || []).filter((o) => o && o.ok && N[o.next]).forEach((o) => walk(o.next, steps + 1));
+    };
+    walk(c.start, 0);
+    if (lens.length && (Math.min(...lens) < 5 || Math.max(...lens) > 8)) err(`ścieżka dobrych odpowiedzi ma ${Math.min(...lens)}–${Math.max(...lens)} kroków (ma być 5–8)`);
+  }
+}
+
 // ---------- aktualność data/bundle.js, index.html i sw.js (strona ładuje tylko bundle) ----------
 // Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
 try {
@@ -333,4 +427,4 @@ if (errors.length) {
   console.log(`BŁĘDY (${errors.length}):\n` + errors.slice(0, 300).map((e) => " - " + e).join("\n") + (errors.length > 300 ? `\n … i ${errors.length - 300} więcej` : ""));
   process.exit(1);
 }
-console.log(`OK: ${lessons.length} lekcji, ${RD.length} czytanek (${rdQuestions} pytań), ${DL.length} dialogów (${dlLines} kwestii, ${dlQuestions} pytań), ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);
+console.log(`OK: ${lessons.length} lekcji, ${RD.length} czytanek (${rdQuestions} pytań), ${DL.length} dialogów (${dlLines} kwestii, ${dlQuestions} pytań), ${CH.length} rozmów (${chNodes} węzłów, ${chOptions} odpowiedzi), ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);

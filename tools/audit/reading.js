@@ -1,5 +1,7 @@
-// Audyt czytanek (data/reading/*.js) i dialogów (data/dialogues/*.js) – zgodność z kolejnością nauki.
-// Użycie: node tools/audit/reading.js [id czytanki albo dialogu …]
+// Audyt czytanek (data/reading/*.js), dialogów (data/dialogues/*.js) i rozmów (data/chats/*.js) – zgodność z kolejnością nauki.
+// Użycie: node tools/audit/reading.js [id czytanki, dialogu albo rozmowy …]
+// Rozmowa = kwestie rozmówcy (nodes.*.say) + wszystkie odpowiedzi ucznia (options[].en – także złe; ich celowe błędy
+// gramatyczne nie są zgłaszane, ale słówka tak, bo uczeń je czyta). Prefiks „x:” w miejscu = zła odpowiedź.
 // Dla każdego tekstu (akapity czytanki albo kwestie dialogu + pytania, odpowiedzi i opcje po angielsku):
 //  1. słowa, których nie ma w słówkach lekcji 1…after (słowniczki lekcji, data/practice), w słowach gramatycznych
 //     (FUNC z lemma.js) ani w glossary czytanki – przy każdym: lekcja, w której słowo wchodzi później, albo dział
@@ -17,7 +19,7 @@ const C = require('./det.js');
 const R = path.join(__dirname, '..', '..', 'data');
 const ctx = { window: {} };
 vm.createContext(ctx);
-for (const d of ['lessons', 'practice', 'vocab', 'reading', 'dialogues']) {
+for (const d of ['lessons', 'practice', 'vocab', 'reading', 'dialogues', 'chats']) {
   const dir = path.join(R, d);
   if (!fs.existsSync(dir)) continue;
   for (const f of fs.readdirSync(dir).filter((f) => f.endsWith('.js')).sort()) vm.runInContext(fs.readFileSync(path.join(dir, f), 'utf8'), ctx, { filename: f });
@@ -27,7 +29,14 @@ const pos = Object.fromEntries(order.map((id, i) => [id, i]));
 const P = ctx.window.PRACTICE || {};
 // Dialog = tekst z kwestii (lines[].en); pole kind tylko do nagłówka raportu.
 const READING = [...(ctx.window.READING || []).map((r) => ({ ...r, kind: 'czytanka' })),
-  ...(ctx.window.DIALOGUES || []).map((d) => ({ ...d, kind: 'dialog', text: (d.lines || []).map((l) => l.en) }))];
+  ...(ctx.window.DIALOGUES || []).map((d) => ({ ...d, kind: 'dialog', text: (d.lines || []).map((l) => l.en) })),
+  ...(ctx.window.CHATS || []).map((c) => {
+    const ns = Object.entries(c.nodes || {});
+    return { ...c, kind: 'rozmowa', questions: [],
+      text: ns.map(([, n]) => n.say),
+      textWhere: ns.map(([id]) => id),
+      bad: ns.flatMap(([id, n]) => (n.options || []).map((o, i) => ({ where: `${o.ok ? '' : 'x:'}${id}.${i + 1}`, s: o.en, ok: !!o.ok }))) };
+  })];
 const only = process.argv.slice(2);
 
 const strip = (s) => String(s || '').replace(/<br\s*\/?>/gi, ' ').replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim();
@@ -61,7 +70,8 @@ const where = (w) => {
 // Wszystkie angielskie zdania czytanki: akapity + pytania (q, opcje, odpowiedzi – pierwszy wariant).
 function sentences(r) {
   const out = [];
-  (r.text || []).forEach((p, i) => out.push({ where: 'text' + i, s: strip(p) }));
+  (r.text || []).forEach((p, i) => out.push({ where: r.textWhere ? r.textWhere[i] : 'text' + i, s: strip(p) }));
+  (r.bad || []).forEach((o) => out.push({ where: o.where, s: strip(o.s), wrong: !o.ok })); // odpowiedzi w rozmowach
   (r.questions || []).forEach((x, i) => {
     const w = 'q' + i;
     if (x.q && !isPl(x.q)) out.push({ where: w, s: strip(x.q).replace(/_{2,}/g, ' ') });
@@ -104,7 +114,7 @@ for (const r of READING) {
   for (const k in C) {
     const intro = pos[C[k][1]];
     if (intro == null || intro <= ai) continue;
-    all.filter((x) => C[k][0].test(x.s)).forEach((x) => gram.push(`   ${k} (lekcja ${intro + 1}) ${x.where}: ${x.s.replace(C[k][0], (m) => '[' + m + ']').slice(0, 120)}`));
+    all.filter((x) => !x.wrong && C[k][0].test(x.s)).forEach((x) => gram.push(`   ${k} (lekcja ${intro + 1}) ${x.where}: ${x.s.replace(C[k][0], (m) => '[' + m + ']').slice(0, 120)}`));
   }
   // Glossary: wpisy nieużyte i wpisy zbędne (słowo znane z lekcji).
   const textWords = new Set();
@@ -112,7 +122,7 @@ for (const r of READING) {
   const glossUnused = Object.keys(r.glossary || {}).filter((g) => ![...vwords(g)].some((w) => textWords.has(w) || cands(w).some((c) => textWords.has(c))));
   const glossKnown = Object.keys(r.glossary || {}).filter((g) => { const ws = [...vwords(g)].filter((w) => !FUNC.has(w)); return ws.length && ws.every((w) => known.has(w)); });
   const nWords = (r.text || []).map(strip).join(' ').split(/\s+/).filter(Boolean).length;
-  console.log(`\n=== ${r.kind} ${r.id} (${r.level}, po lekcji ${ai + 1}: ${r.after}) – ${nWords} słów, ${(r.questions || []).length} pytań`);
+  console.log(`\n=== ${r.kind} ${r.id} (${r.level}, po lekcji ${ai + 1}: ${r.after}) – ${nWords} słów, ${r.bad ? `${r.text.length} węzłów, ${r.bad.length} odpowiedzi` : `${(r.questions || []).length} pytań`}`);
   if (miss.size) { problems += miss.size; console.log(` słowa spoza słówek (${miss.size}):`); [...miss.values()].forEach((m) => console.log(`   ${m.w.padEnd(16)} ${where(m.w).padEnd(16)} ${m.ex}`)); }
   if (gram.length) { problems += gram.length; console.log(` konstrukcje z późniejszych lekcji (${gram.length}):\n${gram.join('\n')}`); }
   if (glossUnused.length) { problems += glossUnused.length; console.log(` glossary – brak w tekście: ${glossUnused.join(', ')}`); }
