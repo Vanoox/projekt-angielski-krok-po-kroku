@@ -1,14 +1,14 @@
 // Buduje dane strony i aktualizuje index.html.
 // Użycie: node tools/build-index.js
 //
-// URUCHAMIAJ PO KAŻDEJ ZMIANIE W data/ (lekcje, ćwiczenia, słownictwo, sprawdziany, order.json).
+// URUCHAMIAJ PO KAŻDEJ ZMIANIE W data/ (lekcje, ćwiczenia, słownictwo, czytanki, sprawdziany, order.json).
 // Strona NIE czyta plików z data/ bezpośrednio – ładuje tylko data/bundle.js (jeden plik, mniej żądań),
 // więc bez przebudowania pokaże stare dane. `node tools/validate.js` ostrzega, gdy bundle jest nieaktualny.
 //
 // Co robi:
 //  1. Wczytuje wszystkie pliki danych w `vm` – w tej samej kolejności, w jakiej ładowałaby je przeglądarka
-//     (lekcje według data/lessons/order.json, potem ćwiczenia, słownictwo, sprawdziany).
-//  2. Zapisuje data/bundle.js: `window.LESSONS=[…];window.PRACTICE={…};…` jako JSON bez wcięć i komentarzy
+//     (lekcje według data/lessons/order.json, potem ćwiczenia, słownictwo, czytanki, sprawdziany).
+//  2. Zapisuje data/bundle.js: `window.LESSONS=[…];window.PRACTICE={…};…;window.READING=[…]` jako JSON bez wcięć i komentarzy
 //     (jeden wpis na linię, żeby diff w gicie był czytelny). Pliku bundle.js nie edytuj ręcznie.
 //  3. W index.html wstawia <script src="data/bundle.js?v=<hash>"> między <!-- DATA:START --> i <!-- DATA:END -->
 //     oraz dopisuje ?v=<hash> do css/style.css i js/app.js – po każdej zmianie adres się zmienia,
@@ -29,7 +29,7 @@ const root = path.join(__dirname, "..");
 const rel = (...p) => path.join(root, ...p);
 const BUNDLE = "data/bundle.js";
 const SW = "sw.js";
-const GLOBALS = ["LESSONS", "PRACTICE", "VOCAB", "CHECKPOINTS"];
+const GLOBALS = ["LESSONS", "PRACTICE", "VOCAB", "CHECKPOINTS", "READING"];
 
 const hash = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 10);
 const listJs = (d) => (fs.existsSync(rel(d)) ? fs.readdirSync(rel(d)).filter((f) => f.endsWith(".js")).sort() : []);
@@ -44,6 +44,7 @@ function dataFiles() {
     lessons: ids.map((id) => `data/lessons/${id}.js`),
     practice: listJs("data/practice").map((f) => `data/practice/${f}`),
     vocab: listJs("data/vocab").map((f) => `data/vocab/${f}`),
+    reading: listJs("data/reading").map((f) => `data/reading/${f}`),
     checkpoints: fs.existsSync(rel("data/checkpoints.js")) ? ["data/checkpoints.js"] : [],
   };
 }
@@ -138,7 +139,7 @@ if (require.main === module) {
     const sw = buildSw(html);
     fs.writeFileSync(rel(SW), sw.content);
     const n = Object.values(files).flat().length;
-    console.log(`${BUNDLE}: ${(Buffer.byteLength(content) / 1024).toFixed(0)} KB z ${n} plików (${files.lessons.length} lekcji, ${files.practice.length} plików ćwiczeń, ${files.vocab.length} plików słownictwa, ${files.checkpoints.length ? "sprawdziany" : "bez sprawdzianów"}).`);
+    console.log(`${BUNDLE}: ${(Buffer.byteLength(content) / 1024).toFixed(0)} KB z ${n} plików (${files.lessons.length} lekcji, ${files.practice.length} plików ćwiczeń, ${files.vocab.length} plików słownictwa, ${files.reading.length} plików czytanek, ${files.checkpoints.length ? "sprawdziany" : "bez sprawdzianów"}).`);
     console.log(`index.html: bundle.js?v=${hash(content)}`);
     console.log(`${SW}: wersja ${sw.version}`);
   } catch (e) {

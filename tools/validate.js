@@ -1,5 +1,5 @@
 // Walidator danych. Użycie:
-//   node tools/validate.js                 – wszystko (lekcje, ćwiczenia, słownictwo)
+//   node tools/validate.js                 – wszystko (lekcje, ćwiczenia, słownictwo, czytanki)
 //   node tools/validate.js data/practice/have-got.js data/lessons/have-got.js   – wybrane pliki (+ kontekst lekcji)
 // Kod wyjścia 1 = są błędy.
 const fs = require("fs");
@@ -19,13 +19,13 @@ const listJs = (d) => (fs.existsSync(path.join(ROOT, d)) ? fs.readdirSync(path.j
 let files = process.argv.slice(2).map((f) => path.resolve(f));
 const only = files.length ? new Set(files) : null;
 // Zawsze ładujemy wszystkie lekcje (potrzebne do sprawdzenia id/requires), błędy raportujemy tylko dla wskazanych plików.
-const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab")];
+const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab"), ...listJs("data/reading")];
 
 const errors = [];
 const sandbox = { window: {} };
 const fileOf = new Map();
 for (const file of all) {
-  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
+  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, R: (sandbox.window.READING || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
   try {
     vm.runInNewContext(fs.readFileSync(file, "utf8"), sandbox, { filename: file });
   } catch (e) {
@@ -34,6 +34,7 @@ for (const file of all) {
   }
   (sandbox.window.LESSONS || []).slice(before.L).forEach((l) => fileOf.set("L:" + l.id, file));
   (sandbox.window.VOCAB || []).slice(before.V).forEach((t) => fileOf.set("V:" + t.id, file));
+  (sandbox.window.READING || []).slice(before.R).forEach((r) => fileOf.set("R:" + r.id, file));
   Object.keys(sandbox.window.PRACTICE || {}).filter((k) => !before.P.includes(k)).forEach((k) => fileOf.set("P:" + k, file));
 }
 const report = (key) => !only || only.has(fileOf.get(key));
@@ -225,6 +226,38 @@ for (const t of V) {
   words += all.length;
 }
 
+// ---------- czytanki (data/reading/*.js → window.READING, format: tools/FORMAT.md) ----------
+const RD = sandbox.window.READING || [];
+const rids = new Set();
+let rdQuestions = 0;
+for (const r of RD) {
+  const key = "R:" + r.id;
+  const where = `${path.relative(ROOT, fileOf.get(key) || "?")} → ${r.id || "(brak id)"}`;
+  const err = (m) => { if (report(key)) errors.push(`${where}: ${m}`); };
+  if (!r.id || !/^[a-z0-9-]+$/.test(r.id)) err("id musi być kebab-case");
+  if (rids.has(r.id)) err("zduplikowane id czytanki");
+  rids.add(r.id);
+  for (const k of ["title", "titlePl"]) if (typeof r[k] !== "string" || !r[k].trim()) err(`brak ${k}`);
+  if ("topic" in r && (typeof r.topic !== "string" || !r.topic.trim())) err("topic musi być niepustym tekstem");
+  if (!LEVELS.includes(r.level)) err(`level musi być jednym z ${LEVELS}`);
+  const after = lessons.find((l) => l.id === r.after);
+  if (!after) err(`after: nieznana lekcja „${r.after}”`);
+  else if (LEVELS.indexOf(r.level) < LEVELS.indexOf(after.level)) err(`level ${r.level} niższy niż poziom lekcji after (${after.level})`);
+  if (!Array.isArray(r.text) || !r.text.length) err("text musi być niepustą tablicą akapitów");
+  else r.text.forEach((p, i) => {
+    if (typeof p !== "string" || !p.trim()) err(`text[${i}]: pusty akapit`);
+    else if (/[<>"]/.test(p)) err(`text[${i}]: bez HTML i prostych cudzysłowów (w tekście angielskim “…”): ${p.slice(0, 60)}`);
+  });
+  if (!r.glossary || typeof r.glossary !== "object" || Array.isArray(r.glossary)) err("glossary musi być obiektem { słowo: tłumaczenie } (może być pusty)");
+  else for (const [w, t] of Object.entries(r.glossary)) {
+    if (!w.trim() || /[<>]/.test(w) || w !== w.trim()) err(`glossary: złe hasło „${w}”`);
+    if (typeof t !== "string" || !t.trim()) err(`glossary „${w}”: brak tłumaczenia`);
+  }
+  if (!Array.isArray(r.questions) || r.questions.length < 3) err("potrzeba co najmniej 3 pytań (questions)");
+  const ctx = new Set();
+  (r.questions || []).forEach((x, i) => { rdQuestions++; checkExercise(x, (m) => err(`pytanie ${i}: ${m}`), ctx); });
+}
+
 // ---------- aktualność data/bundle.js, index.html i sw.js (strona ładuje tylko bundle) ----------
 // Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
 try {
@@ -246,4 +279,4 @@ if (errors.length) {
   console.log(`BŁĘDY (${errors.length}):\n` + errors.slice(0, 300).map((e) => " - " + e).join("\n") + (errors.length > 300 ? `\n … i ${errors.length - 300} więcej` : ""));
   process.exit(1);
 }
-console.log(`OK: ${lessons.length} lekcji, ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);
+console.log(`OK: ${lessons.length} lekcji, ${RD.length} czytanek (${rdQuestions} pytań), ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);

@@ -92,3 +92,27 @@ Pola `html` mogą zawierać proste tagi: `<p> <b> <em> <ul> <ol> <li> <br> <code
 - Stringi JS w podwójnych cudzysłowach `"…"` (apostrofy w `don't` nie wymagają escape'owania). Nie używaj cudzysłowów `"` wewnątrz tekstu – zamiast nich polskie „…”.
 - Typy ćwiczeń `write` (pisanie zdania) i `order` (układanie) – patrz `tools/PRACTICE-FORMAT.md`.
 - Po zapisaniu pliku uruchom: `node tools/validate.js data/lessons/TWOJ_PLIK.js` i popraw wszystkie błędy.
+
+## Czytanki (`data/reading/*.js` → `window.READING`)
+
+Krótkie teksty z pytaniami (strona `#/czytanki`). Pliki według poziomu (`a1.js`, `a2.js`, …); nowe teksty dopisuj do tablicy:
+
+```js
+window.READING = window.READING || [];
+window.READING.push({
+  id: "anna-flat",                  // kebab-case, unikalne; adres #/czytanki/anna-flat, wynik w scores pod "read:anna-flat"
+  title: "Anna's new flat",         // tytuł angielski
+  titlePl: "Nowe mieszkanie Anny",
+  level: "A1",                      // nie niższy niż poziom lekcji after
+  after: "there-is-are",            // najwcześniejsza lekcja, po której tekst jest zrozumiały – czytanka odblokowuje się po jej przerobieniu
+  topic: "Dom",                     // opcjonalnie: krótka etykieta tematu (Dom, Praca, Podróże, Zakupy…)
+  text: ["Akapit 1.", "Akapit 2."], // zwykły tekst bez HTML; dialogi w “…” (proste " niedozwolone); zdania kończ . ! ? – tak są dzielone do czytania na głos
+  glossary: { "shopping list": "lista zakupów", "left": "pozostały (there isn't any … left = nic już nie zostało)" },
+  questions: [ /* 4–6 zadań jak w ćwiczeniach: choice / gap / write (pola jak wyżej i w PRACTICE-FORMAT.md, explain po polsku) */ ]
+});
+```
+
+- **Kolejność nauki:** tekst i pytania mogą używać tylko gramatyki i słówek z lekcji 1…`after` (kolejność z `data/lessons/order.json`, słówka ze słowniczków lekcji). Słowo spoza nich → do `glossary` z tłumaczeniem. Sprawdź: `node tools/audit/reading.js [id]` – wypisze słowa spoza słówek (z lekcją, w której wchodzą), konstrukcje z późniejszych lekcji (heurystyka) i zbędne wpisy glossary. Przeczytaj też każde zdanie samodzielnie – audyt nie wykryje wszystkiego (np. Present Continuous w znaczeniu przyszłym).
+- **glossary** – klucz to forma podstawowa albo zwrot (`go round`, `book`), wartość po polsku. Ma pierwszeństwo przed słówkami kursu, więc służy też do znaczeń zależnych od tekstu (left = pozostały, fit = pasować, suit = garnitur). Kliknięte słowo szuka kolejno: glossary → słowa gramatyczne (zaimki, przyimki, I'm, don't…) → słówka lekcji i działów (z formą podstawową: went → go, shelves → shelf; zwroty: living room, had dinner → have dinner). Hasła glossary trafiają do talii „Słówka z czytanek” („Dodaj do fiszek”).
+- Pytania: `choice` / `gap` / `write` (w `write` podaj warianty odpowiedzi – pełne zdania i krótkie, jeśli pasują). Pytania trafiają do „Moich błędów” (źródło „czytanka …”), więc powinny być zrozumiałe także bez tekstu obok (w powtórce jest link do czytanki).
+- Po zmianach: `node tools/validate.js` i `node tools/build-index.js`.
