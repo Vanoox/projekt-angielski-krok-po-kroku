@@ -45,6 +45,7 @@
     chevron: '<path d="m6 9 6 6 6-6"/>',
     lock: '<rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/>',
     stop: '<rect x="6" y="6" width="12" height="12" rx="1.5"/>',
+    chat: '<path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><path d="M8 9h8M8 13h5"/>',
     plus: '<path d="M12 5v14M5 12h14"/>',
     headphones: '<path d="M3 18v-6a9 9 0 0 1 18 0v6"/><path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>',
   };
@@ -178,6 +179,30 @@
     TASKS.set(k, { ex, lesson: r.lesson, src: "r", instr: "", reading: r });
     KEY_OF.set(ex, k);
   }));
+  // Dialogi (data/dialogues/*.js → window.DIALOGUES, format w tools/FORMAT.md) – odblokowanie i kolejność jak czytanki.
+  // Rejestr zadań: pytania i zdania do dyktanda (d.dict – kwestie, które da się zapisać ze słuchu, jak dictText w lekcjach;
+  // dyktando w Treningu) z kluczem dlg~<id>~skrót, źródło „g”, lekcja = lekcja after.
+  const DIALOGUES = (window.DIALOGUES || []).filter((d) => d && BY_ID[d.after] && Array.isArray(d.lines) && d.lines.length)
+    .map((d, i) => ({ ...d, lesson: BY_ID[d.after], people: d.people || {}, glossary: d.glossary || {}, questions: d.questions || [], _i: i }))
+    .sort((a, b) => PATH.indexOf(a.lesson) - PATH.indexOf(b.lesson) || LEVELS.indexOf(a.level) - LEVELS.indexOf(b.level) || a._i - b._i);
+  const DLG_BY_ID = Object.fromEntries(DIALOGUES.map((d) => [d.id, d]));
+  DIALOGUES.forEach((d) => {
+    const seen = new Set();
+    d.dict = [];
+    d.lines.forEach((x) => {
+      const t = dictText(x.en), lk = t.toLowerCase();
+      if (!t || seen.has(lk)) return;
+      seen.add(lk);
+      d.dict.push({ type: "dictation", say: t, answers: [t], pl: x.pl || "", explain: x.pl ? `<span class="d-pl">Po polsku: ${x.pl}</span>` : "" });
+    });
+    [...d.questions, ...d.dict].forEach((ex) => {
+      const base = `dlg~${d.id}~${hashStr([ex.type, ex.q || ex.say || "", (ex.options || []).join("|"), JSON.stringify(ex.answers ?? ex.answer ?? "")].join("#"))}`;
+      let k = base, n = 2;
+      while (TASKS.has(k)) k = `${base}~${n++}`;
+      TASKS.set(k, { ex, lesson: d.lesson, src: "g", instr: "", dialogue: d });
+      KEY_OF.set(ex, k);
+    });
+  });
   // Kopia zadania z poleceniem (zestawy ćwiczeń, trening, sprawdziany) – zachowuje klucz oryginału.
   const withTask = (ex, task) => { const c = { ...ex, task }; if (KEY_OF.has(ex)) KEY_OF.set(c, KEY_OF.get(ex)); return c; };
 
@@ -896,10 +921,11 @@
   const ttsWarnHtml = (failed) => { const p = ttsProblem(failed); return p ? `<div class="callout warning"><h3>${icon("alert")} Brak głosu angielskiego</h3><div class="prose">${p}</div></div>` : ""; };
   const syncTtsWarn = (failed) => document.querySelectorAll(".tts-warn").forEach((el) => { el.innerHTML = ttsWarnHtml(failed); });
   if ("speechSynthesis" in window) { pickVoice(); speechSynthesis.onvoiceschanged = () => { pickVoice(); syncTtsWarn(); syncVoiceDlg(); }; }
-  // slower – mnożnik tempa (dyktando „Wolniej”: SLOWER); withVoice – inny głos niż wybrany (np. secondVoice()).
-  // Zwraca wypowiedź (SpeechSynthesisUtterance) – czytanki dopinają do niej „end”; lastUtter = ostatnia rozpoczęta.
+  // slower – mnożnik tempa (dyktando „Wolniej”: SLOWER); withVoice – inny głos niż wybrany (np. secondVoice());
+  // pitch – wysokość głosu (dialogi przy jednym głosie w urządzeniu: druga osoba niżej / wyżej).
+  // Zwraca wypowiedź (SpeechSynthesisUtterance) – speakSeq dopina do niej „end”; lastUtter = ostatnia rozpoczęta.
   let lastUtter = null;
-  function speak(text, btn, slower, onFail, withVoice) {
+  function speak(text, btn, slower, onFail, withVoice, pitch) {
     if (!("speechSynthesis" in window)) { alert("Twoja przeglądarka nie obsługuje odczytu na głos."); return; }
     speechSynthesis.cancel();
     document.querySelectorAll(".speak.playing, .d-btn.playing, .vd-try.playing").forEach((b) => b.classList.remove("playing"));
@@ -908,6 +934,7 @@
     u.lang = v ? v.lang : ACCENTS[voiceCfg.accent].lang;
     if (v) u.voice = v;
     u.rate = Math.max(0.5, voiceCfg.rate * (slower || 1));
+    if (pitch) u.pitch = pitch;
     u.onend = () => { if (btn) btn.classList.remove("playing"); };
     u.onerror = (e) => { if (btn) btn.classList.remove("playing"); if (onFail && !/interrupted|canceled/.test(e.error || "")) onFail(e.error); };
     if (btn) btn.classList.add("playing");
@@ -915,6 +942,44 @@
     speechSynthesis.speak(u);
     return u;
   }
+  // Czytanie kilku fragmentów po kolei (czytanki – zdania, dialogi – kwestie). items: [{ text, voice?, pitch? }];
+  // opts: { slower (liczba albo funkcja – sprawdzana przed każdym fragmentem), onStep(i) – zaczyna się i-ty fragment,
+  // onStep wywoływane tuż po rozpoczęciu fragmentu; onEnd(completed) – koniec (true = do ostatniego fragmentu; false = zatrzymane), onFail(err) – błąd syntezy }.
+  // Kończy się też po seqStop() (zmiana strony, „Zatrzymaj”), po nowym speakSeq i wtedy, gdy coś innego zacznie mówić
+  // (głośnik przy słowie) – także w przerwie między fragmentami. Naraz działa jedno czytanie (seq).
+  let seq = null;
+  function seqStop(keepSpeech, completed) { // keepSpeech – mówi już coś innego, nie przerywamy tego
+    if (!seq) return;
+    const s = seq;
+    seq = null;
+    if (!keepSpeech && "speechSynthesis" in window) speechSynthesis.cancel();
+    if (s.onEnd) s.onEnd(!!completed);
+  }
+  function speakSeq(items, opts = {}) {
+    seqStop();
+    const me = { onEnd: opts.onEnd };
+    seq = me;
+    let i = 0, cur = null;
+    const next = () => {
+      if (seq !== me) return;
+      if (cur && lastUtter !== cur) { seqStop(true); return; } // w przerwie zaczęło mówić coś innego
+      if (i >= items.length) { seqStop(false, true); return; }
+      const it = items[i];
+      const slower = typeof opts.slower === "function" ? opts.slower() : opts.slower;
+      const u = speak(it.text, null, slower || 1, (err) => { seqStop(); if (opts.onFail) opts.onFail(err); }, it.voice, it.pitch);
+      if (!u) { seqStop(); return; }
+      if (opts.onStep) opts.onStep(i); // po speak() – ono zdejmuje „playing” ze wszystkich głośników
+      i++;
+      cur = u;
+      // Przerwanie przez inną wypowiedź: Chrome / Edge – „error” (interrupted), inne przeglądarki – „end”; sprawdzamy
+      // po chwili, bo zdarzenie bywa wywołane jeszcze w trakcie speak() nowej wypowiedzi (zanim zmieni się lastUtter).
+      u.addEventListener("end", () => setTimeout(() => { if (seq !== me) return; if (lastUtter === u) setTimeout(next, 250); else seqStop(true); }, 0));
+      u.addEventListener("error", () => setTimeout(() => { if (seq === me && lastUtter !== u) seqStop(true); }, 0));
+    };
+    next();
+    return me;
+  }
+  const seqIs = (me) => !!me && seq === me;
   // Uwaga: przekazuj tu wyłącznie tekst ANGIELSKI (tłumaczenia trzymamy w osobnych polach).
   const speakBtn = (text) => `<button class="speak" data-say="${esc(stripTags(text))}" title="Posłuchaj wymowy" aria-label="Posłuchaj">${icon("volume")}</button>`;
 
@@ -1169,6 +1234,7 @@
       <a class="nav-item ${h.startsWith("#/vocab") ? "active" : ""}" href="#/vocab"><span class="nav-ico">${icon("book")}</span><span class="nav-title">Słownictwo</span></a>
       <a class="nav-item ${h.startsWith("#/slowka") ? "active" : ""}" href="#/slowka"><span class="nav-ico">${icon("cards")}</span><span class="nav-title">Słówka na dziś</span><span class="wd-count nav-count" title="Na dziś" hidden></span></a>
       <a class="nav-item ${h.startsWith("#/czytanki") ? "active" : ""}" href="#/czytanki"><span class="nav-ico">${icon("book-open")}</span><span class="nav-title">Czytanki</span></a>
+      <a class="nav-item ${h.startsWith("#/dialogi") ? "active" : ""}" href="#/dialogi"><span class="nav-ico">${icon("chat")}</span><span class="nav-title">Dialogi</span></a>
       <a class="nav-item ${h.startsWith("#/tests") ? "active" : ""}" href="#/tests"><span class="nav-ico">${icon("test")}</span><span class="nav-title">Testy – pisanie zdań</span></a>
       <a class="nav-item ${h.startsWith("#/odmiana") ? "active" : ""}" href="#/odmiana"><span class="nav-ico">${icon("layers")}</span><span class="nav-title">Odmiana czasownika</span></a>
       <a class="nav-item ${h.startsWith("#/czasy") ? "active" : ""}" href="#/czasy"><span class="nav-ico">${icon("timeline")}</span><span class="nav-title">Oś czasów</span></a>
@@ -1623,6 +1689,7 @@
         <a class="card feature" href="#/practice"><span class="f-ico">${icon("target")}</span><b>Trening mieszany</b><span>Losowe zadania z wielu lekcji – czy rozpoznasz konstrukcję?</span></a>
         <a class="card feature" href="#/odmiana"><span class="f-ico">${icon("layers")}</span><b>Odmiana czasownika</b><span>Dowolny czasownik we wszystkich czasach i ćwiczenie „podaj formę”.</span></a>
         <a class="card feature" href="#/czytanki"><span class="f-ico">${icon("book-open")}</span><b>Czytanki</b><span>Krótkie teksty z pytaniami – kliknięte słowo pokazuje tłumaczenie.</span></a>
+        <a class="card feature" href="#/dialogi"><span class="f-ico">${icon("chat")}</span><b>Dialogi</b><span>Scenki czytane dwoma głosami – posłuchaj i odpowiedz na pytania.</span></a>
         <a class="card feature" href="#/czasy"><span class="f-ico">${icon("timeline")}</span><b>Oś czasów</b><span>Wszystkie czasy na jednej osi: kiedy którego używamy.</span></a>
       </div>
       ${ankiCard()}
@@ -2885,7 +2952,7 @@
   function cjIntro() {
     if (cjIntroMap) return cjIntroMap;
     const V = cjVerbs(), first = new Map(), texts = PATH.map(() => []);
-    for (const { ex, lesson, src } of TASKS.values()) if (src !== "r" && ex.type !== "choice" && ex.type !== "finderr") (ex.answers || []).flat().slice(0, 2).forEach((a) => texts[PATH.indexOf(lesson)].push(firstVariant(a)));
+    for (const { ex, lesson, src } of TASKS.values()) if (src !== "r" && src !== "g" && ex.type !== "choice" && ex.type !== "finderr") (ex.answers || []).flat().slice(0, 2).forEach((a) => texts[PATH.indexOf(lesson)].push(firstVariant(a)));
     PATH.forEach((l, i) => l.sections.filter((s) => s.type === "examples").forEach((s) => (s.items || []).forEach((x) => texts[i].push(stripTags(x.en)))));
     const single = [...V.values()].filter((x) => x.lesson === Infinity && !/ /.test(x.verb));
     const want = new Map(); // forma → czasownik
@@ -3659,41 +3726,20 @@
       <div class="rd-next">${next ? `<a class="btn" href="#/czytanki/${next.id}">Następna czytanka: <span lang="en">${esc(next.title)}</span> →</a>` : `<a class="btn" href="#/czytanki">Wszystkie czytanki →</a>`}</div>
     </div>`;
   }
-  // Czytanie na głos zdanie po zdaniu z podświetleniem. Kończy się samo, po „Zatrzymaj”, po zmianie strony
-  // i wtedy, gdy coś innego zacznie mówić (głośnik w dymku) – speak() zapamiętuje ostatnią wypowiedź w lastUtter.
-  let rdRun = 0;
-  function rdStop(keepSpeech) { // keepSpeech – mówi już coś innego (głośnik w dymku), nie przerywamy tego
-    if (!rdRun) return;
-    rdRun = 0;
-    document.querySelectorAll(".rd-s.rd-on").forEach((s) => s.classList.remove("rd-on"));
-    const b = $(".rd-play");
-    if (b) { b.setAttribute("aria-pressed", "false"); b.innerHTML = `${icon("play")} <span>Przeczytaj na głos</span>`; }
-    if (!keepSpeech && "speechSynthesis" in window) speechSynthesis.cancel();
-  }
+  // Czytanie na głos zdanie po zdaniu z podświetleniem (speakSeq). Kończy się samo, po „Zatrzymaj”, po zmianie strony
+  // i wtedy, gdy coś innego zacznie mówić (głośnik w dymku).
+  let rdSeq = null;
+  const scrollToRead = (el) => { const r = el.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight) el.scrollIntoView({ block: "center" }); };
   function rdReadAloud(page) {
     const sents = [...page.querySelectorAll(".rd-s")], btn = page.querySelector(".rd-play");
-    const run = ++rdRun;
-    let i = 0, cur = null;
+    const clear = () => sents.forEach((s) => s.classList.remove("rd-on"));
     btn.setAttribute("aria-pressed", "true");
     btn.innerHTML = `${icon("stop")} <span>Zatrzymaj</span>`;
-    const next = () => {
-      if (run !== rdRun) return;
-      if (cur && lastUtter !== cur) { rdStop(true); return; } // w przerwie między zdaniami zaczęło mówić coś innego
-      sents.forEach((s) => s.classList.remove("rd-on"));
-      if (i >= sents.length) { rdStop(); return; }
-      const s = sents[i++];
-      s.classList.add("rd-on");
-      const r = s.getBoundingClientRect();
-      if (r.top < 70 || r.bottom > innerHeight) s.scrollIntoView({ block: "center" });
-      const u = speak(s.textContent, null, 1, (err) => { rdStop(); syncTtsWarn(err); });
-      if (!u) { rdStop(); return; }
-      cur = u;
-      // Przerwanie przez inną wypowiedź: Chrome / Edge – „error” (interrupted), inne przeglądarki – „end”; sprawdzamy
-      // po chwili, bo zdarzenie bywa wywołane jeszcze w trakcie speak() nowej wypowiedzi (zanim zmieni się lastUtter).
-      u.addEventListener("end", () => setTimeout(() => { if (run !== rdRun) return; if (lastUtter === u) setTimeout(next, 250); else rdStop(true); }, 0));
-      u.addEventListener("error", () => setTimeout(() => { if (run === rdRun && lastUtter !== u) rdStop(true); }, 0));
-    };
-    next();
+    rdSeq = speakSeq(sents.map((s) => ({ text: s.textContent })), {
+      onStep: (i) => { clear(); sents[i].classList.add("rd-on"); scrollToRead(sents[i]); },
+      onEnd: () => { clear(); btn.setAttribute("aria-pressed", "false"); btn.innerHTML = `${icon("play")} <span>Przeczytaj na głos</span>`; },
+      onFail: (err) => syncTtsWarn(err),
+    });
   }
   // Dymek z tłumaczeniem – w stronie (position: absolute), pod słowem albo nad nim, zawsze w szerokości ekranu.
   function rdPopHtml(r, res, surface) {
@@ -3796,7 +3842,7 @@
     window.addEventListener("resize", onResize);
     rdCleanup = () => window.removeEventListener("resize", onResize);
     const play = page.querySelector(".rd-play");
-    if (play) play.addEventListener("click", () => { if (rdRun) rdStop(); else rdReadAloud(page); });
+    if (play) play.addEventListener("click", () => { if (seqIs(rdSeq)) seqStop(); else rdReadAloud(page); });
   }
   let rdCleanup = null;
   // Strona główna: najnowsza odblokowana czytanka bez wyniku.
@@ -3807,6 +3853,129 @@
     return `<a class="card rd-new" href="#/czytanki/${r.id}"><span class="f-ico">${icon("book-open")}</span>
       <span class="rd-new-txt"><b>Nowa czytanka: <span lang="en">${esc(r.title)}</span></b><span>${badge(r.level)} ${esc(r.titlePl)} · ${rdMeta(r)}${fresh.length > 1 ? ` · i ${fresh.length - 1} ${plural(fresh.length - 1, "inna czeka", "inne czekają", "innych czeka")} w Czytankach` : ""}</span></span>
       <span class="btn small primary">Czytaj →</span></a>`;
+  }
+
+  // ---------- Dialogi (#/dialogi) ----------
+  // Scenka czytana dwoma głosami: A = wybrany głos (ustawienia głosu), B = secondVoice(); przy jednym głosie angielskim
+  // w urządzeniu obie osoby czyta ten sam głos, a B inną wysokością (pitch). Tekst i tłumaczenie domyślnie ukryte –
+  // najpierw słuchamy i odpowiadamy na pytania; po sprawdzeniu wszystkich pytań tekst odsłania się sam.
+  const dlgKey = (d) => "dlg:" + d.id;
+  const dlgOpen = (d) => !!state.done[d.after];
+  const dlgMeta = (d) => `${d.lines.length} ${plural(d.lines.length, "kwestia", "kwestie", "kwestii")} · ${d.questions.length} ${plural(d.questions.length, "pytanie", "pytania", "pytań")}`;
+  const dlgName = (d, w) => (d.people[w] && d.people[w].name) || (w === "A" ? "Osoba A" : "Osoba B");
+  // Głosy osób A i B. Gdy płeć osoby (people.X.g) i płeć głosów (z nazwy) są znane, a główny głos pasuje do B,
+  // a drugi do A – zamieniamy je. Jeden głos: ten sam dla obu, B wyżej (kobieta po mężczyźnie) albo niżej.
+  function dlgVoices(d) {
+    const gA = d.people.A && d.people.A.g, gB = d.people.B && d.people.B.g;
+    const a = voice, b = secondVoice(a);
+    if (!a || !b) return { A: a, B: a, pitchA: 1, pitchB: gB === "f" && gA !== "f" ? 1.3 : 0.75, one: true };
+    const ga = voiceGender(a), gb = voiceGender(b);
+    const swap = gA && gB && gA !== gB && ga === gB && gb === gA;
+    return swap ? { A: b, B: a, pitchA: 1, pitchB: 1 } : { A: a, B: b, pitchA: 1, pitchB: 1 };
+  }
+  function renderDialoguesHome() {
+    const head = `<div class="hero"><h1>${icon("chat")} Dialogi</h1><p>Krótkie scenki z życia – kawiarnia, ulica, lekarz, hotel, rozmowa o pracę, reklamacja – czytane przez dwie osoby. Najpierw posłuchaj i odpowiedz na pytania, potem sprawdź się z tekstem i tłumaczeniem.</p></div>`;
+    if (!DIALOGUES.length) return `<div class="page">${head}<div class="card empty m-empty"><b>Na razie nie ma dialogów.</b></div></div>`;
+    const open = DIALOGUES.filter(dlgOpen).length;
+    return `<div class="page dialogues-home">${head}
+      <div class="card m-today rd-info"><div><b>Odblokowane: ${open} z ${DIALOGUES.length}</b><span>Dialog otwiera się po lekcji, która wprowadza ostatnią potrzebną konstrukcję – scenka ma tylko gramatykę i słówka, które już znasz (nieliczne nowe zwroty są w słowniczku nad dialogiem). Zablokowany też możesz otworzyć, ale może być trudny.</span></div></div>
+      ${unitListHtml(DIALOGUES, { base: "#/dialogi", key: dlgKey, meta: dlgMeta })}</div>`;
+  }
+  // Pasek zastępczy w miejscu ukrytego tekstu – długość mniej więcej jak kwestia.
+  const dlgBar = (en) => `<span class="dl-bar" aria-hidden="true" style="width:${Math.min(24, 3 + en.length * 0.22).toFixed(1)}em"></span>`;
+  function renderDialogue(id) {
+    const d = DLG_BY_ID[id];
+    if (!d) return `<div class="page empty"><h1>Nie ma takiego dialogu</h1><p><a href="#/dialogi">← Wszystkie dialogi</a></p></div>`;
+    const i = DIALOGUES.indexOf(d), next = DIALOGUES[i + 1], l = d.lesson;
+    const tts = "speechSynthesis" in window;
+    const gl = Object.entries(d.glossary);
+    const who = (w) => `<span class="dl-person dl-${w}"><span class="dl-dot" aria-hidden="true"></span>${esc(dlgName(d, w))}</span>`;
+    return `<div class="page dialogue" data-id="${d.id}">
+      <p class="rd-back"><a href="#/dialogi">← Wszystkie dialogi</a></p>
+      <header class="rd-head">
+        <div class="rd-tags">${badge(d.level)}${d.topic ? `<span class="unit-topic">${esc(d.topic)}</span>` : ""}<span class="muted">${dlgMeta(d)}</span></div>
+        <h1 lang="en">${esc(d.title)}</h1>
+        <p class="rd-pl">${esc(d.titlePl)}</p>
+      </header>
+      ${dlgOpen(d) ? "" : `<div class="callout warning"><h3>${icon("lock")} Ten dialog jest po lekcji ${lessonNo(l)}</h3><div class="prose"><p>Scenka używa konstrukcji z lekcji <a href="#/lesson/${l.id}">${lessonNo(l)}. ${esc(l.title)}</a>, której jeszcze nie masz przerobionej. Możesz jej posłuchać już teraz, ale mogą być w niej rzeczy, których jeszcze nie znasz.</p></div></div>`}
+      <div class="card dl-scene"><p><b>Sytuacja:</b> ${esc(d.setting)}</p><p class="dl-people">Mówią: ${who("A")} ${who("B")}</p></div>
+      ${gl.length ? `<div class="card dl-gloss"><h3>Nowe słowa i zwroty</h3><p class="muted">Przejrzyj je przed słuchaniem – nie ma ich jeszcze w słówkach lekcji.</p><ul>${gl.map(([en, pl]) => `<li><b lang="en">${esc(en)}</b>${speakBtn(en)} – ${esc(pl)}</li>`).join("")}</ul></div>` : ""}
+      ${tts ? `<div class="tts-warn">${ttsWarnHtml()}</div>` : `<div class="callout warning"><h3>${icon("alert")} Brak lektora</h3><div class="prose">Twoja przeglądarka nie potrafi czytać tekstu na głos, więc tekst dialogu jest od razu widoczny. Żeby ćwiczyć słuchanie, otwórz stronę w Chrome, Edge albo Safari.</div></div>`}
+      <div class="dl-tools">
+        ${tts ? `<button type="button" class="btn primary dl-all" aria-pressed="false">${icon("play")} <span>Odtwórz całość</span></button>
+        <button type="button" class="btn dl-slow" aria-pressed="false">${icon("slow")} <span>Wolniej</span></button>` : ""}
+        <button type="button" class="btn dl-text" aria-pressed="${tts ? "false" : "true"}">${icon("type")} <span>${tts ? "Pokaż tekst" : "Ukryj tekst"}</span></button>
+        <button type="button" class="btn dl-tr" aria-pressed="false">${icon("book")} <span>Pokaż tłumaczenie</span></button>
+        ${tts ? `<a href="#" class="rd-voice" data-voice-open>${icon("voice")} Ustawienia głosu</a>` : ""}
+      </div>
+      <p class="dl-status muted" role="status">${tts ? `${icon("headphones")} Posłuchaj całej rozmowy (możesz kilka razy), potem odpowiedz na pytania. Tekst możesz odsłonić w każdej chwili.` : ""}</p>
+      <ol class="dl-lines${tts ? "" : " show-en"}" aria-label="Kwestie dialogu">${d.lines.map((x, k) => `<li class="dl-line dl-${x.who}" data-i="${k}">
+        ${tts ? `<button type="button" class="speak dl-say" aria-label="Odtwórz kwestię ${k + 1} – ${esc(dlgName(d, x.who))}" title="Odtwórz tę kwestię">${icon("play")}</button>` : ""}
+        <div class="dl-bubble"><span class="dl-who">${esc(dlgName(d, x.who))}</span>
+          <span class="dl-en" lang="en">${esc(x.en)}</span>${dlgBar(x.en)}<span class="sr-only dl-sr">(tekst ukryty)</span>
+          <span class="dl-pl">${esc(x.pl)}</span></div></li>`).join("")}</ol>
+      ${exercisesShell("Pytania do dialogu", { id: "dlQ", intro: "Odpowiedz na pytania – jeśli trzeba, posłuchaj jeszcze raz całości albo pojedynczych kwestii. Złe odpowiedzi trafią do „Moich błędów”." })}
+      <div class="rd-next">${next ? `<a class="btn" href="#/dialogi/${next.id}">Następny dialog: <span lang="en">${esc(next.title)}</span> →</a>` : `<a class="btn" href="#/dialogi">Wszystkie dialogi →</a>`}</div>
+    </div>`;
+  }
+  function bindDialogue(id) {
+    const page = $(".page.dialogue"), d = DLG_BY_ID[id];
+    if (!page || !d) return;
+    const list = page.querySelector(".dl-lines"), lines = [...list.querySelectorAll(".dl-line")];
+    const allBtn = page.querySelector(".dl-all"), slowBtn = page.querySelector(".dl-slow");
+    const textBtn = page.querySelector(".dl-text"), trBtn = page.querySelector(".dl-tr"), status = page.querySelector(".dl-status");
+    const setToggle = (btn, on, onLabel, offLabel) => { btn.setAttribute("aria-pressed", String(on)); btn.querySelector("span").textContent = on ? onLabel : offLabel; };
+    const showText = (on) => { list.classList.toggle("show-en", on); setToggle(textBtn, on, "Ukryj tekst", "Pokaż tekst"); };
+    const showTr = (on) => { list.classList.toggle("show-pl", on); setToggle(trBtn, on, "Ukryj tłumaczenie", "Pokaż tłumaczenie"); };
+    textBtn.addEventListener("click", () => showText(!list.classList.contains("show-en")));
+    trBtn.addEventListener("click", () => showTr(!list.classList.contains("show-pl")));
+    const box = $("#dlQ");
+    const run = () => renderExercises(box, d.questions.map((ex) => ({ ex, lesson: d.lesson })), {
+      key: dlgKey(d),
+      onDone: () => { if (!list.classList.contains("show-en")) { showText(true); status.innerHTML = `${icon("check")} Pytania sprawdzone – tekst jest już widoczny. Posłuchaj jeszcze raz i czytaj razem z nagraniem.`; } },
+    });
+    run();
+    box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
+    if (!allBtn) return;
+    // Odtwarzanie: całość (od pierwszej kwestii) albo jedna kwestia; „Wolniej” działa od następnej kwestii.
+    let me = null, heard = false;
+    const clear = () => lines.forEach((li) => { li.classList.remove("dl-on"); li.removeAttribute("aria-current"); });
+    const allLabel = () => `${icon("play")} <span>${heard ? "Odtwórz jeszcze raz" : "Odtwórz całość"}</span>`;
+    const play = (from, to) => {
+      const vs = dlgVoices(d), whole = from === 0 && to === d.lines.length;
+      if (whole) { allBtn.setAttribute("aria-pressed", "true"); allBtn.innerHTML = `${icon("stop")} <span>Zatrzymaj</span>`; }
+      const btnOf = (k) => lines[k].querySelector(".dl-say");
+      me = speakSeq(d.lines.slice(from, to).map((x) => ({ text: x.en, voice: vs[x.who], pitch: x.who === "A" ? vs.pitchA : vs.pitchB })), {
+        slower: () => (slowBtn.getAttribute("aria-pressed") === "true" ? SLOWER : 1),
+        onStep: (k) => {
+          clear();
+          lines.forEach((li) => li.querySelector(".dl-say").classList.remove("playing"));
+          const li = lines[from + k];
+          li.classList.add("dl-on"); li.setAttribute("aria-current", "true");
+          btnOf(from + k).classList.add("playing");
+          if (whole) scrollToRead(li);
+        },
+        onEnd: (completed) => {
+          clear();
+          lines.forEach((li) => li.querySelector(".dl-say").classList.remove("playing"));
+          if (whole && completed && !heard) {
+            heard = true;
+            if (!list.classList.contains("show-en")) status.innerHTML = `${icon("check")} Wysłuchane! Teraz odpowiedz na pytania pod dialogiem. Tekst możesz odsłonić przyciskiem „Pokaż tekst”.`;
+          }
+          allBtn.setAttribute("aria-pressed", "false"); allBtn.innerHTML = allLabel();
+        },
+        onFail: (err) => syncTtsWarn(err),
+      });
+    };
+    allBtn.addEventListener("click", () => { if (seqIs(me) && allBtn.getAttribute("aria-pressed") === "true") seqStop(); else play(0, d.lines.length); });
+    slowBtn.addEventListener("click", () => setToggle(slowBtn, slowBtn.getAttribute("aria-pressed") !== "true", "Wolniej", "Wolniej"));
+    list.addEventListener("click", (e) => {
+      const b = e.target.closest(".dl-say");
+      if (!b) return;
+      const k = +b.closest(".dl-line").dataset.i;
+      if (seqIs(me) && b.classList.contains("playing") && allBtn.getAttribute("aria-pressed") !== "true") { seqStop(); return; } // drugi klik – stop
+      play(k, k + 1);
+    });
   }
 
   // ---------- Trening mieszany ----------
@@ -3848,7 +4017,9 @@
   function bindPractice() {
     const reachable = () => lessonPool(practiceCfg).filter((l) => PATH.indexOf(l) <= reachIdx());
     // Dla „Znajdź błąd” pula to pary (każda da zdanie z błędem albo bez – feRound).
-    const pool = () => practiceCfg.src === "dictation" ? reachable().flatMap((l) => l.dict.map((ex) => ({ ex, lesson: l })))
+    // Dyktando: zdania z przykładów lekcji + kwestie z odblokowanych dialogów (after w tej samej puli lekcji).
+    const dlgDict = (ls) => { const set = new Set(ls); return DIALOGUES.filter((d) => set.has(d.lesson) && dlgOpen(d)).flatMap((d) => d.dict.map((ex) => ({ ex: withTask(ex, dlgTaskHtml(d, ex)), lesson: d.lesson }))); };
+    const pool = () => practiceCfg.src === "dictation" ? [...reachable().flatMap((l) => l.dict.map((ex) => ({ ex, lesson: l }))), ...dlgDict(reachable())]
       : practiceCfg.src === "finderr" ? fePairs(reachable())
       : lessonPool(practiceCfg).flatMap((l) => [
       ...(l.exercises || []).map((ex) => ({ ex, lesson: l })),
@@ -3861,7 +4032,8 @@
       const dict = practiceCfg.src === "dictation", cur = PATH[reachIdx()];
       if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.${dict || fe ? ` ${dict ? "Dyktando" : "„Znajdź błąd”"} obejmuje lekcje do bieżącej włącznie (teraz: ${lessonNo(cur)}. ${esc(cur.title)}).` : ""}</div>`; return; }
       box.innerHTML = exercisesShell("Pytania", { retryLabel: "Nowe losowanie" });
-      const reachNote = ` Zdania z lekcji do bieżącej włącznie (${reachLabel()}, teraz: <a href="#/lesson/${cur.id}">${esc(cur.title)}</a>).`;
+      const nDlg = dict ? dlgDict(reachable()).length : 0;
+      const reachNote = ` Zdania z lekcji do bieżącej włącznie (${reachLabel()}, teraz: <a href="#/lesson/${cur.id}">${esc(cur.title)}</a>)${nDlg ? ` i kwestie z odblokowanych <a href="#/dialogi">dialogów</a> (${nDlg})` : ""}.`;
       if (dict) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro(reachNote));
       if (fe) box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", feIntro(reachNote));
       renderExercises(box.firstElementChild, items, { showSource: true });
@@ -4075,15 +4247,17 @@
   const SESSION_MAX = 20;
   const zadan = (n) => `${n} ${n === 1 ? "zadanie" : [2, 3, 4].includes(n % 10) && ![12, 13, 14].includes(n % 100) ? "zadania" : "zadań"}`;
   let mistakesCfg = { level: "", lesson: "" };
-  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : x.src === "f" ? "typowe błędy z lekcji" : x.src === "o" ? "trener odmiany" : x.src === "r" ? `czytanka „${esc(x.reading.title)}”` : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
+  const srcLabel = (x) => x.src === "e" ? "szybki sprawdzian" : x.src === "t" ? "test" : x.src === "d" ? "przykłady z lekcji" : x.src === "f" ? "typowe błędy z lekcji" : x.src === "o" ? "trener odmiany" : x.src === "r" ? `czytanka „${esc(x.reading.title)}”` : x.src === "g" ? `dialog „${esc(x.dialogue.title)}”` : esc(stripTags((x.lesson.practice[+x.src.slice(1)] || {}).title || "ćwiczenia"));
   const dueLabel = (m) => {
     const d = Math.round((Date.parse(m.due) - Date.parse(today())) / DAY);
     return d <= 0 ? "<b>na dziś</b>" : d === 1 ? "jutro" : `za ${d} dni`;
   };
   const filteredMistakes = () => mistakeList().filter((x) => (!mistakesCfg.level || x.lesson.level === mistakesCfg.level) && (!mistakesCfg.lesson || x.lesson.id === mistakesCfg.lesson));
+  // Pytanie do dialogu / zdanie z dialogu do dyktanda – polecenie z linkiem do dialogu (można go odsłuchać jeszcze raz).
+  const dlgTaskHtml = (d, ex) => `${ex.type === "dictation" ? "Zdanie z dialogu" : "Pytanie do dialogu"} <a href="#/dialogi/${d.id}">„${esc(d.title)}”</a> (${esc(d.titlePl)})`;
   // Pytanie do czytanki poza tekstem: polecenie z linkiem do czytanki (tekst otwiera się w tej samej karcie).
   const rdTaskHtml = (r) => `Pytanie do czytanki <a href="#/czytanki/${r.id}">„${esc(r.title)}”</a> (${esc(r.titlePl)})`;
-  const sessionItems = (list) => shuffle(list).slice(0, SESSION_MAX).map((x) => ({ ex: x.src[0] === "p" ? withTask(x.ex, x.ex.task || x.instr) : x.src === "r" ? withTask(x.ex, rdTaskHtml(x.reading)) : x.ex, lesson: x.lesson }));
+  const sessionItems = (list) => shuffle(list).slice(0, SESSION_MAX).map((x) => ({ ex: x.src[0] === "p" ? withTask(x.ex, x.ex.task || x.instr) : x.src === "r" ? withTask(x.ex, rdTaskHtml(x.reading)) : x.src === "g" ? withTask(x.ex, dlgTaskHtml(x.dialogue, x.ex)) : x.ex, lesson: x.lesson }));
 
   // Liczniki „na dziś” w górnym pasku i w menu: .m-count = Moje błędy (link w pasku widać tylko, gdy są jakieś błędy),
   // .wd-count = Słówka na dziś (przy „Słownictwie”), na przycisku ☰ (telefon) – suma obu.
@@ -4287,7 +4461,7 @@
     if (tocCleanup) { tocCleanup(); tocCleanup = null; }
     if (rdCleanup) { rdCleanup(); rdCleanup = null; }
     prStop();
-    rdStop();
+    seqStop(); // czytanie na głos (czytanki, dialogi)
     let title = "Gramatyka angielska A1–B2";
     const sameLesson = currentLessonId() && lastRoute === currentLessonId();
     if (h.startsWith("#/lesson/")) {
@@ -4323,6 +4497,12 @@
       title = RD_BY_ID[id] ? `${RD_BY_ID[id].title} – Czytanki` : `Czytanki – ${title}`;
     } else if (h.startsWith("#/czytanki")) {
       content.innerHTML = renderReadingHome(); title = `Czytanki – ${title}`;
+    } else if (h.startsWith("#/dialogi/")) {
+      const id = h.slice(10);
+      content.innerHTML = renderDialogue(id); bindDialogue(id);
+      title = DLG_BY_ID[id] ? `${DLG_BY_ID[id].title} – Dialogi` : `Dialogi – ${title}`;
+    } else if (h.startsWith("#/dialogi")) {
+      content.innerHTML = renderDialoguesHome(); title = `Dialogi – ${title}`;
     } else if (h.startsWith("#/czasy")) {
       content.innerHTML = renderTimeline(h.split("/").slice(2).join("/")); bindTimeline(); title = `Oś czasów – ${title}`;
     } else if (h.startsWith("#/odmiana")) {
@@ -4467,7 +4647,7 @@
   window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) { $("#search").value = ""; document.body.classList.remove("search-open"); } route(); });
 
   // Udostępnione do testów automatycznych (tools/).
-  window.__ENG = { matches, expandAnswer, vocabMatch, variants, rdLookup, rdParse, READING };
+  window.__ENG = { matches, expandAnswer, vocabMatch, variants, rdLookup, rdParse, READING, DIALOGUES, dlgVoices, TASKS };
 
   migrateKnown(state);
   migrateActivity(state);

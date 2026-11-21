@@ -116,3 +116,32 @@ window.READING.push({
 - **glossary** – klucz to forma podstawowa albo zwrot (`go round`, `book`), wartość po polsku. Ma pierwszeństwo przed słówkami kursu, więc służy też do znaczeń zależnych od tekstu (left = pozostały, fit = pasować, suit = garnitur). Kliknięte słowo szuka kolejno: glossary → słowa gramatyczne (zaimki, przyimki, I'm, don't…) → słówka lekcji i działów (z formą podstawową: went → go, shelves → shelf; zwroty: living room, had dinner → have dinner). Hasła glossary trafiają do talii „Słówka z czytanek” („Dodaj do fiszek”).
 - Pytania: `choice` / `gap` / `write` (w `write` podaj warianty odpowiedzi – pełne zdania i krótkie, jeśli pasują). Pytania trafiają do „Moich błędów” (źródło „czytanka …”), więc powinny być zrozumiałe także bez tekstu obok (w powtórce jest link do czytanki).
 - Po zmianach: `node tools/validate.js` i `node tools/build-index.js`.
+
+## Dialogi (`data/dialogues/*.js` → `window.DIALOGUES`)
+
+Scenki do słuchania czytane dwoma głosami, z pytaniami (strona `#/dialogi`). Pliki według poziomu (`a1.js`, `a2.js`, …):
+
+```js
+window.DIALOGUES = window.DIALOGUES || [];
+window.DIALOGUES.push({
+  id: "at-the-cafe",                 // kebab-case, unikalne wśród dialogów; adres #/dialogi/at-the-cafe, wynik w scores pod "dlg:at-the-cafe"
+  title: "At the café", titlePl: "W kawiarni",
+  level: "A1",                       // nie niższy niż poziom lekcji after
+  after: "countable-uncountable",    // najwcześniejsza lekcja, po której dialog jest zrozumiały – odblokowuje się po jej przerobieniu
+  topic: "Jedzenie",                 // opcjonalnie: krótka etykieta tematu
+  setting: "Tom wchodzi do kawiarni i zamawia…",          // opis sytuacji po polsku (widoczny przed słuchaniem)
+  people: { A: { name: "Kelnerka", g: "f" }, B: { name: "Tom", g: "m" } }, // name – podpis przy kwestii; g – płeć ("m" / "f", opcjonalnie)
+  lines: [                           // 6–14 kwestii
+    { who: "A", en: "Hello! What would you like?", pl: "Dzień dobry! Co podać?" },
+    { who: "B", en: "I'd like a cup of tea, please.", pl: "Poproszę filiżankę herbaty." },
+  ],
+  glossary: { "here you are": "proszę (gdy coś komuś podajemy)" }, // opcjonalnie: zwroty spoza słówek lekcji 1…after
+  questions: [ /* 4–5 zadań: głównie choice / gap (pola jak w ćwiczeniach, explain po polsku) */ ]
+});
+```
+
+- **en** – zwykły tekst bez HTML i prostych cudzysłowów, zakończony `.`, `!` albo `?`; **pl** – tłumaczenie (pokazywane po kliknięciu „Pokaż tłumaczenie”). Kwestie, które da się zapisać ze słuchu (bez cyfr, nawiasów itp., 3–16 słów – jak dyktando w lekcjach), trafiają do dyktanda w Treningu, gdy dialog jest odblokowany.
+- **Głosy:** osoba A – głos z ustawień głosu, B – drugi głos angielski z urządzenia (`secondVoice()`; gdy płeć głosów da się poznać po nazwie, a pasują odwrotnie do `g` – zamiana). Przy jednym głosie obie osoby czyta ten sam głos, B inną wysokością.
+- **Kolejność nauki i audyt** jak w czytankach: `node tools/audit/reading.js [id]` sprawdza też dialogi (kwestie i pytania). Słowo spoza słówek → `glossary` (lista „Nowe słowa i zwroty” nad dialogiem, do przejrzenia przed słuchaniem). Przeczytaj każdą kwestię i tłumaczenie samodzielnie.
+- **Pytania** sprawdzają rozumienie ze słuchu (tekst jest domyślnie ukryty i odsłania się sam po sprawdzeniu wszystkich pytań). Trafiają do „Moich błędów” (źródło „dialog …”, z linkiem do dialogu).
+- Po zmianach: `node tools/validate.js` i `node tools/build-index.js`.

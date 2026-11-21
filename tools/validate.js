@@ -19,13 +19,13 @@ const listJs = (d) => (fs.existsSync(path.join(ROOT, d)) ? fs.readdirSync(path.j
 let files = process.argv.slice(2).map((f) => path.resolve(f));
 const only = files.length ? new Set(files) : null;
 // Zawsze ładujemy wszystkie lekcje (potrzebne do sprawdzenia id/requires), błędy raportujemy tylko dla wskazanych plików.
-const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab"), ...listJs("data/reading")];
+const all = [...listJs("data/lessons"), ...listJs("data/practice"), ...listJs("data/vocab"), ...listJs("data/reading"), ...listJs("data/dialogues")];
 
 const errors = [];
 const sandbox = { window: {} };
 const fileOf = new Map();
 for (const file of all) {
-  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, R: (sandbox.window.READING || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
+  const before = { L: (sandbox.window.LESSONS || []).length, V: (sandbox.window.VOCAB || []).length, R: (sandbox.window.READING || []).length, D: (sandbox.window.DIALOGUES || []).length, P: Object.keys(sandbox.window.PRACTICE || {}) };
   try {
     vm.runInNewContext(fs.readFileSync(file, "utf8"), sandbox, { filename: file });
   } catch (e) {
@@ -35,6 +35,7 @@ for (const file of all) {
   (sandbox.window.LESSONS || []).slice(before.L).forEach((l) => fileOf.set("L:" + l.id, file));
   (sandbox.window.VOCAB || []).slice(before.V).forEach((t) => fileOf.set("V:" + t.id, file));
   (sandbox.window.READING || []).slice(before.R).forEach((r) => fileOf.set("R:" + r.id, file));
+  (sandbox.window.DIALOGUES || []).slice(before.D).forEach((d) => fileOf.set("D:" + d.id, file));
   Object.keys(sandbox.window.PRACTICE || {}).filter((k) => !before.P.includes(k)).forEach((k) => fileOf.set("P:" + k, file));
 }
 const report = (key) => !only || only.has(fileOf.get(key));
@@ -258,6 +259,59 @@ for (const r of RD) {
   (r.questions || []).forEach((x, i) => { rdQuestions++; checkExercise(x, (m) => err(`pytanie ${i}: ${m}`), ctx); });
 }
 
+// ---------- dialogi (data/dialogues/*.js → window.DIALOGUES, format: tools/FORMAT.md) ----------
+const DL = sandbox.window.DIALOGUES || [];
+const dids = new Set();
+let dlQuestions = 0, dlLines = 0;
+for (const d of DL) {
+  const key = "D:" + d.id;
+  const where = `${path.relative(ROOT, fileOf.get(key) || "?")} → ${d.id || "(brak id)"}`;
+  const err = (m) => { if (report(key)) errors.push(`${where}: ${m}`); };
+  if (!d.id || !/^[a-z0-9-]+$/.test(d.id)) err("id musi być kebab-case");
+  if (dids.has(d.id)) err("zduplikowane id dialogu");
+  dids.add(d.id);
+  for (const k of ["title", "titlePl", "setting"]) if (typeof d[k] !== "string" || !d[k].trim()) err(`brak ${k}`);
+  if (/[<>]/.test(d.setting || "")) err("setting: bez HTML");
+  if ("topic" in d && (typeof d.topic !== "string" || !d.topic.trim())) err("topic musi być niepustym tekstem");
+  if (!LEVELS.includes(d.level)) err(`level musi być jednym z ${LEVELS}`);
+  const after = lessons.find((l) => l.id === d.after);
+  if (!after) err(`after: nieznana lekcja „${d.after}”`);
+  else if (LEVELS.indexOf(d.level) < LEVELS.indexOf(after.level)) err(`level ${d.level} niższy niż poziom lekcji after (${after.level})`);
+  const ppl = d.people && typeof d.people === "object" ? d.people : null;
+  if (!ppl) err("brak people: { A: { name, g }, B: { name, g } }");
+  else for (const w of ["A", "B"]) {
+    const p = ppl[w];
+    if (!p || typeof p.name !== "string" || !p.name.trim() || /[<>]/.test(p.name)) err(`people.${w}: brak name`);
+    else if ("g" in p && !["m", "f"].includes(p.g)) err(`people.${w}.g: "m" albo "f"`);
+  }
+  if (ppl && Object.keys(ppl).some((k) => !["A", "B"].includes(k))) err("people: tylko A i B");
+  if (!Array.isArray(d.lines) || d.lines.length < 6 || d.lines.length > 14) err("lines: 6–14 kwestii");
+  if (Array.isArray(d.lines)) {
+    d.lines.forEach((x, i) => {
+      dlLines++;
+      if (!x || !["A", "B"].includes(x.who)) err(`lines[${i}]: who musi być "A" albo "B"`);
+      if (!x || typeof x.en !== "string" || !x.en.trim()) err(`lines[${i}]: brak en`);
+      else {
+        if (/[<>"]/.test(x.en)) err(`lines[${i}]: en bez HTML i prostych cudzysłowów: ${x.en.slice(0, 60)}`);
+        if (!/[.!?][”’]?$/.test(x.en.trim())) err(`lines[${i}]: en musi kończyć się . ! albo ?: ${x.en.slice(0, 60)}`);
+        if (/[ąćęłńóśźż]/i.test(x.en)) err(`lines[${i}]: en wygląda na polski`);
+      }
+      if (!x || typeof x.pl !== "string" || !x.pl.trim() || /[<>]/.test(x.pl)) err(`lines[${i}]: brak pl (tłumaczenie, bez HTML)`);
+    });
+    if (!d.lines.some((x) => x && x.who === "A") || !d.lines.some((x) => x && x.who === "B")) err("lines: mówią obie osoby (A i B)");
+  }
+  if ("glossary" in d) {
+    if (!d.glossary || typeof d.glossary !== "object" || Array.isArray(d.glossary)) err("glossary musi być obiektem { słowo: tłumaczenie }");
+    else for (const [w, t] of Object.entries(d.glossary)) {
+      if (!w.trim() || /[<>]/.test(w) || w !== w.trim()) err(`glossary: złe hasło „${w}”`);
+      if (typeof t !== "string" || !t.trim()) err(`glossary „${w}”: brak tłumaczenia`);
+    }
+  }
+  if (!Array.isArray(d.questions) || d.questions.length < 3) err("potrzeba co najmniej 3 pytań (questions)");
+  const ctx = new Set();
+  (d.questions || []).forEach((x, i) => { dlQuestions++; checkExercise(x, (m) => err(`pytanie ${i}: ${m}`), ctx); });
+}
+
 // ---------- aktualność data/bundle.js, index.html i sw.js (strona ładuje tylko bundle) ----------
 // Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
 try {
@@ -279,4 +333,4 @@ if (errors.length) {
   console.log(`BŁĘDY (${errors.length}):\n` + errors.slice(0, 300).map((e) => " - " + e).join("\n") + (errors.length > 300 ? `\n … i ${errors.length - 300} więcej` : ""));
   process.exit(1);
 }
-console.log(`OK: ${lessons.length} lekcji, ${RD.length} czytanek (${rdQuestions} pytań), ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);
+console.log(`OK: ${lessons.length} lekcji, ${RD.length} czytanek (${rdQuestions} pytań), ${DL.length} dialogów (${dlLines} kwestii, ${dlQuestions} pytań), ${exampleTotal} przykładów, ${exTotal} zadań w sprawdzianach, ${practiceTotal} zadań w zestawach, ${testTotal} zadań testowych, ${lessonVocab} słówek w lekcjach, ${V.length} działów słownictwa (${words} słówek).`);
