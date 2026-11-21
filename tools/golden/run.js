@@ -11,7 +11,7 @@ const EDGE = process.env.EDGE || "C:/Program Files (x86)/Microsoft/Edge/Applicat
 const PORT = 8765;
 const HERE = __dirname;
 const label = process.argv[2] || "before";
-const SCENARIOS = "ex,ex@new,flow,flow@new,review,review@new,tests,tests@new,backup,backup@new,media,media@new";
+const SCENARIOS = "ex,ex@new,flow,flow@new,review,review@new,tests,tests@new,backup,backup@new,media,media@new,views@student@sr=1,views@new@sr=1";
 const modeArg = process.argv[3] || "all";
 const modes = modeArg === "all" ? ["dumps", "scn:" + SCENARIOS] : [modeArg];
 const OUT = path.join(HERE, "out", label);

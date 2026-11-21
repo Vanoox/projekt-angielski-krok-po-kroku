@@ -11,11 +11,12 @@
 //  2. Zapisuje data/bundle.js: `window.LESSONS=[…];window.PRACTICE={…};…;window.DIALOGUES=[…];window.CHATS=[…]` jako JSON bez wcięć i komentarzy
 //     (jeden wpis na linię, żeby diff w gicie był czytelny). Pliku bundle.js nie edytuj ręcznie.
 //  3. W index.html wstawia <script src="data/bundle.js?v=<hash>"> między <!-- DATA:START --> i <!-- DATA:END -->
-//     oraz dopisuje ?v=<hash> do css/style.css i js/app.js – po każdej zmianie adres się zmienia,
+//     oraz dopisuje ?v=<hash> do css/style.css i js/app.js (start strony) – po każdej zmianie adres się zmienia,
 //     więc przeglądarka nie użyje starej wersji z pamięci podręcznej.
 //     Między <!-- MODULES:START --> i <!-- MODULES:END --> wstawia import map (<script type="importmap">) i
-//     <link rel="modulepreload"> dla wszystkich modułów ES z js/ (oprócz app.js): importy w kodzie piszemy zwykle
-//     (import … from "./check.js"), a import map zamienia je na js/check.js?v=<hash>. Nowy plik w js/ trafia tu sam.
+//     <link rel="modulepreload"> dla wszystkich modułów ES z js/ i js/views/ (oprócz app.js): importy w kodzie piszemy
+//     zwykle (import … from "./check.js", w widokach "../ui.js"), a import map zamienia je na js/check.js?v=<hash>.
+//     Nowy plik w js/ (także w podkatalogu) trafia tu sam.
 //  4. W sw.js (service worker – działanie offline, PWA) między // BUILD:START i // BUILD:END wpisuje
 //     listę plików „app shell” (adresy z index.html, w tym moduły z import map + manifest + ikony z icons/),
 //     adres arkusza fontów i VERSION = skrót ich treści. Zmiana VERSION (także po zmianie jednego modułu) =

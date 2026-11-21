@@ -21,8 +21,13 @@ git config core.hooksPath .githooks
 
 ## Kod strony
 
-- `js/app.js` – widoki, lektor, router (moduł ES, importuje resztę).
-- Logika bez DOM, z testami w `tests/`: `js/check.js` (sprawdzanie odpowiedzi), `js/spelling.js` (pisownia BrE/AmE), `js/errors.js` (typowe błędy), `js/srs.js` (pudełka powtórek), `js/activity.js` (dziennik, seria, cel dzienny), `js/storage.js` (localStorage, migracje, kopia postępu), `js/tasks.js` (dyktando, „Znajdź błąd”), `js/dates.js`, `js/util.js`.
-- Nowy plik w `js/` trafia do import map i do `sw.js` sam (po `npm run build`).
+Moduły ES w `js/`, bez kroku kompilacji. Importy idą w jedną stronę (bez zależności w kółko): logika → części wspólne → widoki → `app.js`.
+
+- **Logika bez DOM**, z testami w `tests/`: `check.js` (sprawdzanie odpowiedzi), `spelling.js` (pisownia BrE/AmE), `errors.js` (typowe błędy), `srs.js` (pudełka powtórek), `activity.js` (dziennik, seria, cel dzienny), `storage.js` (localStorage, migracje, kopia postępu), `tasks.js` (dyktando, „Znajdź błąd”), `dates.js`, `util.js`.
+- **Części wspólne** (DOM): `icons.js` (ikony), `ui.js` (`$`, tytuł strony, odznaki, wyniki, odmiana liczebników, przycisk „Posłuchaj”), `data.js` (dane kursu przygotowane przy starcie: `PATH`, `BY_ID`, `TASKS` / `KEY_OF`, czytanki, dialogi, rozmowy, `DECKS` / `WORDS`), `state.js` (`state`, `save()` i to, co wynika ze stanu: seria, słówka na dziś, zaliczenia, następny krok), `conj.js` (logika trenera odmiany), `due.js` (liczniki „na dziś”), `goal.js` (cel dzienny), `nav.js` (menu boczne), `record.js` (zapis postępu: `saveScore`, `recordResult`, `logActivity`, `rateWord`), `speech.js` (lektor, ustawienia głosu, mikrofon), `exercises.js` (`renderExercises`, `makeController`, `exercisesShell`), `sections.js` (teoria), `drills.js` („Znajdź błąd”, dyktando), `vocab-view.js` (słownictwo: lista, fiszki, quiz), `units.js` (lista czytanek / dialogów / rozmów), `backup.js` (kopia postępu), `theme.js`, `search.js`, `router.js`, `pwa.js`.
+- **Widoki** `js/views/*.js` – każdy eksportuje funkcję widoku (np. `lessonView()`), która zwraca `{ html, title, mount(el) }`; `mount` może zwrócić funkcję sprzątającą. Widok może importować części wspólne i inne widoki, ale nie `app.js`.
+- **`app.js`** – start: tabela tras `setRoutes([{ match, view }, …])` (pierwsza pasująca), `hashchange`, `window.__ENG` dla testów, pierwsze `route()`.
+
+Nowy widok: funkcja `xxxView()` w `js/views/` + wpis w tabeli tras w `app.js`. Nasłuchy na `window` / `document` dodane w `mount` zdejmuj w zwracanej funkcji sprzątającej (router woła ją przy zmianie strony; lektora i mikrofon zatrzymuje sam). Zdarzenia delegowane na `document` (przyciski „Posłuchaj”, cel dzienny, spis treści…) rejestruje przy załadowaniu moduł, do którego należą. Coś do odświeżenia razem z licznikami „na dziś” – `onTodayCounts(f)` z `due.js` (zamiast importu w kółko). Nowy plik w `js/` trafia do import map i do `sw.js` sam (po `npm run build`).
 
 Formaty danych: `FORMAT.md` (lekcje, czytanki, dialogi, rozmowy), `PRACTICE-FORMAT.md` (ćwiczenia), przegląd treści: `REVIEW.md`.

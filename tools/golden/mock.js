@@ -54,6 +54,30 @@
   window.SpeechSynthesisUtterance = Utt;
   try { delete window.webkitSpeechRecognition; delete window.SpeechRecognition; } catch (e) {}
   window.webkitSpeechRecognition = undefined; window.SpeechRecognition = undefined;
+  // Rozpoznawanie mowy (sr=1): start() po chwili „słyszy” window.__srSay (domyślnie: zdanie z przycisku – ostatni start),
+  // potem onend; abort() – onerror "aborted" + onend. Zapis wywołań w window.__sr.
+  if (P.get("sr") === "1") {
+    window.__sr = [];
+    window.SpeechRecognition = class {
+      constructor() { this.lang = ""; this.t = []; }
+      start() {
+        window.__sr.push("start|" + this.lang);
+        this.t.push(setTimeout(() => {
+          const said = window.__srSay != null ? window.__srSay : "";
+          const res = [{ transcript: said, confidence: 0.9 }];
+          if (this.onresult) this.onresult({ results: [res], resultIndex: 0 });
+          this.t.push(setTimeout(() => { if (this.onend) this.onend(); }, 20));
+        }, 200));
+      }
+      stop() { window.__sr.push("stop"); }
+      abort() {
+        window.__sr.push("abort");
+        this.t.forEach(clearTimeout); this.t = [];
+        if (this.onerror) this.onerror({ error: "aborted" });
+        if (this.onend) this.onend();
+      }
+    };
+  }
 
   if (!KEEP_SW) { try { delete Navigator.prototype.serviceWorker; } catch (e) {} }
 
