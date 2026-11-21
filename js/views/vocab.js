@@ -1,7 +1,7 @@
 // Widoki #/vocab i #/vocab/<id> – działy tematyczne słownictwa.
 import { LEVELS, esc } from "../util.js";
 import { icon } from "../icons.js";
-import { LEVEL_INFO, $, SITE_TITLE, badge } from "../ui.js";
+import { LEVEL_INFO, $, SITE_TITLE, badge, closestEl } from "../ui.js";
 import { VOCAB, VOCAB_BY_ID, vocabItems } from "../data.js";
 import { srsToday } from "../state.js";
 import { knownSet, vocabBlockHtml, bindVocabBlock, ankiCard } from "../vocab-view.js";
@@ -10,6 +10,7 @@ import { wordsRow } from "./words.js";
 // ---------- Słownictwo: działy tematyczne ----------
 let vocabLevels = LEVELS.slice();
 export const vocabHomeView = () => ({ html: renderVocabHome(), title: `Słownictwo – ${SITE_TITLE}`, mount: () => { bindVocabHome(); } });
+/** @param {string} id @returns {View} */
 export const vocabTopicView = (id) => {
   const t = VOCAB_BY_ID[id];
   return { html: renderVocabTopic(id), title: t ? `${t.titlePl} – Słownictwo` : SITE_TITLE, mount: (el) => { if (t) bindVocabBlock(el.querySelector(".vocab-block"), t.groups, "vocab:" + t.id); } };
@@ -35,13 +36,14 @@ function renderVocabHome() {
 }
 function bindVocabHome() {
   $("#vLevels").addEventListener("click", (e) => {
-    const b = e.target.closest(".chip"); if (!b) return;
-    const lv = b.dataset.level;
+    const b = closestEl(e, ".chip"); if (!b) return;
+    const lv = /** @type {Level} */ (b.dataset.level);
     vocabLevels = vocabLevels.length === 4 ? [lv] : vocabLevels.includes(lv) ? vocabLevels.filter((x) => x !== lv) : vocabLevels.concat(lv);
     if (!vocabLevels.length) vocabLevels = LEVELS.slice();
     $("#content").innerHTML = renderVocabHome(); bindVocabHome();
   });
 }
+/** @param {string} id */
 function renderVocabTopic(id) {
   const t = VOCAB_BY_ID[id];
   if (!t) return `<div class="page empty"><h1>Nie znaleziono działu</h1><p><a href="#/vocab">Wróć do słownictwa</a></p></div>`;

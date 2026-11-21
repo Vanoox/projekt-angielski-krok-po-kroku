@@ -31,7 +31,7 @@ import { initOffline } from "./pwa.js";
 initOffline();
 // Słowniki do opisu błędów (ok. 0,3 s) budujemy, gdy przeglądarka nic nie robi – nie przy pierwszym „Sprawdź”.
 if ("requestIdleCallback" in window) requestIdleCallback(() => errDicts(), { timeout: 8000 }); else setTimeout(errDicts, 3000);
-window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) { $("#search").value = ""; document.body.classList.remove("search-open"); } route(); });
+window.addEventListener("hashchange", () => { if (!location.hash.startsWith("#/search/")) { /** @type {HTMLInputElement} */ ($("#search")).value = ""; document.body.classList.remove("search-open"); } route(); });
 // Udostępnione do testów automatycznych (tools/).
 window.__ENG = { matches, expandAnswer, vocabMatch, variants, rdLookup, rdParse, READING, DIALOGUES, dlgVoices, CHATS, chatVoices, TASKS };
 // Trasy w kolejności sprawdzania (pierwsza pasująca); ostatnia – strona główna dla każdego innego adresu.

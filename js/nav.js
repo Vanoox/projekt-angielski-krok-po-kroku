@@ -1,7 +1,7 @@
 // Menu boczne: szybkie linki, lekcje wg kategorii z filtrem poziomów, znaczniki przerobionych i zaczętych lekcji.
 import { LEVELS, esc } from "./util.js";
 import { icon } from "./icons.js";
-import { CATEGORIES, $, badge, currentLessonId } from "./ui.js";
+import { CATEGORIES, $, badge, currentLessonId, closestEl } from "./ui.js";
 import { PATH } from "./data.js";
 import { state, save } from "./state.js";
 import { syncTodayCounts } from "./due.js";
@@ -14,17 +14,19 @@ export function renderLevelFilter() {
     LEVELS.map((l) => { const on = state.levels.length < 4 && state.levels.includes(l); return `<button class="chip ${on ? "active" : ""}" data-level="${l}" aria-pressed="${on}" title="Poziom ${l}">${l}</button>`; }).join("");
 }
 // Stan lekcji w menu: przerobiona (state.done) / zaczęta (jakiś wynik w state.scores) / nie zaczęta.
+/** @param {string} id */
 export const lessonStarted = (id) => Object.keys(state.scores).some((k) => k === id || k.startsWith(id + "::"));
+/** @param {string} id */
 const navMark = (id) => state.done[id] ? `<span class="nav-mark is-done" title="Przerobione">${icon("check")}</span>`
   : lessonStarted(id) ? `<span class="nav-mark is-started" title="Zaczęte – są wyniki zadań"></span>`
   : `<span class="nav-mark"></span>`;
 // Odświeża znaczniki i liczniki „3/6” w gotowym menu – bez przebudowy i bez przewijania strony.
 export function syncNavState() {
   const nav = $("#nav"); if (!nav) return;
-  nav.querySelectorAll(".nav-item[data-lesson]").forEach((a) => { a.querySelector(".nav-mark").outerHTML = navMark(a.dataset.lesson); });
+  /** @type {NodeListOf<HTMLElement>} */ (nav.querySelectorAll(".nav-item[data-lesson]")).forEach((a) => { $(".nav-mark", a).outerHTML = navMark(String(a.dataset.lesson)); });
   nav.querySelectorAll(".nav-group[data-cat]").forEach((g) => {
-    const ids = [...g.querySelectorAll(".nav-item[data-lesson]")].map((a) => a.dataset.lesson);
-    const d = ids.filter((id) => state.done[id]).length, c = g.querySelector(".nav-group-count");
+    const ids = [.../** @type {NodeListOf<HTMLElement>} */ (g.querySelectorAll(".nav-item[data-lesson]"))].map((a) => String(a.dataset.lesson));
+    const d = ids.filter((id) => state.done[id]).length, c = $(".nav-group-count", g);
     c.textContent = `${d}/${ids.length}`; c.title = `Przerobione: ${d} z ${ids.length}`;
     c.classList.toggle("is-full", d === ids.length);
   });
@@ -64,11 +66,12 @@ export function renderNav() {
 }
 // Filtr poziomów i otwieranie menu na telefonie.
 $("#levelFilter").addEventListener("click", (e) => {
-  const b = e.target.closest(".chip"); if (!b) return;
+  const b = closestEl(e, ".chip"); if (!b) return;
+  const lv = String(b.dataset.level);
   if (b.hasAttribute("data-all")) state.levels = LEVELS.slice();
-  else if (state.levels.length === 4) state.levels = [b.dataset.level];
+  else if (state.levels.length === 4) state.levels = [lv];
   else {
-    state.levels = state.levels.includes(b.dataset.level) ? state.levels.filter((x) => x !== b.dataset.level) : state.levels.concat(b.dataset.level);
+    state.levels = state.levels.includes(lv) ? state.levels.filter((x) => x !== lv) : state.levels.concat(lv);
     if (!state.levels.length) state.levels = LEVELS.slice();
   }
   save(); renderLevelFilter(); renderNav();

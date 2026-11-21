@@ -3,7 +3,7 @@
 import { esc } from "./util.js";
 import { backupStats as storageBackupStats, backupDue as storageBackupDue, BACKUP_APP, BACKUP_VERSION, readAll, store, parseBackup, mergeData, writeAll, loadState, migrateState } from "./storage.js";
 import { icon } from "./icons.js";
-import { $ } from "./ui.js";
+import { $, closestEl } from "./ui.js";
 import { BY_ID, WORDS } from "./data.js";
 import { state } from "./state.js";
 import { reloadVoiceCfg } from "./speech.js";
@@ -14,10 +14,12 @@ import { syncThemeColor } from "./theme.js";
 
 // ---------- Kopia postępu: eksport / import (sekcja #kopia na stronie „Kolejność nauki”) ----------
 // Format pliku, sprawdzanie, łączenie i zapis – js/storage.js; tu widok (przypomnienie, pobieranie, podgląd, wczytanie).
+/** @param {Dict<any>} data */
 const backupStats = (data) => storageBackupStats(data, { lesson: (id) => !!BY_ID[id], task: (k) => hasTask(k), word: (k) => WORDS.has(k) });
+/** @param {string | number | Date} iso @param {boolean} [time] */
 const fmtDate = (iso, time) => {
   const d = new Date(iso);
-  if (isNaN(d)) return "";
+  if (isNaN(d.getTime())) return "";
   return d.toLocaleDateString("pl-PL", { day: "numeric", month: "long", year: "numeric" }) + (time ? ", " + d.toLocaleTimeString("pl-PL", { hour: "2-digit", minute: "2-digit" }) : "");
 };
 // Przypomnienie: 14 dni od ostatniej kopii (albo od „Później” / początku nauki), o ile od ostatniej kopii przybyło postępu.
@@ -35,6 +37,7 @@ function downloadBackup() {
   const blob = new Blob([JSON.stringify(file, null, 1)], { type: "application/json" });
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
+  /** @param {number} x */
   const p = (x) => String(x).padStart(2, "0");
   a.download = `angielski-postep-${now.getFullYear()}-${p(now.getMonth() + 1)}-${p(now.getDate())}.json`;
   document.body.appendChild(a); a.click(); a.remove();
@@ -60,10 +63,12 @@ export function backupSectionHtml() {
       <div class="backup-panel" aria-live="polite">${flash}</div>
     </section>`;
 }
+/** @param {HTMLElement | null} box sekcja #kopia */
 export function bindBackup(box) {
   if (!box) return;
-  const input = box.querySelector("input[type=file]"), panel = box.querySelector(".backup-panel");
-  box.querySelector('[data-backup="pick"]').addEventListener("click", () => { input.value = ""; input.click(); });
+  const input = /** @type {HTMLInputElement} */ (box.querySelector("input[type=file]")), panel = $(".backup-panel", box);
+  $('[data-backup="pick"]', box).addEventListener("click", () => { input.value = ""; input.click(); });
+  /** @param {string} msg */
   const fail = (msg) => { panel.innerHTML = `<div class="backup-msg bad">${esc(msg)}</div>`; };
   input.addEventListener("change", () => {
     const f = input.files && input.files[0];
@@ -73,19 +78,21 @@ export function bindBackup(box) {
     reader.onerror = () => fail("Nie udało się odczytać pliku.");
     reader.onload = () => {
       const res = parseBackup(String(reader.result));
-      if (res.error) return fail(res.error);
+      if (res.error !== undefined) return fail(res.error);
       showPreview(res);
     };
     reader.readAsText(f);
   });
 
+  /** @param {{ data: Dict<any>, date: unknown }} backup */
   function showPreview({ data, date }) {
     const cur = readAll(), merged = mergeData(cur, data);
     const [sF, sC, sM] = [data, cur, merged].map(backupStats);
+    /** @param {string} label @param {keyof typeof sF} k */
     const row = (label, k) => `<tr><td>${label}</td><td>${sF[k]}</td><td>${sC[k]}</td><td>${sM[k]}</td></tr>`;
     const empty = !sF.done && !sF.scores && !sF.words && !sF.mistakes && !sF.srs && !sF.days;
     panel.innerHTML = `<div class="backup-preview">
-        <h3>Kopia${date && fmtDate(date) ? ` z ${fmtDate(date, true)}` : ""}</h3>
+        <h3>Kopia${date && fmtDate(/** @type {string} */ (date)) ? ` z ${fmtDate(/** @type {string} */ (date), true)}` : ""}</h3>
         ${empty ? `<p class="backup-msg warn">Ta kopia nie zawiera żadnego postępu (same ustawienia albo nic).</p>` : ""}
         <div class="backup-table"><table>
           <thead><tr><th></th><th>W kopii</th><th>Na tym urządzeniu</th><th>Po połączeniu</th></tr></thead>
@@ -99,12 +106,13 @@ export function bindBackup(box) {
           <button class="btn" type="button" data-act="cancel">Anuluj</button>
         </div>
       </div>`;
-    panel.querySelector('[data-act="cancel"]').addEventListener("click", () => { panel.innerHTML = ""; });
-    panel.querySelector('[data-act="merge"]').addEventListener("click", () => apply(merged, false, sM));
-    panel.querySelector('[data-act="replace"]').addEventListener("click", () => apply(data, true, sF));
-    panel.querySelector(".backup-preview").scrollIntoView({ behavior: "smooth", block: "nearest" });
+    $('[data-act="cancel"]', panel).addEventListener("click", () => { panel.innerHTML = ""; });
+    $('[data-act="merge"]', panel).addEventListener("click", () => apply(merged, false, sM));
+    $('[data-act="replace"]', panel).addEventListener("click", () => apply(data, true, sF));
+    $(".backup-preview", panel).scrollIntoView({ behavior: "smooth", block: "nearest" });
   }
 
+  /** @param {Dict<any>} data @param {boolean} replace @param {ReturnType<typeof backupStats>} stats */
   function apply(data, replace, stats) {
     if (!writeAll(data, replace)) return fail("Nie udało się zapisać postępu (brak miejsca w przeglądarce?).");
     Object.assign(state, loadState());
@@ -122,7 +130,7 @@ export function bindBackup(box) {
 }
 // Przypomnienie o kopii (strona główna, Kolejność nauki): „Pobierz kopię” / „Później”.
 document.addEventListener("click", (e) => {
-  const bk = e.target.closest("[data-backup=download], [data-backup=later]");
+  const bk = closestEl(e, "[data-backup=download], [data-backup=later]");
   if (!bk) return;
   if (bk.dataset.backup === "download") downloadBackup();
   else { store.set("backup", { ...store.get("backup", {}), since: new Date().toISOString() }); document.querySelectorAll(".backup-reminder").forEach((el) => el.remove()); }

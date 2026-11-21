@@ -15,5 +15,5 @@ export function syncThemeColor() {
   const c = getComputedStyle(document.documentElement).getPropertyValue("--surface").trim();
   if (meta && c) meta.setAttribute("content", c);
 }
-if (window.matchMedia) matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", syncThemeColor);
+if (typeof window.matchMedia === "function") matchMedia("(prefers-color-scheme: dark)").addEventListener?.("change", syncThemeColor);
 syncThemeColor();

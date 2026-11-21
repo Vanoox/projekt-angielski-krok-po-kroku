@@ -10,11 +10,18 @@ import { pickTasks, reportHtml } from "./checkpoint.js";
 // ---------- Test poziomu (#/test-poziomu/<poziom>) ----------
 // 30 zadań ze wszystkich lekcji poziomu, po równo z każdej (pickTasks: głównie pisanie zdań, co szóste – układanie).
 export const LT_SIZE = 30;
+/** @param {string} lv */
 export const levelLessons = (lv) => PATH.filter((l) => l.level === lv);
+/** @param {string} lv poziom z adresu (nieznany → „Nie znaleziono testu”) @returns {View} */
 export const levelTestView = (lv) => ({ html: renderLevelTest(lv), title: `Test poziomu ${lv} – ${SITE_TITLE}`, mount: () => { bindLevelTest(lv); } });
+/** @param {string} lv */
 function renderLevelTest(lv) {
   const ls = levelLessons(lv);
-  if (!ls.length) return `<div class="page empty"><h1>Nie znaleziono testu</h1><p><a href="#/tests">Wróć do testów</a></p></div>`;
+  if (ls.length) return renderLevelTestFor(/** @type {Level} */ (lv), ls);
+  return `<div class="page empty"><h1>Nie znaleziono testu</h1><p><a href="#/tests">Wróć do testów</a></p></div>`;
+}
+/** @param {Level} lv @param {Lesson[]} ls */
+function renderLevelTestFor(lv, ls) {
   const s = state.scores[ltKey(lv)];
   const nDone = ls.filter((l) => state.done[l.id]).length;
   const last = ls[ls.length - 1], after = PATH[PATH.indexOf(last) + 1];
@@ -35,9 +42,10 @@ function renderLevelTest(lv) {
       </div>
     </div>`;
 }
+/** @param {string} lv */
 function bindLevelTest(lv) {
   const ls = levelLessons(lv); if (!ls.length) return;
-  const box = $("#cpBox").firstElementChild;
+  const box = /** @type {HTMLElement} */ ($("#cpBox").firstElementChild);
   const after = PATH[PATH.indexOf(ls[ls.length - 1]) + 1];
   const run = () => {
     const items = shuffle(pickTasks(ls, LT_SIZE));
@@ -53,5 +61,5 @@ function bindLevelTest(lv) {
     });
   };
   run();
-  box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+  $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
 }

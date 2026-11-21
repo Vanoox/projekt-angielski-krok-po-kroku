@@ -9,6 +9,11 @@ import { state } from "./state.js";
 // Lista materiałów (czytanki, dialogi i rozmowy – ten sam kod): grupy według poziomu,
 // odblokowanie według lekcji after (przerobiona = otwarte), zablokowane widoczne z dopiskiem „po lekcji N”.
 // opts: { base: "#/czytanki", key: (x) => klucz wyniku w state.scores, meta: (x) => krótki opis }.
+/**
+ * @typedef {Reading | Dialogue | Chat} Unit
+ * @typedef {{ base: string, key: (x: any) => string, meta: (x: any) => string }} UnitListOpts
+ */
+/** @param {Unit} x @param {UnitListOpts} opts */
 function unitCardHtml(x, opts) {
   const open = !!state.done[x.after], s = state.scores[opts.key(x)];
   const status = !open ? `<span class="unit-lock">${icon("lock")} po lekcji ${lessonNo(x.lesson)}</span>` : s ? scorePill(s) : `<span class="unit-new">Nowa</span>`;
@@ -17,6 +22,7 @@ function unitCardHtml(x, opts) {
       <b class="unit-title" lang="en">${esc(x.title)}</b><span class="unit-pl">${esc(x.titlePl)}</span>
       <span class="unit-meta">${opts.meta(x)}${open ? "" : `<br>Najpierw lekcja ${lessonNo(x.lesson)}: ${esc(x.lesson.title)}`}</span></a>`;
 }
+/** @param {Unit[]} items @param {UnitListOpts} opts @returns {string} */
 export function unitListHtml(items, opts) {
   return LEVELS.map((lv) => {
     const xs = items.filter((x) => x.level === lv);
@@ -24,4 +30,5 @@ export function unitListHtml(items, opts) {
     return `<h2 class="section-title unit-lv">${badge(lv)} ${LEVEL_INFO[lv].name}</h2><div class="unit-list">${xs.map((x) => unitCardHtml(x, opts)).join("")}</div>`;
   }).join("");
 }
+/** @param {Element} el */
 export const scrollToRead = (el) => { const r = el.getBoundingClientRect(); if (r.top < 70 || r.bottom > innerHeight) el.scrollIntoView({ block: "center" }); };

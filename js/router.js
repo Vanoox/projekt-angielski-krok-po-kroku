@@ -9,9 +9,13 @@ import { renderNav } from "./nav.js";
 // Tabela tras (ROUTES, ustawiana przez setRoutes przy starcie): pierwsza trasa, której match pasuje do location.hash.
 // view(h) zwraca { html, title, mount(el) }; mount może zwrócić funkcję sprzątającą (nasłuch przewijania, klawiszy…) –
 // router woła ją przy następnej zmianie strony. Zatrzymanie lektora i mikrofonu jest wspólne dla wszystkich stron.
+/** @type {Route[]} */
 let ROUTES = [];
+/** @param {Route[]} routes */
 export const setRoutes = (routes) => { ROUTES = routes; };
-let lastRoute = "", viewCleanup = null;
+let lastRoute = "";
+/** @type {(() => void) | null} */
+let viewCleanup = null;
 export function route() {
   const h = location.hash || "#/";
   const content = $("#content");
@@ -21,7 +25,7 @@ export function route() {
   prStop();
   seqStop(); // czytanie na głos (czytanki, dialogi)
   const sameLesson = currentLessonId() && lastRoute === currentLessonId();
-  const view = ROUTES.find((r) => r.match.test(h)).view(h);
+  const view = /** @type {Route} */ (ROUTES.find((r) => r.match.test(h))).view(h); // ostatnia trasa pasuje do wszystkiego
   content.innerHTML = view.html;
   const cleanup = view.mount && view.mount(content);
   if (typeof cleanup === "function") viewCleanup = cleanup;

@@ -1,7 +1,9 @@
 // Widok #/odmiana – trener odmiany czasownika (tabela form i ćwiczenia; logika w conj.js).
 import { esc } from "../util.js";
 import { icon } from "../icons.js";
-import { $, SITE_TITLE, shuffle, scorePill, speakBtn } from "../ui.js";
+import { $, SITE_TITLE, shuffle, scorePill, speakBtn, closestEl } from "../ui.js";
+/** @typedef {import("../conj.js").CjTense} CjTense */
+/** @typedef {import("../conj.js").CjForms} CjForms */
 import { BY_ID, lessonNo } from "../data.js";
 import { state, reachIdx } from "../state.js";
 import { renderExercises, exercisesShell } from "../exercises.js";
@@ -9,12 +11,16 @@ import { cjTables, cjClean, CJ_VALID, cjForms, cjStative, CJ_TENSES, CJ_PERSONS,
 
 // ---------- Odmiana czasownika (#/odmiana) ----------
 // 10 zadań: czasy z przerobionych lekcji (wybrane w filtrze), czasowniki znane do bieżącej lekcji, różne czasowniki.
+/** @param {CjTense[]} tenses @param {string[]} forms @param {number} n @returns {{ ex: Exercise, lesson: Lesson }[]} */
 function cjDrillItems(tenses, forms, n) {
   const reach = reachIdx(), intro = cjIntro();
-  const verbs = shuffle([...cjVerbs().keys()].filter((v) => intro.get(v) <= reach && (CJ_DRILL_ACT.has(v) || CJ_DRILL_PUNCT.has(v))));
-  const out = [], used = new Set();
+  const verbs = shuffle([...cjVerbs().keys()].filter((v) => /** @type {number} */ (intro.get(v)) <= reach && (CJ_DRILL_ACT.has(v) || CJ_DRILL_PUNCT.has(v))));
+  /** @type {{ ex: Exercise, lesson: Lesson }[]} */
+  const out = [];
+  const used = new Set();
   for (let guard = 0; out.length < n && guard < n * 40 && verbs.length; guard++) {
     const t = tenses[Math.floor(Math.random() * tenses.length)];
+    /** @param {string} x */
     const fits = (x) => !(t.cont && cjStative(cjForms(x))) && !(CJ_PERF_CONT.has(t.id) && CJ_DRILL_PUNCT.has(x));
     const v = verbs.find((x) => !used.has(x) && fits(x)) || verbs.find(fits);
     if (!v) continue;
@@ -26,9 +32,12 @@ function cjDrillItems(tenses, forms, n) {
   }
   return out;
 }
+/** @type {{ verb: string, person: string, tenses: string[] | null, forms: string[] }} */
 let cjCfg = { verb: "go", person: "he", tenses: null, forms: ["aff", "neg", "q"] };
 const cjDone = () => CJ_TENSES.filter((t) => state.done[t.lesson]);
+/** @param {CjForms} f */
 function cjFormsLine(f) {
+  /** @param {string} w */
   const ph = (w) => [w, f.rest].filter(Boolean).join(" ");
   const past = f.past.map(ph).join(" / "), pp = f.pp.map(ph).join(" / ") + (f.ppUS.length ? ` (AmE: ${f.ppUS.map(ph).join(" / ")})` : "");
   const il = BY_ID["irregular-verbs"];
@@ -38,6 +47,7 @@ function cjFormsLine(f) {
       <div class="cj-kind">Czasownik <b>${kind}</b>${il ? ` – <a href="#/lesson/${il.id}">${f.irr ? "lista czasowników nieregularnych" : "jak tworzyć formy -ed"}</a>` : ""}</div>
     </div>`;
 }
+/** @param {CjForms} f @param {string} p osoba */
 function cjTableHtml(f, p) {
   const reach = reachIdx(), st = cjStative(f), stl = cjTables().stLesson;
   const rows = CJ_TENSES.map((t) => {
@@ -64,7 +74,9 @@ function cjResultHtml() {
   if (st === "amb") msgs.push(`<span class="cj-note">${icon("bulb")} <b>${esc(f.verb)}</b> bywa czasownikiem stanu – w znaczeniu stanu (np. have = mieć, posiadać; see = widzieć) nie używamy form Continuous, w znaczeniu czynności (have lunch, see a doctor) – tak.${stl ? ` <a href="#/lesson/${stl.id}">Czasowniki stanu</a>` : ""}</span>`);
   return `<div class="cj-msgs">${msgs.join("")}</div>${cjFormsLine(f)}${cjTableHtml(f, cjCfg.person)}`;
 }
+/** @param {string} [arg] czasownik z adresu */
 export const conjView = (arg) => ({ html: renderConj(arg), title: `Odmiana czasownika – ${SITE_TITLE}`, mount: () => { bindConj(); } });
+/** @param {string} [arg] */
 function renderConj(arg) {
   if (arg) cjCfg.verb = cjClean(decodeURIComponent(arg));
   const V = [...cjVerbs().values()].sort((a, b) => a.verb.localeCompare(b.verb));
@@ -88,8 +100,9 @@ function cjDrillSetupHtml() {
     return `<div class="card empty">Ćwiczenie obejmuje czasy z <b>przerobionych lekcji</b>. Zacznij od lekcji <a href="#/lesson/${first.id}">${lessonNo(first)}. ${esc(first.title)}</a> i oznacz ją jako przerobioną.</div>`;
   }
   if (!cjCfg.tenses || !cjCfg.tenses.every((id) => done.some((t) => t.id === id)) || !cjCfg.tenses.length) cjCfg.tenses = done.map((t) => t.id);
+  const sel = cjCfg.tenses;
   return `<div class="card practice-setup cj-setup">
-      <div><h3>Czasy <span style="text-transform:none;font-weight:400">(z przerobionych lekcji)</span></h3><div class="chips" data-f="tenses">${done.map((t) => `<button class="chip ${cjCfg.tenses.includes(t.id) ? "active" : ""}" data-v="${t.id}" aria-pressed="${cjCfg.tenses.includes(t.id)}">${esc(t.name)}</button>`).join("")}</div></div>
+      <div><h3>Czasy <span style="text-transform:none;font-weight:400">(z przerobionych lekcji)</span></h3><div class="chips" data-f="tenses">${done.map((t) => `<button class="chip ${sel.includes(t.id) ? "active" : ""}" data-v="${t.id}" aria-pressed="${sel.includes(t.id)}">${esc(t.name)}</button>`).join("")}</div></div>
       <div><h3>Formy</h3><div class="chips" data-f="forms">${Object.entries(CJ_FORMS).map(([k, v]) => `<button class="chip ${cjCfg.forms.includes(k) ? "active" : ""}" data-v="${k}" aria-pressed="${cjCfg.forms.includes(k)}">${v}</button>`).join("")}</div></div>
       <div><button class="btn primary" id="cjStart">Losuj ${CJ_ROUND} zadań →</button> <span class="muted cj-best">${state.scores.odmiana ? "Najlepszy wynik: " + scorePill(state.scores.odmiana) : ""}</span></div>
     </div>`;
@@ -97,41 +110,43 @@ function cjDrillSetupHtml() {
 const CJ_ROUND = 10;
 function bindConj() {
   const page = $(".page.conj"); if (!page) return;
-  const inp = $("#cjVerb"), out = $("#cjOut");
+  const inp = /** @type {HTMLInputElement} */ ($("#cjVerb")), out = $("#cjOut");
   const show = () => {
     out.innerHTML = cjResultHtml();
     const v = cjClean(cjCfg.verb);
     history.replaceState(null, "", location.pathname + location.search + (v && CJ_VALID.test(v) ? `#/odmiana/${encodeURIComponent(v)}` : "#/odmiana"));
   };
-  let timer = 0;
+  /** @type {ReturnType<typeof setTimeout> | undefined} */
+  let timer;
   inp.addEventListener("input", () => { cjCfg.verb = inp.value; clearTimeout(timer); timer = setTimeout(show, cjVerbs().has(cjClean(inp.value)) ? 0 : 350); });
   inp.addEventListener("keydown", (e) => { if (e.key === "Enter") { e.preventDefault(); clearTimeout(timer); cjCfg.verb = inp.value; show(); } });
-  page.querySelector(".cj-persons").addEventListener("click", (e) => {
-    const b = e.target.closest("[data-p]"); if (!b) return;
-    cjCfg.person = b.dataset.p;
-    page.querySelectorAll(".cj-persons .chip").forEach((c) => { const on = c === b; c.classList.toggle("active", on); c.setAttribute("aria-pressed", on); });
+  $(".cj-persons", page).addEventListener("click", (e) => {
+    const b = closestEl(e, "[data-p]"); if (!b) return;
+    cjCfg.person = String(b.dataset.p);
+    page.querySelectorAll(".cj-persons .chip").forEach((c) => { const on = c === b; c.classList.toggle("active", on); c.setAttribute("aria-pressed", String(on)); });
     out.innerHTML = cjResultHtml();
   });
   const drill = $("#cjDrill");
   drill.addEventListener("click", (e) => {
-    const b = e.target.closest(".chips .chip");
+    const b = closestEl(e, ".chips .chip");
     if (b) {
-      const f = b.closest(".chips").dataset.f, v = b.dataset.v, list = cjCfg[f];
+      const f = /** @type {"tenses" | "forms"} */ (/** @type {HTMLElement} */ (b.closest(".chips")).dataset.f), v = String(b.dataset.v), list = /** @type {string[]} */ (cjCfg[f]);
       if (list.includes(v) && list.length === 1) return; // przynajmniej jeden czas i jedna forma
-      cjCfg[f] = list.includes(v) ? list.filter((x) => x !== v) : list.concat(v);
-      b.classList.toggle("active"); b.setAttribute("aria-pressed", cjCfg[f].includes(v));
+      const next = cjCfg[f] = list.includes(v) ? list.filter((x) => x !== v) : list.concat(v);
+      b.classList.toggle("active"); b.setAttribute("aria-pressed", String(next.includes(v)));
       return;
     }
-    if (e.target.closest("#cjStart")) start();
+    if (closestEl(e, "#cjStart")) start();
   });
   const box = $("#cjBox");
   const start = () => {
-    const items = cjDrillItems(CJ_TENSES.filter((t) => cjCfg.tenses.includes(t.id)), cjCfg.forms, CJ_ROUND);
+    const sel = cjCfg.tenses || [];
+    const items = cjDrillItems(CJ_TENSES.filter((t) => sel.includes(t.id)), cjCfg.forms, CJ_ROUND);
     if (!items.length) { box.innerHTML = `<div class="empty">Brak czasowników do ćwiczenia – przerób kilka pierwszych lekcji.</div>`; return; }
     box.innerHTML = exercisesShell("Podaj formę", { retryLabel: "Nowe losowanie", intro: "Wpisz formę czasownika w podanym czasie. W pytaniu napisz całe pytanie, np. <i>Does she work</i>. Skróty (doesn't, she's) i pełne formy są poprawne." });
-    renderExercises(box.firstElementChild, items, { key: "odmiana", onDone: () => { const s = drill.querySelector(".cj-best"); if (s) s.innerHTML = "Najlepszy wynik: " + scorePill(state.scores.odmiana); } });
-    box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
+    renderExercises(/** @type {HTMLElement} */ (box.firstElementChild), items, { key: "odmiana", onDone: () => { const s = drill.querySelector(".cj-best"); if (s) s.innerHTML = "Najlepszy wynik: " + scorePill(state.scores.odmiana); } });
+    $(".retry", box).addEventListener("click", () => { start(); box.scrollIntoView(); });
     box.scrollIntoView();
-    const first = box.querySelector(".gap-input"); if (first) first.focus({ preventScroll: true });
+    const first = /** @type {HTMLElement | null} */ (box.querySelector(".gap-input")); if (first) first.focus({ preventScroll: true });
   };
 }

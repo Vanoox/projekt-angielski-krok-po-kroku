@@ -10,6 +10,7 @@ import { cpSize } from "./checkpoint.js";
 import { LT_SIZE, levelLessons } from "./level-test.js";
 
 // ---------- Testy (pisanie zdań, sprawdzanie na końcu) ----------
+/** @type {import("./practice.js").SetupCfg} */
 let testCfg = { levels: LEVELS.slice(), cats: [], count: 20 };
 export const testsView = () => ({ html: renderTests(), title: `Testy – ${SITE_TITLE}`, mount: () => { bindTests(); } });
 function renderTests() {
@@ -28,14 +29,15 @@ function renderTests() {
     </div>`;
 }
 function bindTests() {
+  /** @param {import("./practice.js").SetupCfg} cfg */
   const poolFor = (cfg) => lessonPool(cfg).flatMap((l) => l.test.map((ex) => ({ ex, lesson: l })));
   const start = () => {
     const items = shuffle(poolFor(testCfg)).slice(0, testCfg.count);
     const box = $("#pBox");
     if (!items.length) { box.innerHTML = `<div class="empty">Brak pytań dla wybranych filtrów.</div>`; return; }
     box.innerHTML = exercisesShell("Test", { retryLabel: "Nowy test" });
-    renderExercises(box.firstElementChild, items, { showSource: true, mode: "deferred" });
-    box.querySelector(".retry").addEventListener("click", () => { start(); box.scrollIntoView(); });
+    renderExercises(/** @type {HTMLElement} */ (box.firstElementChild), items, { showSource: true, mode: "deferred" });
+    $(".retry", box).addEventListener("click", () => { start(); box.scrollIntoView(); });
     box.scrollIntoView();
   };
   bindSetup(testCfg, () => poolFor(testCfg), start);

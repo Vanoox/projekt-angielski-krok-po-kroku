@@ -1,16 +1,20 @@
 {
   "name": "angielski",
   "private": true,
-  "description": "Kurs gramatyki angielskiej A1–B2 – strona statyczna (GitHub Pages). Bez zależności: skrypty uruchamiają tylko Node.",
+  "description": "Kurs gramatyki angielskiej A1–B2 – strona statyczna (GitHub Pages), bez kroku kompilacji. Skrypty uruchamia Node; jedyna zależność (deweloperska) to TypeScript do sprawdzania typów JSDoc – nic z node_modules nie trafia na stronę.",
   "scripts": {
     "build": "node tools/build-index.js",
     "validate": "node tools/validate.js",
     "test": "node --test \"tests/*.test.mjs\"",
+    "typecheck": "node tools/typecheck.js",
     "check": "node tools/check.js",
     "serve": "node tools/serve.js",
     "audit": "node tools/audit/dump.js && node tools/audit/report.js"
   },
   "engines": {
     "node": ">=22"
+  },
+  "devDependencies": {
+    "typescript": "7.0.2"
   }
 }

@@ -4,7 +4,7 @@ import { today } from "../dates.js";
 import { wordKey } from "../srs.js";
 import { store } from "../storage.js";
 import { icon } from "../icons.js";
-import { $, SITE_TITLE, badge, speakBtn, plural } from "../ui.js";
+import { $, SITE_TITLE, badge, speakBtn, plural, closestEl } from "../ui.js";
 import { lessonNo, READING, RD_BY_ID, DECKS, rdSentences, RD_DECK, WORDS } from "../data.js";
 import { state } from "../state.js";
 import { syncTodayCounts } from "../due.js";
@@ -21,6 +21,13 @@ import { dueLabel } from "./mistakes.js";
 // 3. słówka lekcji i działów (WORDS) – najpierw forma z tekstu, potem formy podstawowe (rdCands: went → go,
 //    children → child, wetter → wet, booked → book…). Zwroty wielowyrazowe (living room, get up, a lot of, had dinner →
 //    have dinner) mają pierwszeństwo przed pojedynczym słowem; najdłuższy pasujący fragment w obrębie zdania.
+/**
+ * Tłumaczenie w dymku: en – hasło, pl – tłumaczenie, src – skąd (gloss / func / words / parts), deck i k – talia i klucz
+ * słowa (do „Dodaj do fiszek”), pre – zwrot doklejony z wariantu („have lunch” z „have breakfast / lunch”).
+ * @typedef {{ en: string, pl: string, src: string, deck?: string, k?: string, pre?: boolean }} RdEntry
+ */
+/** @typedef {Map<string, RdEntry[]>} RdMap forma → wpisy */
+/** @type {RdMap} */
 const RD_FUNC = new Map(("a=przedimek nieokreślony (jakiś, jeden – zwykle się nie tłumaczy)|an=przedimek nieokreślony przed samogłoską (jakiś, jeden)|" +
   "the=przedimek określony (ten, ta, to – zwykle się nie tłumaczy)|i=ja|you=ty; wy|he=on|she=ona|it=to; ono (o rzeczy lub zwierzęciu)|we=my|they=oni, one|" +
   "me=mnie, mi, mną|him=jego, go, mu, nim|her=jej, ją, nią; jej (czyja?)|us=nas, nam, nami|them=ich, im, nimi|my=mój, moja, moje|your=twój; wasz|" +
@@ -70,17 +77,22 @@ const RD_FUNC = new Map(("a=przedimek nieokreślony (jakiś, jeden – zwykle si
   "can't have=can't have + III forma = na pewno nie (coś się nie stało)|might have=might have + III forma = może (coś się stało)|" +
   "could have=could have + III forma = mógł (coś zrobić, ale nie zrobił); być może")
   .split("|").map((x) => { const i = x.indexOf("="); return [x.slice(0, i), [{ en: x.slice(0, i), pl: x.slice(i + 1), src: "func" }]]; }));
+/** @type {Dict<string>} */
 const RD_SPECIAL = { children: "child", people: "person", men: "man", women: "woman", feet: "foot", teeth: "tooth", mice: "mouse", knives: "knife", wives: "wife",
   lives: "life", leaves: "leaf", shelves: "shelf", halves: "half", better: "good", best: "good", worse: "bad", worst: "bad", further: "far", furthest: "far" };
-let rdIrr = null;
+/** @type {Map<string, string>} forma nieregularna → bezokolicznik (budowana przy pierwszym użyciu rdCands) */
+const rdIrr = new Map();
+let rdIrrReady = false;
 // Formy podstawowe słowa (jak tools/audit/lemma.js): forma nieregularna → bezokolicznik (tabele lekcji irregular-verbs),
 // -s/-es/-ies, -ed/-ied (z podwojoną spółgłoską), -ing, -er/-est, -ly. Pierwsza pozycja = samo słowo.
+/** @param {string} w @returns {string[]} */
 function rdCands(w) {
-  if (!rdIrr) {
-    rdIrr = new Map();
+  if (!rdIrrReady) {
+    rdIrrReady = true;
     cjTables().irr.forEach((f, base) => [...f.past, ...f.pp, ...f.ppUS].forEach((x) => { if (x !== base && !rdIrr.has(x)) rdIrr.set(x, base); }));
   }
   const c = [w];
+  /** @param {string | undefined} x */
   const add = (x) => { if (x && x.length > 1 && !c.includes(x)) { c.push(x); if (rdIrr.has(x)) add(rdIrr.get(x)); } };
   add(RD_SPECIAL[w]); add(rdIrr.get(w));
   if (c.length > 1) return c; // forma nieregularna – bez odcinania końcówek (best ≠ be)
@@ -98,11 +110,14 @@ function rdCands(w) {
   if (/ly$/.test(w)) { add(w.slice(0, -2)); add(w.slice(0, -2) + "le"); }
   return c;
 }
+/** @param {unknown} s */
 const rdNorm = (s) => String(s).toLowerCase().replace(/[’‘`´]/g, "'");
 // Formy hasła słówka do wyszukiwania: „afraid (of)” → afraid, afraid of; „colour (BrE)” → colour; „box – boxes” → box,
 // boxes; „pick sb up” → pick up; „How often…?” → how often. Nawias z przecinkiem lub „/” (formy czasownika) – pomijany.
+/** @param {string} alt @returns {string[]} */
 function rdVariants(alt) {
   let a = alt.replace(/\((BrE|AmE|US|UK)\)/g, " ");
+  /** @type {Set<string>} */
   const out = new Set();
   const vs = /\(([^()]*)\)/.test(a) ? [a.replace(/\([^()]*\)/g, " "), a.replace(/\(([^()]*)\)/g, (m, x) => (/[,/]/.test(x) ? " " : x))] : [a];
   vs.forEach((v) => v.split(/\s+[–—]\s+/).forEach((f) => {
@@ -114,6 +129,7 @@ function rdVariants(alt) {
 // Dodaje hasło do mapy forma → wpisy. Warianty „A / B” osobno, z tłumaczeniem z tej samej pozycji w pl (gdy liczba
 // wariantów się zgadza); krótszy wariant dostaje początek pierwszego: „have breakfast / lunch / dinner” → have lunch.
 // „ / ” poza nawiasami: „ile (policzalne / niepoliczalne)” to jeden wariant.
+/** @param {string} s @returns {string[]} */
 function rdSplit(s) {
   const out = [];
   let depth = 0, cur = "";
@@ -128,6 +144,7 @@ function rdSplit(s) {
   return out.map((x) => x.trim()).filter(Boolean);
 }
 // Tłumaczenie wariantu nr g (z n): „zimno (komuś) / gorąco (komuś); zimny / gorący” → dla hot: „gorąco (komuś); gorący”.
+/** @param {string} p @param {number} g @param {number} n */
 function rdPairPl(p, g, n) {
   if (n < 2) return p;
   const segs = p.split(/\s*;\s*/).map(rdSplit);
@@ -135,15 +152,18 @@ function rdPairPl(p, g, n) {
   const all = rdSplit(p);
   return all.length === n ? all[g] : p;
 }
+/** @param {RdMap} map @param {string} en @param {string} pl @param {{ src: string, deck: string, k: string }} info */
 function rdIndexAdd(map, en, pl, info) {
   const e = stripTags(en), p = stripTags(pl);
   const alts = rdSplit(e);
   // „colour (BrE) / color (AmE)” – jeden wariant znaczeniowy (ta sama pozycja w pl).
+  /** @type {number[]} */
   const grp = [];
   alts.forEach((a, i) => grp.push(i && /\((AmE|US)\)/.test(a) && /\((BrE|UK)\)/.test(alts[i - 1]) ? grp[i - 1] : (i ? grp[i - 1] + 1 : 0)));
   const n = grp.length ? grp[grp.length - 1] + 1 : 0;
   const head = rdVariants(alts[0] || "")[0] || "", hw = head.split(" ");
-  const put = (f, entry) => { if (!map.has(f)) map.set(f, []); if (!map.get(f).some((x) => x.k === entry.k && x.pl === entry.pl && x.en === entry.en)) map.get(f).push(entry); };
+  /** @param {string} f @param {RdEntry} entry */
+  const put = (f, entry) => { let es = map.get(f); if (!es) map.set(f, (es = [])); if (!es.some((x) => x.k === entry.k && x.pl === entry.pl && x.en === entry.en)) es.push(entry); };
   alts.forEach((a, i) => {
     const entry = { ...info, en: a.trim(), pl: rdPairPl(p, grp[i], n) };
     const forms = rdVariants(a);
@@ -156,37 +176,47 @@ function rdIndexAdd(map, en, pl, info) {
     }
   });
 }
+/** @type {RdMap | null} */
 let rdIdx = null;
+/** Słówka lekcji i działów: forma → wpisy. @returns {RdMap} */
 function rdIndex() {
   if (rdIdx) return rdIdx;
-  rdIdx = new Map();
-  DECKS.forEach((d) => { if (!d.manual) d.items.forEach((w) => rdIndexAdd(rdIdx, w.en, w.pl, { src: "words", deck: d.id, k: wordKey(w.en) })); });
-  return rdIdx;
+  /** @type {RdMap} */
+  const m = rdIdx = new Map();
+  DECKS.forEach((d) => { if (!d.manual) d.items.forEach((w) => rdIndexAdd(m, w.en, w.pl, { src: "words", deck: d.id, k: wordKey(w.en) })); });
+  return m;
 }
+/** @type {Map<string, RdMap>} */
 const rdGlossMaps = new Map();
+/** @param {Reading} r @returns {RdMap} */
 function rdGloss(r) {
-  if (!rdGlossMaps.has(r.id)) {
-    const m = new Map();
-    Object.entries(r.glossary).forEach(([en, pl]) => rdIndexAdd(m, en, pl, { src: "gloss", deck: RD_DECK.id, k: wordKey(en) }));
+  let m = rdGlossMaps.get(r.id);
+  if (!m) {
+    const gm = m = new Map();
+    Object.entries(r.glossary).forEach(([en, pl]) => rdIndexAdd(gm, en, pl, { src: "gloss", deck: RD_DECK.id, k: wordKey(en) }));
     rdGlossMaps.set(r.id, m);
   }
-  return rdGlossMaps.get(r.id);
+  return m;
 }
 // Słowa tekstu: { t: słowo z tekstu, n: forma do szukania (małe litery, bez 's i końcowego '), s: numer zdania }.
 const RD_WORD = /[\p{L}\p{N}]+(?:['’][\p{L}]+)*(?:-[\p{L}\p{N}]+)*['’]?/gu;
+/** @param {Reading} r @returns {RdParsed} */
 export function rdParse(r) {
   if (r._parsed) return r._parsed;
+  /** @type {RdParsed["words"]} */
   const words = [];
   let s = 0;
   const paras = r.text.map((p) => rdSentences(p).map((sent) => {
+    /** @type {RdParsed["paras"][0][0]["toks"]} */
     const toks = [];
     let last = 0;
     sent = sent.trim();
     for (const m of sent.matchAll(RD_WORD)) {
-      if (m.index > last) toks.push({ p: sent.slice(last, m.index) });
+      const at = /** @type {number} */ (m.index);
+      if (at > last) toks.push({ p: sent.slice(last, at) });
       toks.push({ w: words.length });
       words.push({ t: m[0], n: rdNorm(m[0]).replace(/'$/, ""), s });
-      last = m.index + m[0].length;
+      last = at + m[0].length;
     }
     if (last < sent.length) toks.push({ p: sent.slice(last) });
     return { s: s++, text: sent, toks };
@@ -194,6 +224,7 @@ export function rdParse(r) {
   return (r._parsed = { paras, words });
 }
 // Formy słowa do szukania: samo słowo, bez 's (Tom's → tom, company's → company), formy podstawowe.
+/** @param {string} n @param {number} [max] @returns {string[]} */
 function rdWordForms(n, max) {
   const base = /'s$/.test(n) && !RD_FUNC.has(n) ? n.slice(0, -2) : n;
   const out = [n];
@@ -206,15 +237,22 @@ function rdWordForms(n, max) {
 // Kolejność wpisów: hasło dokładnie równe szukanej formie (get przed „get (the door / the phone)”, własne hasło przed
 // doklejonym wariantem), bez wykrzyknika / pytajnika (look ≠ Look!), a dla form z -ed / -ing najpierw znaczenia
 // czasownikowe (polski bezokolicznik): watched → oglądać, nie zegarek.
+/** @param {RdEntry} e */
 const rdIsVerb = (e) => CJ_PL_INF.test(stripTags(e.pl).split(/[\s,;(]/)[0]);
+/** @param {RdEntry[]} es @param {string | undefined} form @param {boolean} verbish @returns {RdEntry[]} */
 function rdRank(es, form, verbish) {
+  /** @param {RdEntry} e */
   const head = (e) => rdNorm(e.en.replace(/\((BrE|AmE|US|UK)\)/g, "")).replace(/\s+/g, " ").trim();
-  const score = (e) => (head(e) === form ? 0 : rdVariants(e.en).includes(form) ? 2 : 4) + (e.pre ? 1 : 0) + (/[!?]/.test(e.en) ? 8 : 0) + (verbish && !rdIsVerb(e) ? 5 : 0);
-  return es.map((e, k) => [e, k]).sort((a, b) => score(a[0]) - score(b[0]) || a[1] - b[1]).map((x) => x[0]);
+  /** @param {RdEntry} e */
+  const score = (e) => (head(e) === form ? 0 : rdVariants(e.en).includes(/** @type {string} */ (form)) ? 2 : 4) + (e.pre ? 1 : 0) + (/[!?]/.test(e.en) ? 8 : 0) + (verbish && !rdIsVerb(e) ? 5 : 0);
+  return es.map((e, k) => /** @type {[RdEntry, number]} */ ([e, k])).sort((a, b) => score(a[0]) - score(b[0]) || a[1] - b[1]).map((x) => x[0]);
 }
+/** @typedef {{ from: number, len: number, src: string, entries: RdEntry[] }} RdHit */
+/** Tłumaczenie słowa nr i czytanki r. @param {Reading} r @param {number} i @returns {RdHit | null} */
 export function rdLookup(r, i) {
   const { words } = rdParse(r), w = words[i];
   if (!w) return null;
+  /** @type {[string, RdMap, boolean?][]} */
   const maps = [["gloss", rdGloss(r)], ["func", RD_FUNC], ["words", rdIndex()]];
   for (let len = Math.min(5, words.length); len >= 2; len--) {
     for (let st = Math.max(0, i - len + 1); st <= i && st + len <= words.length; st++) {
@@ -232,13 +270,14 @@ export function rdLookup(r, i) {
   }
   const all = rdWordForms(w.n), poss = /'s$/.test(w.n) && !RD_FUNC.has(w.n);
   // Słowa gramatyczne najpierw tylko w formie z tekstu (evening ≠ even), z odciętą końcówką – na samym końcu (thanked → thank).
-  for (const [src, map, only] of [maps[0], [...maps[1], true], maps[2], maps[1]]) {
+  for (const [src, map, only] of /** @type {[string, RdMap, boolean?][]} */ ([maps[0], [...maps[1], true], maps[2], maps[1]])) {
     if (only) { const e = map.get(w.n); if (e) return { from: i, len: 1, src, entries: e }; continue; }
     // Gdy sama forma z tekstu (albo bez 's) jest w słowniczku, dokładamy tylko pewne formy podstawowe: nieregularne
     // (left → leave) i czasowniki przy -ed / -ing (meeting → meet) – bez „evening → even”, „news → new”.
     const exact = map.has(all[0]) || (poss && map.has(all[1]));
     const forms = !exact ? all : all.filter((f, k) => !k || (poss && k === 1) || rdIrr.get(w.n) === f || RD_SPECIAL[w.n] === f
       || (/(ed|ing)$/.test(w.n) && (map.get(f) || []).some(rdIsVerb)));
+    /** @type {RdEntry[]} */
     const es = [];
     forms.forEach((f) => (map.get(f) || []).forEach((e) => { if (!es.some((x) => x.k === e.k && x.pl === e.pl && x.en === e.en)) es.push(e); }));
     // -ing po „be” (I'm meeting, was coming) – czasownik, nawet gdy jest rzeczownik o tej formie (meeting = spotkanie).
@@ -252,6 +291,7 @@ export function rdLookup(r, i) {
   return null;
 }
 // Opis źródła tłumaczenia w dymku.
+/** @param {RdEntry} e */
 function rdSrcLabel(e) {
   if (e.src === "gloss") return "ze słowniczka tego tekstu";
   if (e.src === "func") return "słowo gramatyczne";
@@ -259,11 +299,17 @@ function rdSrcLabel(e) {
   const d = DECKS.find((x) => x.id === e.deck);
   return d ? (d.lesson ? `słówka lekcji ${esc(d.title)}` : `Słownictwo: ${esc(d.title)}`) : "";
 }
+/** @param {Reading} r */
 const rdOpen = (r) => !!state.done[r.after];
+/** @param {Reading} r */
 const rdKey = (r) => "read:" + r.id;
+/** @param {Reading} r */
 const rdWordCount = (r) => r.text.join(" ").split(/\s+/).filter(Boolean).length;
+/** @param {Reading} r */
 const rdMeta = (r) => `${rdWordCount(r)} słów · ${r.questions.length} ${plural(r.questions.length, "pytanie", "pytania", "pytań")}`;
+/** @returns {View} */
 export const readingHomeView = () => ({ html: renderReadingHome(), title: `Czytanki – ${SITE_TITLE}` });
+/** @param {string} id @returns {View} */
 export const readingView = (id) => ({ html: renderReading(id), title: RD_BY_ID[id] ? `${RD_BY_ID[id].title} – Czytanki` : `Czytanki – ${SITE_TITLE}`, mount: () => bindReading(id) });
 function renderReadingHome() {
   const head = `<div class="hero"><h1>${icon("book-open")} Czytanki</h1><p>Krótkie teksty z życia – dom, praca, podróże, zakupy – z pytaniami sprawdzającymi zrozumienie. Kliknij dowolne słowo, żeby zobaczyć tłumaczenie i dodać je do fiszek. Tekst możesz też odsłuchać.</p></div>`;
@@ -273,11 +319,13 @@ function renderReadingHome() {
       <div class="card m-today rd-info"><div><b>Odblokowane: ${open} z ${READING.length}</b><span>Czytanka otwiera się po lekcji, która wprowadza ostatnią potrzebną konstrukcję – tekst ma tylko gramatykę i słówka, które już znasz (nieliczne nowe słowa mają tłumaczenie po kliknięciu). Zablokowaną też możesz otworzyć, ale może być trudna.</span></div></div>
       ${unitListHtml(READING, { base: "#/czytanki", key: rdKey, meta: rdMeta })}</div>`;
 }
+/** @param {Reading} r */
 function rdTextHtml(r) {
   const { paras, words } = rdParse(r);
   return paras.map((ss) => `<p>${ss.map((x) => `<span class="rd-s" data-s="${x.s}">${x.toks.map((t) => t.p != null ? esc(t.p)
     : `<button type="button" class="rd-w" data-w="${t.w}" tabindex="${t.w ? -1 : 0}">${esc(words[t.w].t)}</button>`).join("")}</span>`).join(" ")}</p>`).join("");
 }
+/** @param {string} id */
 function renderReading(id) {
   const r = RD_BY_ID[id];
   if (!r) return `<div class="page empty"><h1>Nie ma takiej czytanki</h1><p><a href="#/czytanki">← Wszystkie czytanki</a></p></div>`;
@@ -303,19 +351,22 @@ function renderReading(id) {
 }
 // Czytanie na głos zdanie po zdaniu z podświetleniem (speakSeq). Kończy się samo, po „Zatrzymaj”, po zmianie strony
 // i wtedy, gdy coś innego zacznie mówić (głośnik w dymku).
+/** @type {import("../speech.js").SeqHandle | null} */
 let rdSeq = null;
+/** @param {HTMLElement} page */
 function rdReadAloud(page) {
-  const sents = [...page.querySelectorAll(".rd-s")], btn = page.querySelector(".rd-play");
+  const sents = [...page.querySelectorAll(".rd-s")], btn = $(".rd-play", page);
   const clear = () => sents.forEach((s) => s.classList.remove("rd-on"));
   btn.setAttribute("aria-pressed", "true");
   btn.innerHTML = `${icon("stop")} <span>Zatrzymaj</span>`;
-  rdSeq = speakSeq(sents.map((s) => ({ text: s.textContent })), {
+  rdSeq = speakSeq(sents.map((s) => ({ text: String(s.textContent) })), {
     onStep: (i) => { clear(); sents[i].classList.add("rd-on"); scrollToRead(sents[i]); },
     onEnd: () => { clear(); btn.setAttribute("aria-pressed", "false"); btn.innerHTML = `${icon("play")} <span>Przeczytaj na głos</span>`; },
     onFail: (err) => syncTtsWarn(err),
   });
 }
 // Dymek z tłumaczeniem – w stronie (position: absolute), pod słowem albo nad nim, zawsze w szerokości ekranu.
+/** @param {Reading} r @param {RdHit | null} res @param {string} surface słowo / zwrot z tekstu */
 function rdPopHtml(r, res, surface) {
   const e = res ? res.entries[0] : null;
   const name = !e && /^\p{Lu}/u.test(surface);
@@ -323,7 +374,7 @@ function rdPopHtml(r, res, surface) {
       <div class="rd-pop-pl muted">${name ? "Imię albo nazwa własna." : "Brak tego słowa w słowniczku."}</div>`;
   const head = e.src === "func" || e.src === "parts" ? surface : e.en.replace(/\((BrE|AmE)\)/g, "").split(/\s+[–—]\s+/)[0].trim(); // „shelf – shelves” → shelf
   const say = e.src === "func" || e.src === "parts" ? surface : rdVariants(e.en)[0] || surface;
-  const also = res.entries.slice(1).filter((x, k, a) => !e.pl.includes(x.pl) && a.findIndex((y) => y.pl === x.pl) === k).slice(0, 3);
+  const also = /** @type {RdHit} */ (res).entries.slice(1).filter((x, k, a) => !e.pl.includes(x.pl) && a.findIndex((y) => y.pl === x.pl) === k).slice(0, 3);
   const k = e.k && WORDS.has(e.k) ? e.k : null, inSrs = k && state.srs[k];
   const base = rdNorm(head) !== rdNorm(surface) ? `<span class="rd-pop-base" lang="en">${esc(head)}</span>` : "";
   return `<div class="rd-pop-h"><b lang="en">${esc(surface)}</b>${speakBtn(say)}<button type="button" class="icon-btn rd-pop-x" aria-label="Zamknij">${icon("x")}</button></div>
@@ -333,6 +384,7 @@ function rdPopHtml(r, res, surface) {
       <div class="rd-pop-src">${rdSrcLabel(e)}</div>
       ${k ? `<div class="rd-pop-act" data-k="${esc(k)}">${inSrs ? `<span class="rd-added">${icon("check")} W fiszkach · powtórka ${dueLabel(inSrs)}</span>` : `<button type="button" class="btn small rd-add">${icon("plus")} Dodaj do fiszek</button>`}</div>` : ""}`;
 }
+/** @param {HTMLElement} page @param {HTMLElement} pop @param {HTMLElement} word */
 function rdPlacePop(page, pop, word) {
   const pr = page.getBoundingClientRect(), wr = word.getBoundingClientRect(), vw = document.documentElement.clientWidth;
   pop.style.left = "0px"; pop.style.top = "0px";
@@ -346,6 +398,7 @@ function rdPlacePop(page, pop, word) {
   pop.style.top = `${top - pr.top}px`;
   pop.classList.toggle("above", !below);
 }
+/** @param {string} id @returns {(() => void) | undefined} */
 function bindReading(id) {
   const page = $(".page.reading"), r = RD_BY_ID[id];
   if (!page || !r) return;
@@ -354,41 +407,46 @@ function bindReading(id) {
     renderExercises(box, r.questions.map((ex) => ({ ex, lesson: r.lesson })), { key: rdKey(r) });
   };
   run();
-  box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
-  const text = page.querySelector(".rd-text");
-  let pop = null, cur = null;
+  $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView(); });
+  const text = $(".rd-text", page);
+  /** @type {HTMLElement | null} */
+  let pop = null;
+  /** @type {HTMLElement | null} */
+  let cur = null;
+  /** @param {boolean} [focus] */
   const close = (focus) => {
     if (pop) { pop.remove(); pop = null; }
     if (cur) { cur.classList.remove("on"); cur.removeAttribute("aria-expanded"); if (focus) cur.focus(); cur = null; }
   };
+  /** @param {HTMLElement} word @param {boolean} kb otwarte klawiaturą – fokus w dymku */
   const open = (word, kb) => {
     close();
-    const i = +word.dataset.w, res = rdLookup(r, i), { words } = rdParse(r);
+    const i = +(word.dataset.w || 0), res = rdLookup(r, i), { words } = rdParse(r);
     const span = res && res.len > 1 ? words.slice(res.from, res.from + res.len).map((x) => x.t).join(" ") : words[i].t;
     cur = word;
     word.classList.add("on");
     word.setAttribute("aria-expanded", "true");
-    pop = document.createElement("div");
-    pop.className = "card rd-pop";
-    pop.setAttribute("role", "dialog");
-    pop.setAttribute("aria-label", `Tłumaczenie: ${span}`);
-    pop.tabIndex = -1;
-    pop.innerHTML = rdPopHtml(r, res, span);
-    page.appendChild(pop);
-    rdPlacePop(page, pop, word);
-    if (kb) pop.focus();
+    const p = pop = document.createElement("div");
+    p.className = "card rd-pop";
+    p.setAttribute("role", "dialog");
+    p.setAttribute("aria-label", `Tłumaczenie: ${span}`);
+    p.tabIndex = -1;
+    p.innerHTML = rdPopHtml(r, res, span);
+    page.appendChild(p);
+    rdPlacePop(page, p, word);
+    if (kb) p.focus();
   };
   text.addEventListener("click", (e) => {
-    const w = e.target.closest(".rd-w");
+    const w = closestEl(e, ".rd-w");
     if (!w) return;
     if (w === cur) { close(); return; }
     open(w, e.detail === 0);
   });
   text.addEventListener("keydown", (e) => {
-    const w = e.target.closest(".rd-w");
+    const w = closestEl(e, ".rd-w");
     if (!w) return;
-    const all = [...text.querySelectorAll(".rd-w")], i = all.indexOf(w);
-    const to = { ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: all.length - 1 }[e.key];
+    const all = [.../** @type {NodeListOf<HTMLElement>} */ (text.querySelectorAll(".rd-w"))], i = all.indexOf(w);
+    const to = /** @type {Dict<number>} */ ({ ArrowRight: i + 1, ArrowDown: i + 1, ArrowLeft: i - 1, ArrowUp: i - 1, Home: 0, End: all.length - 1 })[e.key];
     if (to == null) { if (e.key === "Escape" && pop) { e.preventDefault(); close(true); } return; }
     e.preventDefault();
     const t = all[Math.max(0, Math.min(all.length - 1, to))];
@@ -396,22 +454,23 @@ function bindReading(id) {
   });
   page.addEventListener("click", (e) => {
     if (!pop) return;
-    if (e.target.closest(".rd-pop-x")) { close(true); return; }
-    const add = e.target.closest(".rd-add");
+    const p = pop;
+    if (closestEl(e, ".rd-pop-x")) { close(true); return; }
+    const add = closestEl(e, ".rd-add");
     if (add) {
-      const k = add.parentNode.dataset.k;
+      const act = /** @type {HTMLElement} */ (add.parentNode), k = String(act.dataset.k);
       if (!state.srs[k]) {
         state.srs[k] = { box: 1, due: today(), deck: RD_DECK.id, first: "", lastSeen: new Date().toISOString() };
         store.set("srs", state.srs);
         syncTodayCounts();
       }
-      add.parentNode.innerHTML = `<span class="rd-added" tabindex="-1">${icon("check")} Dodano do fiszek · powtórka ${dueLabel(state.srs[k])}</span>`;
-      pop.querySelector(".rd-added").focus();
+      act.innerHTML = `<span class="rd-added" tabindex="-1">${icon("check")} Dodano do fiszek · powtórka ${dueLabel(state.srs[k])}</span>`;
+      $(".rd-added", p).focus();
       return;
     }
-    if (!e.target.closest(".rd-pop") && !e.target.closest(".rd-w")) close();
+    if (!closestEl(e, ".rd-pop") && !closestEl(e, ".rd-w")) close();
   });
-  page.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop && pop.contains(e.target)) { e.preventDefault(); close(true); } });
+  page.addEventListener("keydown", (e) => { if (e.key === "Escape" && pop && pop.contains(/** @type {Node} */ (e.target))) { e.preventDefault(); close(true); } });
   const onResize = () => { if (pop && cur) rdPlacePop(page, pop, cur); };
   window.addEventListener("resize", onResize);
   const play = page.querySelector(".rd-play");
@@ -419,6 +478,7 @@ function bindReading(id) {
   return () => window.removeEventListener("resize", onResize);
 }
 // Strona główna: najnowsza odblokowana czytanka bez wyniku.
+/** Strona główna: najnowsza odblokowana czytanka bez wyniku. @returns {string} */
 export function rdNewHtml() {
   const fresh = READING.filter((x) => rdOpen(x) && !state.scores[rdKey(x)]);
   const r = fresh[fresh.length - 1];

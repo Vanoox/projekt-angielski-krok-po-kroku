@@ -8,6 +8,7 @@ import { renderExercises, exercisesShell } from "../exercises.js";
 
 // ---------- Sprawdziany powtórkowe (#/sprawdzian/<id>) ----------
 // Zadania: testy lekcji (pisanie i układanie zdań) + zadania „write” z ćwiczeń.
+/** @param {Lesson} l @returns {Exercise[]} */
 function cpTasks(l) {
   return [
     ...l.test.filter((ex) => ex.type === "write" || ex.type === "order"),
@@ -16,21 +17,28 @@ function cpTasks(l) {
 }
 // Po kolei z każdej lekcji z listy (równy udział; lekcja może wystąpić kilka razy).
 // Głównie pisanie całych zdań, co szóste zadanie – układanie zdania z wyrazów.
+/** @param {Lesson[]} lessons @param {number} n @returns {{ ex: Exercise, lesson: Lesson }[]} */
 export function pickTasks(lessons, n) {
+  /** @type {Map<Lesson, { w: Exercise[], o: Exercise[] }>} */
   const pools = new Map();
   lessons.forEach((l) => { if (!pools.has(l)) { const t = cpTasks(l); pools.set(l, { w: shuffle(t.filter((e) => e.type === "write")), o: shuffle(t.filter((e) => e.type === "order")) }); } });
-  const order = shuffle(lessons), out = [];
+  const order = shuffle(lessons);
+  /** @type {{ ex: Exercise, lesson: Lesson }[]} */
+  const out = [];
   for (let k = 0; out.length < n && k < n * 10 && order.length; k++) {
-    const l = order[k % order.length], p = pools.get(l);
+    const l = order[k % order.length], p = /** @type {{ w: Exercise[], o: Exercise[] }} */ (pools.get(l));
     const ex = (out.length % 6 === 5 && p.o.pop()) || p.w.pop() || p.o.pop();
     if (ex) out.push({ ex, lesson: l });
   }
   return out;
 }
 // Lekcje do powtórki: bez powtórzeń, dopóki się da; niezaliczony (lub nierozwiązany) test lekcji = 2× większa szansa.
+/** @param {Lesson[]} prior @param {number} n @returns {Lesson[]} */
 function reviewLessons(prior, n) {
+  /** @param {Lesson} l */
   const weight = (l) => { const s = state.scores[l.id + "::test"]; return s && s.correct / s.total >= 0.8 ? 1 : 2; };
   let bag = prior.flatMap((l) => Array(weight(l)).fill(l));
+  /** @type {Lesson[]} */
   const out = [];
   while (out.length < n && prior.length) {
     if (!bag.length) bag = prior.slice();
@@ -40,13 +48,17 @@ function reviewLessons(prior, n) {
   return out;
 }
 // Długość zależy od liczby lekcji w bloku: 5 zadań na lekcję (max 20) + ok. 40% powtórki (max 10).
+/** @param {Checkpoint} c */
 export function cpSize(c) {
   const cur = Math.min(5 * c.lessons.length, c.prior.length ? 20 : 25);
   const rev = c.prior.length ? Math.min(Math.round(cur * 0.6), 10) : 0;
   return { cur, rev };
 }
+/** @param {Checkpoint} c */
 const buildCheckpoint = (c) => { const { cur, rev } = cpSize(c); return shuffle([...pickTasks(c.lessons, cur), ...pickTasks(reviewLessons(c.prior, rev), rev)]); };
+/** @param {string} id @returns {View} */
 export const checkpointView = (id) => ({ html: renderCheckpoint(id), title: CP_BY_ID[id] ? `Sprawdzian ${CP_BY_ID[id].n}: ${CP_BY_ID[id].title} – ${SITE_TITLE}` : SITE_TITLE, mount: () => { bindCheckpoint(id); } });
+/** @param {string} id */
 function renderCheckpoint(id) {
   const c = CP_BY_ID[id];
   if (!c) return `<div class="page empty"><h1>Nie znaleziono sprawdzianu</h1><p><a href="#/kolejnosc">Wróć do kolejności nauki</a></p></div>`;
@@ -76,10 +88,18 @@ function renderCheckpoint(id) {
 // Raport po sprawdzianie / teście poziomu: wynik z podziałem na lekcje, najsłabsze na górze.
 // opts: noun („Sprawdzian” / „Test poziomu A1”), isReview(l) – lekcja spoza bloku (dopisek „powtórka”),
 // after – { href, label } przycisku „Dalej” po zaliczeniu.
+/**
+ * @param {{ ex: Exercise, lesson: Lesson }[]} items
+ * @param {import("../exercises.js").ExControl[]} ctls
+ * @param {number} correct @param {number} total
+ * @param {{ noun: string, isReview?: (l: Lesson) => boolean, after?: { href: string, label: string } | null }} opts
+ * @returns {string}
+ */
 export function reportHtml(items, ctls, correct, total, opts) {
+  /** @type {Map<Lesson, { ok: number, n: number }>} */
   const by = new Map();
   ctls.forEach((ctl) => {
-    const l = items[+ctl.card.dataset.i].lesson;
+    const l = items[+(ctl.card.dataset.i || 0)].lesson;
     const r = by.get(l) || { ok: 0, n: 0 };
     r.n++; if (ctl.result && ctl.result.ok) r.ok++;
     by.set(l, r);
@@ -103,16 +123,21 @@ export function reportHtml(items, ctls, correct, total, opts) {
       ${passed && opts.after ? `<p><a class="btn primary" href="${opts.after.href}">${esc(opts.after.label)} →</a></p>` : ""}
     </div>`;
 }
+/**
+ * @param {Checkpoint} c @param {{ ex: Exercise, lesson: Lesson }[]} items @param {import("../exercises.js").ExControl[]} ctls
+ * @param {number} correct @param {number} total
+ */
 function cpReportHtml(c, items, ctls, correct, total) {
   const last = c.lessons[c.lessons.length - 1], after = PATH[PATH.indexOf(last) + 1];
   return reportHtml(items, ctls, correct, total, {
-    noun: "Sprawdzian", isReview: (l) => !c.lessons.includes(l),
+    noun: "Sprawdzian", isReview: (/** @type {Lesson} */ l) => !c.lessons.includes(l),
     after: after && { href: `#/lesson/${after.id}`, label: `Dalej: ${after.title}` },
   });
 }
+/** @param {string} id */
 function bindCheckpoint(id) {
   const c = CP_BY_ID[id]; if (!c) return;
-  const box = $("#cpBox").firstElementChild;
+  const box = /** @type {HTMLElement} */ ($("#cpBox").firstElementChild);
   const run = () => {
     const items = buildCheckpoint(c);
     $("#cpReport").innerHTML = "";
@@ -122,5 +147,5 @@ function bindCheckpoint(id) {
     });
   };
   run();
-  box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+  $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
 }

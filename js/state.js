@@ -10,10 +10,11 @@ import { PATH, CP_AFTER, lessonNo, DECKS, WORDS } from "./data.js";
 // ---------- Stan (localStorage) ----------
 // store, loadState i migracje stanu (klucze eng-*) – js/storage.js.
 export const state = loadState();
-export const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
+export const save = () => { for (const k of /** @type {(keyof AppState)[]} */ (Object.keys(state))) store.set(k, state[k]); };
 
 // ---------- Dziennik nauki (eng-activity) ----------
 export const streakInfo = () => streakOf(state.activity);
+/** @param {ReturnType<typeof streakInfo>} s */
 export const streakHint = (s) => !s.days ? "Zrób pierwsze zadanie albo oceń słówko w fiszkach – tu zobaczysz swoje dni nauki."
   : s.todayDone ? "Dziś już się uczysz – seria trwa."
   : s.current ? "Zrób dziś choć jedno zadanie albo słówko, żeby nie przerwać serii."
@@ -23,20 +24,28 @@ export const streakHint = (s) => !s.days ? "Zrób pierwsze zadanie albo oceń s�
 const activeDecks = () => activeDecksOf(state, DECKS);
 export const srsToday = () => srsTodayOf(state, DECKS, WORDS);
 // Treść karty: słowo z podanej talii (albo z pierwszej, w której występuje); inne znaczenia z pozostałych talii jako „też:”.
+/** @param {string} k klucz słowa @param {string} [deckId] @returns {{ k: string, w: VocabItem, deck: string, also: string[] }} */
 export function wordCard(k, deckId) {
-  const occ = WORDS.get(k), main = occ.find((o) => o.deck.id === deckId) || occ[0];
+  const occ = /** @type {{ deck: Deck, w: VocabItem }[]} */ (WORDS.get(k)), main = occ.find((o) => o.deck.id === deckId) || occ[0];
   const also = [...new Set(occ.map((o) => stripTags(o.w.pl)))].filter((p) => p !== stripTags(main.w.pl)).slice(0, 3);
   return { k, w: main.w, deck: main.deck.id, also };
 }
+/** @param {Checkpoint} c */
 export const cpKey = (c) => "checkpoint:" + c.id;
+/** @param {Checkpoint} c */
 export const cpPassed = (c) => { const s = state.scores[cpKey(c)]; return !!s && s.correct / s.total >= 0.8; };
+/** @param {Checkpoint} c */
 export const cpRange = (c) => `${lessonNo(c.lessons[0])}–${lessonNo(c.lessons[c.lessons.length - 1])}`;
 // Test poziomu (#/test-poziomu/A1): wynik w scores pod „test-level:A1”, zaliczenie od 80% = odznaka przy poziomie.
+/** @param {string} lv */
 export const ltKey = (lv) => "test-level:" + lv;
+/** @param {string} lv */
 export const ltPassed = (lv) => { const s = state.scores[ltKey(lv)]; return !!s && s.correct / s.total >= 0.8; };
+/** @param {string} lv */
 export const ltBadge = (lv) => ltPassed(lv) ? `<span class="lt-badge" title="Test poziomu ${lv} zaliczony">${icon("medal")} ${lv} zaliczony</span>` : "";
 // Następny krok na ścieżce: pierwsza nieprzerobiona lekcja – chyba że tuż przed nią jest sprawdzian,
 // którego blok jest już przerobiony, a sam sprawdzian niezaliczony (pominięte starsze sprawdziany nie blokują).
+/** @returns {{ cp: Checkpoint, lesson?: undefined, href: string, title: string } | { lesson: Lesson, cp?: undefined, href: string, title: string } | null} */
 export function nextStep() {
   const i = PATH.findIndex((l) => !state.done[l.id]);
   const before = i < 0 ? PATH[PATH.length - 1] : PATH[i - 1];

@@ -7,10 +7,12 @@ import { GOAL_CHOICES, GOAL_DEFAULT, goalOf, dayTotal, activityFromHistory } fro
 
 // ---------- Stan (localStorage) ----------
 export const store = {
+  /** @param {string} k klucz bez „eng-” @param {any} d wartość domyślna @returns {any} odczytany JSON (bez sprawdzania typu) albo d */
   get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
+  /** @param {string} k @param {unknown} v */
   set(k, v) { try { localStorage.setItem("eng-" + k, JSON.stringify(v)); } catch (e) {} },
 };
-// Ponownie wywoływane po wczytaniu kopii postępu (Object.assign(state, loadState())).
+/** Ponownie wywoływane po wczytaniu kopii postępu (Object.assign(state, loadState())). @returns {AppState} */
 export const loadState = () => ({
   done: store.get("done", {}),
   scores: store.get("scores", {}),
@@ -26,6 +28,7 @@ export const loadState = () => ({
 // Migracje przy starcie i po wczytaniu kopii (s – stan, zmieniany w miejscu; hasWord(k) – słowo jest w kursie):
 // słówka „znam” → wpisy w powtórkach (migrateKnown w srs.js) oraz – raz, gdy eng-activity jeszcze nie ma (także po
 // wczytaniu starej kopii) – dziennik nauki przybliżony z historii (activityFromHistory w activity.js).
+/** @param {AppState} s @param {(k: string) => boolean} hasWord @param {Date} [now] */
 export function migrateState(s, hasWord, now = new Date()) {
   if (migrateKnown(s, hasWord, now)) store.set("srs", s.srs);
   if (store.get("activity", null) !== null) return;
@@ -43,6 +46,7 @@ export const RAW_KEYS = ["eng-theme"];
 export const BACKUP_SKIP = ["eng-backup", "eng-goalDay"];
 const REMIND_DAYS = 14;
 // Sprawdzenie typów przy wczytywaniu – plik niezgodny z tym opisem jest odrzucany w całości.
+/** @type {Dict<(v: any) => boolean>} */
 const BACKUP_CHECK = {
   "eng-done": isObj,
   "eng-scores": (v) => isObj(v) && Object.values(v).every((s) => isObj(s) && s.total > 0 && s.correct >= 0),
@@ -59,28 +63,31 @@ const BACKUP_CHECK = {
     ["t", "ok", "w"].every((f) => e[f] === undefined || (Number.isFinite(e[f]) && e[f] >= 0))),
 };
 // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
+/** @param {Score} s */
 const ratio = (s) => s.correct / s.total;
+/** @type {Dict<(a: any, b: any) => any>} */
 const MERGE = {
   "eng-done": (a, b) => ({ ...a, ...b }), // lekcja przerobiona w którymkolwiek miejscu
-  "eng-scores": (a, b) => { // lepszy wynik (przy remisie zostaje wynik z tego urządzenia, jak w saveScore)
+  "eng-scores": (/** @type {Dict<Score>} */ a, /** @type {Dict<Score>} */ b) => { // lepszy wynik (przy remisie zostaje wynik z tego urządzenia, jak w saveScore)
     const out = { ...a };
     for (const [k, s] of Object.entries(b)) if (!out[k] || ratio(s) > ratio(out[k])) out[k] = s;
     return out;
   },
-  "eng-known": (a, b) => { // suma słówek oznaczonych jako „znam”
+  "eng-known": (/** @type {Dict<KnownWords>} */ a, /** @type {Dict<KnownWords>} */ b) => { // suma słówek oznaczonych jako „znam”
     const out = { ...a };
     for (const [k, words] of Object.entries(b)) out[k] = { ...(out[k] || {}), ...words };
     return out;
   },
   // Dziennik nauki: dla każdego dnia większa wartość każdego pola (nie suma – ta sama kopia wczytana dwa razy
   // nie może podwoić liczb). Znacznik przybliżenia „a” zostaje tylko wtedy, gdy obie strony mają dzień przybliżony.
-  "eng-activity": (a, b) => {
+  "eng-activity": (/** @type {Dict<ActivityDay>} */ a, /** @type {Dict<ActivityDay>} */ b) => {
     const out = { ...a };
     for (const [k, e] of Object.entries(b)) {
       const c = out[k];
       if (!c) { out[k] = e; continue; }
+      /** @type {ActivityDay} */
       const m = {};
-      for (const f of ["t", "ok", "w"]) { const n = Math.max(c[f] || 0, e[f] || 0); if (n) m[f] = n; }
+      for (const f of /** @type {const} */ (["t", "ok", "w"])) { const n = Math.max(c[f] || 0, e[f] || 0); if (n) m[f] = n; }
       if (c.a && e.a) m.a = 1;
       out[k] = m;
     }
@@ -98,14 +105,16 @@ const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew", "eng-
 // na jednym urządzeniu, a wciąż obecne w kopii z drugiego, wraca na listę – lepiej powtórzyć raz za dużo.)
 // eng-srs też bez reguły: przy tym samym słówku wygrywa ostatnia ocena; wpisy z migracji „znam” (bez lastSeen)
 // przegrywają z każdą prawdziwą oceną. Słówka „znam” bez wpisu dostają go po wczytaniu (migrateKnown).
+/** @param {unknown} e */
 const lastSeen = (e) => (isObj(e) && Date.parse(e.lastSeen)) || 0;
+/** @param {unknown} a @param {unknown} b */
 function mergeDefault(a, b) {
   if (!isObj(a) || !isObj(b)) return a;
   const out = { ...a };
   for (const [k, e] of Object.entries(b)) if (!(k in out) || lastSeen(e) > lastSeen(out[k])) out[k] = e;
   return out;
 }
-// cur – dane z tego urządzenia, inc – z kopii (obie w postaci { "eng-…": wartość }).
+/** cur – dane z tego urządzenia, inc – z kopii (obie w postaci { "eng-…": wartość }). @param {Dict<any>} cur @param {Dict<any>} inc @returns {Dict<any>} */
 export function mergeData(cur, inc) {
   const out = { ...cur };
   for (const [k, v] of Object.entries(inc)) {
@@ -115,22 +124,24 @@ export function mergeData(cur, inc) {
   return out;
 }
 
+/** @returns {string[]} */
 function lsKeys() {
   const out = [];
   try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith("eng-") && !BACKUP_SKIP.includes(k)) out.push(k); } } catch (e) {}
   return out;
 }
-// Wszystkie klucze eng-* (bez BACKUP_SKIP) z localStorage → { "eng-…": wartość }.
+/** Wszystkie klucze eng-* (bez BACKUP_SKIP) z localStorage → { "eng-…": wartość }. @returns {Dict<any>} */
 export function readAll() {
+  /** @type {Dict<any>} */
   const data = {};
   for (const k of lsKeys()) {
     const raw = localStorage.getItem(k);
     if (RAW_KEYS.includes(k)) { data[k] = raw; continue; }
-    try { data[k] = JSON.parse(raw); } catch (e) {} // uszkodzony wpis – i tak nie jest używany (store.get daje domyślny)
+    try { data[k] = JSON.parse(/** @type {string} */ (raw)); } catch (e) {} // uszkodzony wpis – i tak nie jest używany (store.get daje domyślny)
   }
   return data;
 }
-// Zapis danych z kopii (replace – najpierw usuń wszystkie eng-* z tego urządzenia). false = błąd zapisu.
+/** Zapis danych z kopii (replace – najpierw usuń wszystkie eng-* z tego urządzenia). false = błąd zapisu. @param {Dict<any>} data @param {boolean} replace @returns {boolean} */
 export function writeAll(data, replace) {
   try {
     if (replace) lsKeys().forEach((k) => localStorage.removeItem(k));
@@ -138,12 +149,14 @@ export function writeAll(data, replace) {
     return true;
   } catch (e) { return false; }
 }
-// Zwraca { data, date } albo { error: "komunikat dla ucznia" }.
+/** @typedef {{ data: Dict<any>, date: unknown, error?: undefined } | { error: string, data?: undefined, date?: undefined }} BackupParse */
+/** Zwraca { data, date } albo { error: "komunikat dla ucznia" }. @param {string} text @returns {BackupParse} */
 export function parseBackup(text) {
   let obj;
   try { obj = JSON.parse(text); } catch (e) { return { error: "To nie jest plik z kopią postępu (zły format pliku)." }; }
   if (!isObj(obj) || obj.app !== BACKUP_APP || !isObj(obj.data)) return { error: "Ten plik nie jest kopią postępu z tej strony." };
   if (typeof obj.version !== "number" || obj.version > BACKUP_VERSION) return { error: "Ta kopia pochodzi z nowszej wersji strony. Odśwież stronę i spróbuj jeszcze raz." };
+  /** @type {Dict<any>} */
   const data = {};
   for (const [k, v] of Object.entries(obj.data)) {
     if (!k.startsWith("eng-") || BACKUP_SKIP.includes(k)) continue;
@@ -153,20 +166,26 @@ export function parseBackup(text) {
   return { data, date: obj.date };
 }
 // Liczby do podglądu kopii. has = { lesson(id), task(klucz), word(klucz) } – co istnieje w kursie (stare wpisy pomijamy).
+/**
+ * @param {Dict<any>} data
+ * @param {{ lesson(id: string): boolean, task(k: string): boolean, word(k: string): boolean }} has
+ * @returns {{ done: number, scores: number, words: number, mistakes: number, srs: number, days: number }}
+ */
 export function backupStats(data, has) {
   const done = data["eng-done"] || {}, known = data["eng-known"] || {};
   return {
     done: Object.keys(done).filter((id) => done[id] && has.lesson(id)).length,
     scores: Object.keys(data["eng-scores"] || {}).length,
-    words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
+    words: Object.values(known).reduce((/** @type {number} */ s, /** @type {KnownWords} */ o) => s + Object.values(o).filter(Boolean).length, 0),
     mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => has.task(k)).length,
     srs: Object.keys(data["eng-srs"] || {}).filter((k) => has.word(k)).length,
-    days: Object.values(data["eng-activity"] || {}).filter((e) => dayTotal(e) > 0).length,
+    days: Object.values(data["eng-activity"] || {}).filter((/** @type {ActivityDay} */ e) => dayTotal(e) > 0).length,
   };
 }
 // Przypomnienie: 14 dni od ostatniej kopii (albo od „Później” / początku nauki), o ile od ostatniej kopii przybyło postępu.
 // eng-backup = { last: data ostatniej kopii, since: od kiedy liczymy 14 dni, count: ile było postępu przy ostatniej kopii }.
 // n – ile jest teraz postępu (przerobione lekcje + wyniki).
+/** @param {number} n @param {Date} [now] @returns {boolean} */
 export function backupDue(n, now = new Date()) {
   const b = store.get("backup", null);
   if (!n) return false;

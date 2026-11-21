@@ -9,6 +9,7 @@ import { syncGoal } from "./goal.js";
 import { syncNavState } from "./nav.js";
 
 // ---------- Wynik zestawu ----------
+/** @param {string} key @param {number} correct @param {number} total */
 export const saveScore = (key, correct, total) => {
   const prev = state.scores[key];
   if (!prev || correct / total >= prev.correct / prev.total) state.scores[key] = { correct, total };
@@ -17,6 +18,7 @@ export const saveScore = (key, correct, total) => {
 };
 
 // ---------- Moje błędy: system pudełek (eng-mistakes) ----------
+/** @param {string} key klucz zadania (TASKS) @param {boolean} ok */
 export function recordResult(key, ok) {
   const e = nextMistake(state.mistakes[key], ok);
   if (e === undefined) return;
@@ -26,6 +28,7 @@ export function recordResult(key, ok) {
 
 // ---------- Dziennik nauki (eng-activity) ----------
 // Format wpisów, seria dni z rzędu i przybliżenie z historii – js/activity.js.
+/** @param {Parameters<typeof addActivity>[1]} d np. { t: 1, ok: 1 } */
 export function logActivity(d) {
   const k = today(), before = dayTotal(state.activity[k]), e = addActivity(state.activity[k], d);
   state.activity[k] = e;
@@ -38,6 +41,7 @@ export function logActivity(d) {
 
 // ---------- Słówka na dziś: pudełka dla słówek (eng-srs) ----------
 // Zasady pudełek, migracja „znam” i kolejka na dziś – js/srs.js.
+/** @param {string} k @param {number} rating @param {string} deck */
 export function rateWord(k, rating, deck) { // rating: 0 = nie wiem, 1 = trudne, 2 = wiem
   logActivity({ w: 1 }); // każda ocena liczy się do dziennika, także przed terminem
   const e = nextWord(state.srs[k], rating, deck);

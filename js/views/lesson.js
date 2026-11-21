@@ -2,7 +2,7 @@
 // dyktando, wymowa, test.
 import { esc, stripTags } from "../util.js";
 import { icon } from "../icons.js";
-import { doneTick, LEVEL_INFO, $, SITE_TITLE, slug, badge, shuffle, scorePill, speakBtn, currentLessonId } from "../ui.js";
+import { doneTick, LEVEL_INFO, $, SITE_TITLE, slug, badge, shuffle, scorePill, speakBtn, currentLessonId, closestEl } from "../ui.js";
 import { PATH, BY_ID, CP_AFTER, practiceCount, withTask } from "../data.js";
 import { state, save } from "../state.js";
 import { renderExercises, exercisesShell } from "../exercises.js";
@@ -14,11 +14,13 @@ import { FE_MIN, FE_ROUND, fePairs, feRound, feIntro, renderLessonFind, DICT_ROU
 import { tlLessonLink } from "./timeline.js";
 
 // ---------- Lekcja ----------
+/** @param {HTMLElement} btn @param {string} id */
 function syncDoneBtn(btn, id) {
   const d = !!state.done[id];
   btn.classList.toggle("done", d);
   btn.innerHTML = d ? icon("check") + " Przerobione" : "Oznacz jako przerobione";
 }
+/** @type {{ id: string, label: string, count?: (l: Lesson) => number }[]} */
 const TABS = [
   { id: "", label: icon("book-open") + " Lekcja" },
   { id: "vocab", label: icon("type") + " Słownictwo", count: (l) => (l.vocab && l.vocab.items || []).length },
@@ -29,10 +31,12 @@ const TABS = [
   { id: "speaking", label: icon("mic") + " Wymowa", count: (l) => l.dict.length },
 ];
 function lessonTab() { const m = location.hash.match(/^#\/lesson\/[\w-]+\/(\w+)/); return m ? m[1] : ""; }
+/** @returns {View} */
 export const lessonView = () => {
-  const id = currentLessonId();
+  const id = /** @type {string} */ (currentLessonId()); // trasa #/lesson/<id>
   return { html: renderLesson(id), title: BY_ID[id] ? `${BY_ID[id].title} – ${SITE_TITLE}` : SITE_TITLE, mount: () => bindLesson(id) };
 };
+/** @param {string} id */
 function renderLesson(id) {
   const l = BY_ID[id];
   if (!l) return `<div class="page empty"><h1>Nie znaleziono lekcji</h1><p><a href="#/">Wróć na stronę główną</a></p></div>`;
@@ -42,7 +46,7 @@ function renderLesson(id) {
   const best = state.scores[id];
   const tabs = TABS.filter((t) => !t.count || t.count(l) > 0);
   let body = "";
-  if (tab === "vocab" && l.vocab) body = renderLessonVocab(l);
+  if (tab === "vocab" && l.vocab) body = renderLessonVocab(l, l.vocab);
   else if (tab === "practice") body = renderLessonPractice(l);
   else if (tab === "find" && l.finds.length >= FE_MIN) body = renderLessonFind(l);
   else if (tab === "test" && l.test.length) body = renderLessonTest(l);
@@ -65,6 +69,7 @@ function renderLesson(id) {
       </div>
     </article>`;
 }
+/** @param {Lesson} l */
 function renderLessonTheory(l) {
   const titled = l.sections.map((s, i) => ({ s, i })).filter(({ s }) => s.title || ["formula", "examples", "mistakes"].includes(s.type));
   const req = (l.requires || []).map((r) => BY_ID[r]).filter(Boolean);
@@ -105,13 +110,14 @@ function renderLessonTheory(l) {
 // Szeroki ekran: stała prawa kolumna (zawsze rozwinięta). Węższy: zwinięte <details>.
 const TOC_WIDE = window.matchMedia("(min-width: 1280px)");
 // Zwraca funkcję sprzątającą (nasłuch przewijania) – woła ją router przy zmianie strony.
+/** @param {HTMLElement} art @returns {(() => void) | undefined} */
 function bindToc(art) {
-  const toc = art.querySelector("details.toc"); if (!toc) return;
+  const toc = /** @type {HTMLDetailsElement | null} */ (art.querySelector("details.toc")); if (!toc) return;
   toc.open = TOC_WIDE.matches;
-  toc.querySelector("summary").addEventListener("click", (e) => { if (TOC_WIDE.matches) e.preventDefault(); });
-  const col = toc.closest(".toc-col");
-  const links = [...toc.querySelectorAll("a[data-scroll]")];
-  const targets = links.map((a) => document.getElementById(a.dataset.scroll));
+  $("summary", toc).addEventListener("click", (e) => { if (TOC_WIDE.matches) e.preventDefault(); });
+  const col = /** @type {HTMLElement} */ (toc.closest(".toc-col"));
+  const links = [.../** @type {NodeListOf<HTMLElement>} */ (toc.querySelectorAll("a[data-scroll]"))];
+  const targets = links.map((a) => document.getElementById(String(a.dataset.scroll)));
   let cur = -2;
   // Aktywna sekcja = ostatni nagłówek, który minął linię na 30% wysokości okna.
   const update = () => {
@@ -131,22 +137,25 @@ function bindToc(art) {
   update();
   return () => { window.removeEventListener("scroll", onScroll); window.removeEventListener("resize", onScroll); cancelAnimationFrame(raf); };
 }
-TOC_WIDE.addEventListener && TOC_WIDE.addEventListener("change", () => { const d = document.querySelector("details.toc"); if (d) d.open = TOC_WIDE.matches; });
+TOC_WIDE.addEventListener && TOC_WIDE.addEventListener("change", () => { const d = /** @type {HTMLDetailsElement | null} */ (document.querySelector("details.toc")); if (d) d.open = TOC_WIDE.matches; });
 // Linki spisu treści (data-scroll): płynne przewinięcie do sekcji.
 document.addEventListener("click", (e) => {
-  const sc = e.target.closest("[data-scroll]");
+  const sc = closestEl(e, "[data-scroll]");
   if (!sc) return;
   e.preventDefault();
-  const d = sc.closest("details.toc");
+  const d = /** @type {HTMLDetailsElement | null} */ (sc.closest("details.toc"));
   if (d && !TOC_WIDE.matches) d.open = false; // na telefonie zwiń spis, potem przewiń
-  const t = document.getElementById(sc.dataset.scroll); if (t) t.scrollIntoView({ behavior: "smooth" });
+  const t = document.getElementById(String(sc.dataset.scroll)); if (t) t.scrollIntoView({ behavior: "smooth" });
 }, true);
-function renderLessonVocab(l) {
+/** @param {Lesson} l @param {LessonVocab} vocab l.vocab (sprawdzone, że jest) */
+function renderLessonVocab(l, vocab) {
   return `<section class="block"><h2>Słownictwo do tej lekcji</h2>
-      <p class="muted-p">${l.vocab.intro || "Te słowa pojawiają się w przykładach i ćwiczeniach. Naucz się ich przed lekcją – wtedy skupisz się na gramatyce, a nie na słowniku."}</p>
-      ${vocabBlockHtml([{ items: l.vocab.items }], "lesson:" + l.id)}</section>`;
+      <p class="muted-p">${vocab.intro || "Te słowa pojawiają się w przykładach i ćwiczeniach. Naucz się ich przed lekcją – wtedy skupisz się na gramatyce, a nie na słowniku."}</p>
+      ${vocabBlockHtml([{ items: vocab.items }], "lesson:" + l.id)}</section>`;
 }
+/** @param {Lesson} l */
 function renderLessonPractice(l) {
+  /** @type {(PracticeSet & { key: string })[]} */
   const sets = [];
   if ((l.exercises || []).length) sets.push({ title: "Szybki sprawdzian", instruction: "Podstawowe pytania z lekcji (te same co pod teorią).", items: l.exercises, key: l.id });
   l.practice.forEach((p, i) => sets.push({ ...p, key: `${l.id}::p${i}` }));
@@ -161,6 +170,7 @@ function renderLessonPractice(l) {
       ${l.test.length ? `<div class="card next-steps"><b>Gotowe?</b><a class="btn primary" href="#/lesson/${l.id}/test">${icon("test")} Przejdź do testu (${l.test.length})</a></div>` : ""}
     </section>`;
 }
+/** @param {Lesson} l */
 function renderLessonTest(l) {
   const s = state.scores[l.id + "::test"];
   const types = [...new Set(l.test.map((x) => x.type))];
@@ -177,6 +187,7 @@ function renderLessonTest(l) {
 
 // ---------- Wymowa (zakładka lekcji) ----------
 // Te same zdania co w dyktandzie (przykłady z teorii tej lekcji), za każdym razem DICT_ROUND losowych.
+/** @param {Lesson} l */
 function prRoundHtml(l) {
   const xs = shuffle(l.dict).slice(0, DICT_ROUND);
   return `<p class="pr-score muted-p" aria-live="polite">Dobrze wymówione: 0 z ${xs.length}</p>
@@ -185,6 +196,7 @@ function prRoundHtml(l) {
         ${SR ? `<button class="btn pr-mic" data-pr="${esc(x.say)}" aria-pressed="false">${icon("mic")} <span class="pr-lbl">Powiedz</span></button>` : ""}
         <div class="pr-out" aria-live="polite"></div></li>`).join("")}</ol>`;
 }
+/** @param {Lesson} l */
 function renderLessonSpeaking(l) {
   const intro = SR
     ? `Kliknij <b>${icon("mic")} Powiedz</b> i przeczytaj zdanie na głos po angielsku. Strona rozpozna, co mówisz, i pokaże słowa: <span class="pr-ok">zielone</span> – rozpoznane, <span class="pr-bad">czerwone</span> – nie. Wzoru możesz najpierw posłuchać (${icon("volume")}). Mów spokojnie, w cichym miejscu; przeglądarka zapyta o zgodę na mikrofon. Rozpoznawanie mowy potrzebuje internetu i czasem się myli, więc wynik to tylko wskazówka – nie trafia do „Moich błędów”.${voiceLink("Akcent (brytyjski albo amerykański)")}`
@@ -198,6 +210,7 @@ function renderLessonSpeaking(l) {
       <div class="pr-new"><button class="btn" id="prNew">${icon("rotate")} Nowe zdania</button></div>
     </section>`;
 }
+/** @param {string} id @returns {(() => void) | undefined} */
 function bindLesson(id) {
   const l = BY_ID[id]; if (!l) return;
   const tab = lessonTab();
@@ -206,31 +219,33 @@ function bindLesson(id) {
   bindLessonTab(l, id, tab, art);
   return stopToc;
 }
+/** @param {Lesson} l @param {string} id @param {string} tab @param {HTMLElement} art */
 function bindLessonTab(l, id, tab, art) {
   if (tab === "vocab" && l.vocab) {
     bindVocabBlock(art.querySelector(".vocab-block"), [{ items: l.vocab.items }], "lesson:" + l.id);
     return;
   }
   if (tab === "practice") {
+    /** @type {{ items: Exercise[], key: string, quick?: boolean }[]} */
     const sets = [];
     if ((l.exercises || []).length) sets.push({ items: l.exercises, key: l.id, quick: true });
     l.practice.forEach((p, i) => sets.push({ ...p, key: `${l.id}::p${i}` }));
-    art.querySelectorAll("details.set").forEach((d) => {
-      const s = sets[+d.dataset.set];
+    /** @type {NodeListOf<HTMLDetailsElement>} */ (art.querySelectorAll("details.set")).forEach((d) => {
+      const s = sets[+(d.dataset.set || 0)];
       const mount = () => {
-        if (d.dataset.ready) return; d.dataset.ready = 1;
-        const host = d.querySelector(".set-ex");
+        if (d.dataset.ready) return; d.dataset.ready = "1";
+        const host = $(".set-ex", d);
         host.innerHTML = exercisesShell("", { h3: true });
-        const box = host.firstElementChild;
+        const box = /** @type {HTMLElement} */ (host.firstElementChild);
         const run = () => renderExercises(box, s.items.map((ex) => ({ ex: withTask(ex, ex.task || "") })), {
           key: s.key,
           onDone: (c, t) => {
-            d.querySelector(".set-meta").innerHTML = `${s.items.length} zad. ${scorePill(state.scores[s.key])}`;
+            $(".set-meta", d).innerHTML = `${s.items.length} zad. ${scorePill(state.scores[s.key])}`;
             if (s.quick && c / t >= 0.8) { state.done[id] = true; save(); syncNavState(); }
           },
         });
         run();
-        box.querySelector(".retry").addEventListener("click", () => { run(); d.scrollIntoView({ behavior: "smooth" }); });
+        $(".retry", box).addEventListener("click", () => { run(); d.scrollIntoView({ behavior: "smooth" }); });
       };
       if (d.open) mount();
       d.addEventListener("toggle", () => { if (d.open) mount(); });
@@ -244,29 +259,29 @@ function bindLessonTab(l, id, tab, art) {
     return;
   }
   if (tab === "dictation" && l.dict.length) {
-    const box = $("#dictBox").firstElementChild;
-    box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", dictIntro());
+    const box = /** @type {HTMLElement} */ ($("#dictBox").firstElementChild);
+    $(".ex-list", box).insertAdjacentHTML("beforebegin", dictIntro());
     const run = () => renderExercises(box, shuffle(l.dict).slice(0, DICT_ROUND).map((ex) => ({ ex })), { key: l.id + "::dict" });
     run();
-    box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+    $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
     return;
   }
   if (tab === "find" && l.finds.length >= FE_MIN) {
-    const box = $("#feBox").firstElementChild;
-    box.querySelector(".ex-list").insertAdjacentHTML("beforebegin", feIntro());
+    const box = /** @type {HTMLElement} */ ($("#feBox").firstElementChild);
+    $(".ex-list", box).insertAdjacentHTML("beforebegin", feIntro());
     const run = () => renderExercises(box, feRound(fePairs([l]), FE_ROUND).map(({ ex }) => ({ ex })), { key: l.id + "::err" });
     run();
-    box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+    $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
     return;
   }
   if (tab === "test" && l.test.length) {
-    const box = $("#testBox").firstElementChild;
+    const box = /** @type {HTMLElement} */ ($("#testBox").firstElementChild);
     const run = () => renderExercises(box, l.test.map((ex) => ({ ex })), { key: l.id + "::test", mode: "deferred" });
     run();
-    box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
+    $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView({ behavior: "smooth" }); });
     return;
   }
-  $("#plToggle").addEventListener("change", (e) => { state.showPl = e.target.checked; save(); art.classList.toggle("hide-pl", !state.showPl); });
+  $("#plToggle").addEventListener("change", (e) => { state.showPl = /** @type {HTMLInputElement} */ (e.target).checked; save(); art.classList.toggle("hide-pl", !state.showPl); });
   const doneBtn = $("#doneBtn"); syncDoneBtn(doneBtn, id);
   doneBtn.addEventListener("click", () => { state.done[id] = !state.done[id]; if (!state.done[id]) delete state.done[id]; save(); syncDoneBtn(doneBtn, id); syncNavState(); });
   const box = $("#exercises");
@@ -275,5 +290,5 @@ function bindLessonTab(l, id, tab, art) {
     onDone: (c, t) => { if (c / t >= 0.8) { state.done[id] = true; save(); syncNavState(); syncDoneBtn(doneBtn, id); } },
   });
   run();
-  box.querySelector(".retry").addEventListener("click", () => { run(); box.scrollIntoView(); });
+  $(".retry", box).addEventListener("click", () => { run(); box.scrollIntoView(); });
 }

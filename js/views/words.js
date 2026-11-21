@@ -3,7 +3,7 @@ import { esc, stripTags } from "../util.js";
 import { SRS_ROUND, SRS_DAYS, NEW_CHOICES, isDue } from "../srs.js";
 import { store } from "../storage.js";
 import { icon } from "../icons.js";
-import { $, SITE_TITLE, badge, shuffle, zadan, plural, slowek, daysLabel } from "../ui.js";
+import { $, SITE_TITLE, badge, shuffle, zadan, plural, slowek, daysLabel, closestEl } from "../ui.js";
 import { WORDS } from "../data.js";
 import { state, save, srsToday, wordCard } from "../state.js";
 import { rateWord } from "../record.js";
@@ -13,8 +13,11 @@ import { dueLabel } from "./mistakes.js";
 
 // ---------- Słówka na dziś (#/slowka) ----------
 // „12 do powtórki + 10 nowych” (pusty napis, gdy nic na dziś).
+/** @typedef {ReturnType<typeof srsToday>} SrsQueue */
+/** @param {SrsQueue} q */
 const wordsTodayTxt = (q) => [q.due.length ? `${q.due.length} do powtórki` : "", q.fresh.length ? `${q.fresh.length} ${plural(q.fresh.length, "nowe", "nowe", "nowych")}` : ""].filter(Boolean).join(" + ");
 const srsEntries = () => Object.entries(state.srs).filter(([k]) => WORDS.has(k)).map(([, e]) => e);
+/** @param {SrsQueue} q */
 function wTodayHtml(q) {
   const txt = wordsTodayTxt(q), n = q.due.length + q.fresh.length;
   if (n) return `<div class="card m-today"><div><b>Na dziś: ${txt}</b><span>${n > SRS_ROUND ? `Po ${SRS_ROUND} w jednej rundzie. ` : ""}Najpierw powtórki, potem nowe słówka.</span></div><button class="btn primary" data-wrun>Zacznij →</button></div>`;
@@ -24,10 +27,13 @@ function wTodayHtml(q) {
     : "Wszystkie słówka z Twoich lekcji i działów są już w powtórkach – nowe dojdą po następnej lekcji.";
   return `<div class="card m-today"><div><b>Na dziś wszystko powtórzone ${icon("check")}</b><span>${next ? `Następna powtórka: ${dueLabel({ due: next })} (${slowek(nNext)}). ` : ""}${more}</span></div></div>`;
 }
+/** @param {SrsQueue} q */
 function wInfoHtml(q) {
   const entries = srsEntries();
   const boxes = SRS_DAYS.map((d, i) => entries.filter((e) => Math.min(e.box, SRS_DAYS.length) === i + 1).length);
+  /** @param {Deck} d */
   const inDeck = (d) => d.keys.filter((k) => state.srs[k]).length;
+  /** @param {Deck} d */
   const deckCount = (d) => d.manual ? `dodane: ${Object.values(state.srs).filter((e) => e.deck === d.id).length}` : `w powtórkach: ${inDeck(d)} z ${d.keys.length}`;
   return `<div class="card wd-settings"><span>Nowych słówek dziennie:</span><div class="chips">${NEW_CHOICES.map((n) => `<button class="chip ${state.srsNew === n ? "active" : ""}" data-wnew="${n}">${n}</button>`).join("")}</div></div>
       ${entries.length ? `<h2 class="section-title">Twoje pudełka (${slowek(entries.length)})</h2>
@@ -57,7 +63,7 @@ function bindWords() {
     if (!cards.length) { box.innerHTML = ""; refresh(); return; }
     $("#wToday").hidden = true;
     box.innerHTML = `<section class="block wd-session"><h2>Runda: ${slowek(cards.length)}</h2><div class="wd-pane"></div></section>`;
-    const pane = box.querySelector(".wd-pane");
+    const pane = $(".wd-pane", box);
     flashcards(pane, cards, {
       onRate: (c, r) => {
         rateWord(c.k, r, c.deck);
@@ -69,19 +75,20 @@ function bindWords() {
         const left = wordsDue();
         pane.innerHTML = `<div class="card fc-done"><b>Runda skończona! 🎉</b><p>${fcStatsHtml(st)}</p>
             ${left ? `<button class="btn primary wd-more">Następna runda (zostało: ${left}) →</button>` : `<p class="wd-all">${icon("check")} Na dziś wszystko powtórzone. Wróć jutro!</p>`}</div>`;
-        const more = pane.querySelector(".wd-more"); if (more) more.onclick = () => { run(); box.scrollIntoView(); };
+        const more = /** @type {HTMLElement | null} */ (pane.querySelector(".wd-more")); if (more) more.onclick = () => { run(); box.scrollIntoView(); };
         $("#wToday").hidden = false; refresh();
       },
     });
     box.scrollIntoView();
   };
   page.addEventListener("click", (e) => {
-    const n = e.target.closest("[data-wnew]");
-    if (n) { state.srsNew = +n.dataset.wnew; store.set("srsNew", state.srsNew); refresh(); return; }
-    if (e.target.closest("[data-wrun]")) run();
+    const n = closestEl(e, "[data-wnew]");
+    if (n) { state.srsNew = +(n.dataset.wnew || 0); store.set("srsNew", state.srsNew); refresh(); return; }
+    if (closestEl(e, "[data-wrun]")) run();
   });
 }
 // Kafelek „Dziś do powtórki” (strona główna; wiersz ze słówkami także na stronie Słownictwo).
+/** @param {SrsQueue} q @returns {string} */
 export function wordsRow(q) {
   const txt = wordsTodayTxt(q), started = q.decks.length || srsEntries().length;
   return `<a class="tw-row" href="#/slowka"><span>${icon("cards")} Słówka: ${txt ? `<b>${txt}</b>` : started ? "na dziś wszystko powtórzone " + icon("check") : "codzienne fiszki z powtórkami – zacznij ćwiczyć dowolny dział fiszkami"}</span><span class="btn small ${txt ? "primary" : ""}">${txt ? "Ucz się" : "Zobacz"} →</span></a>`;

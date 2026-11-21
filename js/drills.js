@@ -8,12 +8,16 @@ import { ttsWarnHtml, voiceLink } from "./speech.js";
 // ---------- Znajdź błąd (zakładka lekcji, trening) ----------
 export const FE_MIN = 5, FE_ROUND = 10, FE_GOOD = 0.2;
 // Runda: n różnych par, z czego ok. 20% jako zdanie poprawne (good) – żeby nie klikać na ślepo „jakiegoś” słowa.
+/** @param {Lesson[]} lessons */
 export const fePairs = (lessons) => lessons.flatMap((l) => l.finds.map((p) => ({ ...p, lesson: l })));
+/** @param {(FindPair & { lesson: Lesson })[]} pairs @param {number} n @returns {{ ex: FindErrTask, lesson: Lesson }[]} */
 export function feRound(pairs, n) {
   const xs = shuffle(pairs).slice(0, n), nGood = Math.round(xs.length * FE_GOOD);
   return shuffle(xs.map((p, i) => ({ ex: i < nGood ? p.good : p.bad, lesson: p.lesson })));
 }
+/** @param {string} [more] */
 export const feIntro = (more) => `<div class="ex-intro">Kliknij <b>słowo, w którym jest błąd</b>, a potem popraw zdanie – pole wypełni się tym zdaniem z zaznaczonym błędnym fragmentem, więc wystarczy wpisać poprawną wersję. Mniej więcej co piąte zdanie jest poprawne – wtedy kliknij <b>Tu nie ma błędu</b>.<span class="kbd-hint"> Klawiatura: <kbd>←</kbd> <kbd>→</kbd> – wybór słowa, <kbd>Enter</kbd> – zatwierdzenie.</span>${more || ""}</div>`;
+/** @param {Lesson} l */
 export function renderLessonFind(l) {
   const s = state.scores[l.id + "::err"];
   return `<section class="block">
@@ -25,8 +29,10 @@ export function renderLessonFind(l) {
 
 // ---------- Dyktando ----------
 export const DICT_ROUND = 10;
+/** @param {string} [more] */
 export const dictIntro = (more) => `<div class="tts-warn">${ttsWarnHtml()}</div>
     <div class="ex-intro">Kliknij <b>${icon("play")} Odtwórz</b>, posłuchaj i zapisz całe zdanie po angielsku. Możesz słuchać dowolnie wiele razy (<b>${icon("slow")} Wolniej</b> – wolniejsze tempo<span class="kbd-hint">, <kbd>Ctrl</kbd>+<kbd>spacja</kbd> w polu – jeszcze raz</span>). Wielka litera i interpunkcja nie mają znaczenia, formy skrócone i pełne (<i>I'm / I am</i>) są równoważne.${more || ""}${voiceLink("Akcent, głos i tempo lektora")}</div>`;
+/** @param {Lesson} l */
 export function renderLessonDictation(l) {
   const s = state.scores[l.id + "::dict"];
   return `<section class="block">

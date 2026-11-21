@@ -62,11 +62,13 @@ function activityHtml() {
 export const orderView = () => ({ html: renderOrder(), title: `Kolejność nauki – ${SITE_TITLE}`, mount: () => { bindOrder(); } });
 function renderOrder() {
   if (!PATH.length) return `<div class="page empty"><h1>Brak lekcji</h1></div>`;
+  /** @param {number} d @param {number} n */
   const percent = (d, n) => (n ? Math.round((d / n) * 100) : 0);
   const nDone = PATH.filter((l) => state.done[l.id]).length;
   const step = nextStep();
   const next = step && step.lesson;
   const nCp = CHECKPOINTS.filter(cpPassed).length;
+  /** @param {Checkpoint} cp */
   const cpRow = (cp) => {
     const passed = cpPassed(cp), s = state.scores[cpKey(cp)];
     const isNext = step && step.cp === cp;
@@ -81,6 +83,7 @@ function renderOrder() {
           </li>`;
   };
   // Kafelek na końcu poziomu: test całego poziomu (zaliczenie = odznaka przy nagłówku poziomu).
+  /** @param {Level} lv @param {Lesson[]} ls */
   const ltRow = (lv, ls) => {
     const passed = ltPassed(lv), s = state.scores[ltKey(lv)];
     const ready = ls.every((l) => state.done[l.id]);
@@ -145,9 +148,9 @@ function renderOrder() {
     </div>`;
 }
 function bindOrder() {
-  document.querySelectorAll(".order-page [data-jump]").forEach((a) => a.addEventListener("click", (e) => {
+  /** @type {NodeListOf<HTMLElement>} */ (document.querySelectorAll(".order-page [data-jump]")).forEach((a) => a.addEventListener("click", (e) => {
     e.preventDefault();
-    const target = document.getElementById(a.dataset.jump);
+    const target = document.getElementById(String(a.dataset.jump));
     if (target) target.scrollIntoView({ behavior: "smooth", block: "start" });
   }));
   bindBackup($(".order-page .backup"));

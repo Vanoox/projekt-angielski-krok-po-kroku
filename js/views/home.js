@@ -22,8 +22,9 @@ const hasProgress = () => Object.values(state.done).some(Boolean) || Object.keys
   || Object.values(state.activity).some((e) => dayTotal(e) > 0);
 const WEEKDAYS_SHORT = ["nd", "pn", "wt", "śr", "cz", "pt", "so"];
 // Karta „Następny krok”: następna lekcja albo sprawdzian (nextStep) + postęp poziomu, na którym jest uczeń.
+/** @param {ReturnType<typeof nextStep>} next @param {number} nDone */
 function nextCardHtml(next, nDone) {
-  const lv = next ? (next.lesson || next.cp.lessons[next.cp.lessons.length - 1]).level : LEVELS.filter((x) => levelLessons(x).length).pop();
+  const lv = /** @type {Level} */ (next ? (next.lesson || /** @type {Checkpoint} */ (next.cp).lessons[/** @type {Checkpoint} */ (next.cp).lessons.length - 1]).level : LEVELS.filter((x) => levelLessons(x).length).pop());
   const ls = levelLessons(lv), d = ls.filter((l) => state.done[l.id]).length;
   const started = next && next.lesson && lessonStarted(next.lesson.id);
   const label = !next ? "Wszystkie lekcje przerobione" : next.cp ? "Teraz sprawdzian powtórkowy" : started ? "Kontynuuj lekcję" : nDone ? "Następna lekcja" : "Pierwsza lekcja";
@@ -60,6 +61,7 @@ function streakCardHtml() {
       <a class="sc-link" href="#/kolejnosc/dziennik">Kalendarz nauki →</a>
     </section>`;
 }
+/** @param {ReturnType<typeof nextStep>} next @param {number} nDone */
 function dayHtml(next, nDone) {
   const date = new Date().toLocaleDateString("pl-PL", { weekday: "long", day: "numeric", month: "long" });
   return `<section class="day" aria-labelledby="dayTitle">
@@ -72,7 +74,7 @@ function dayHtml(next, nDone) {
 }
 export const homeView = () => ({ html: renderHome(), title: SITE_TITLE });
 function renderHome() {
-  const nEx = PATH.reduce((s, l) => s + l.sections.filter((x) => x.type === "examples").reduce((a, x) => a + x.items.length, 0), 0);
+  const nEx = PATH.reduce((s, l) => s + l.sections.filter((x) => x.type === "examples").reduce((a, x) => a + (x.items || []).length, 0), 0);
   const nTasks = PATH.reduce((s, l) => s + allTasks(l), 0);
   const nWords = VOCAB.reduce((s, t) => s + vocabItems(t).length, 0);
   const nDone = PATH.filter((l) => state.done[l.id]).length;

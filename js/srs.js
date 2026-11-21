@@ -3,7 +3,7 @@
 import { stripTags, hashStr, isObj } from "./util.js";
 import { today, addDays } from "./dates.js";
 
-// Termin minął (albo jest dziś). day = dzisiejsza data „RRRR-MM-DD”.
+/** Termin minął (albo jest dziś). @param {{ due: string }} m @param {string} [day] dzisiejsza data „RRRR-MM-DD” */
 export const isDue = (m, day = today()) => m.due <= day;
 
 // ---------- Moje błędy ----------
@@ -12,7 +12,13 @@ export const isDue = (m, day = today()) => m.due <= day;
 // pudełko 1 → 2 (za 3 dni) → 3 (za 7 dni) → 4 (za 14 dni) → zadanie opanowane, znika z listy.
 // Dobra odpowiedź przed terminem niczego nie zmienia (żeby nie przeskakiwać pudełek tego samego dnia).
 export const BOX_DAYS = [1, 3, 7, 14];
-// Nowy wpis po odpowiedzi: obiekt = zapisz, null = usuń (opanowane), undefined = bez zmian.
+/**
+ * Nowy wpis po odpowiedzi: obiekt = zapisz, null = usuń (opanowane), undefined = bez zmian.
+ * @param {MistakeEntry | undefined} prev
+ * @param {boolean} ok
+ * @param {Date} [now]
+ * @returns {MistakeEntry | null | undefined}
+ */
 export function nextMistake(prev, ok, now = new Date()) {
   if (!ok) return { box: 1, due: addDays(BOX_DAYS[0], now), wrong: ((prev && prev.wrong) || 0) + 1, lastSeen: now.toISOString() };
   if (!prev || !isDue(prev, today(now))) return undefined;
@@ -30,8 +36,16 @@ export const SRS_DAYS = [1, 3, 7, 14, 30, 60];
 export const NEW_CHOICES = [5, 10, 15, 20];
 export const SRS_ROUND = 20;
 // Klucz karty: angielskie słowo małymi literami (to samo słowo bywa w kilku lekcjach i działach – jedna karta).
+/** @param {string} en @returns {string} */
 export const wordKey = (en) => stripTags(en).toLowerCase();
-// Nowy wpis po ocenie (rating: 0 = nie wiem, 1 = trudne, 2 = wiem); undefined = bez zmian.
+/**
+ * Nowy wpis po ocenie; undefined = bez zmian.
+ * @param {WordEntry | undefined} prev
+ * @param {number} rating 0 = nie wiem, 1 = trudne, 2 = wiem
+ * @param {string} deck id talii
+ * @param {Date} [now]
+ * @returns {WordEntry | undefined}
+ */
 export function nextWord(prev, rating, deck, now = new Date()) {
   let box;
   if (rating === 0) box = 1;
@@ -43,7 +57,14 @@ export function nextWord(prev, rating, deck, now = new Date()) {
 // nie ma jeszcze w powtórkach, trafiają do pudełka 3. Terminy rozkładamy na 2 tygodnie, żeby nie przyszły naraz.
 // Bez first (nie liczą się do limitu nowych) i bez lastSeen (przy łączeniu kopii wygrywa prawdziwa ocena).
 // s – stan (zmieniany w miejscu), hasWord(k) – czy słowo jest w kursie. Zwraca liczbę dodanych wpisów.
+/** @param {string} k @param {string} deck @param {Date} [now] @returns {WordEntry} */
 export const knownEntry = (k, deck, now = new Date()) => ({ box: 3, due: addDays(1 + (parseInt(hashStr(k), 36) % 14), now), deck });
+/**
+ * @param {{ srs: Dict<WordEntry>, srsNew: number, known?: Dict<KnownWords> }} s
+ * @param {(k: string) => boolean} hasWord
+ * @param {Date} [now]
+ * @returns {number}
+ */
 export function migrateKnown(s, hasWord, now = new Date()) {
   if (!isObj(s.srs)) s.srs = {};
   if (!NEW_CHOICES.includes(s.srsNew)) s.srsNew = 10;
@@ -56,6 +77,12 @@ export function migrateKnown(s, hasWord, now = new Date()) {
 }
 // Talie w codziennej kolejce: słownictwo przerobionych lekcji oraz lekcje i działy, które uczeń zaczął
 // (ocenił w nich fiszkę albo oznaczył słowo jako znane). decks – wszystkie talie ({ id, lesson?, keys, manual? }).
+/**
+ * @template {{ id: string, lesson?: { id: string }, manual?: boolean }} D
+ * @param {Pick<AppState, "srs" | "known" | "done">} st
+ * @param {D[]} decks
+ * @returns {D[]}
+ */
 export function activeDecks(st, decks) {
   const started = new Set(Object.values(st.srs).map((e) => e.deck));
   for (const [d, ws] of Object.entries(st.known)) if (Object.values(ws || {}).some(Boolean)) started.add(d);
@@ -64,11 +91,21 @@ export function activeDecks(st, decks) {
 // Kolejka na dziś: due = słówka z terminem do dziś (najstarsze najpierw), fresh = nowe słówka (do limitu dziennego,
 // po kolei z talii: lekcje w kolejności nauki, potem działy), avail = ile nowych czeka w taliach bez limitu.
 // words – zbiór kluczy słów kursu (Map/Set z has), day – dzisiejsza data.
+/**
+ * @template {{ id: string, lesson?: { id: string }, manual?: boolean, keys: string[] }} D
+ * @param {Pick<AppState, "srs" | "known" | "done" | "srsNew">} st
+ * @param {D[]} decks
+ * @param {{ has(k: string): boolean }} words
+ * @param {string} [day]
+ * @returns {{ due: string[], fresh: { k: string, deck: string }[], avail: number, decks: D[] }}
+ */
 export function srsToday(st, decks, words, day = today()) {
   const t = day, active = activeDecks(st, decks);
   const due = Object.keys(st.srs).filter((k) => words.has(k) && st.srs[k].due <= t).sort((a, b) => st.srs[a].due.localeCompare(st.srs[b].due));
   const left = Math.max(0, st.srsNew - Object.values(st.srs).filter((e) => e.first === t).length);
-  const fresh = [], seen = new Set();
+  /** @type {{ k: string, deck: string }[]} */
+  const fresh = [];
+  const seen = new Set();
   let avail = 0;
   for (const d of active) if (!d.manual) for (const k of d.keys) if (!st.srs[k] && !seen.has(k)) { // talia czytanek – tylko „Dodaj do fiszek”
     seen.add(k); avail++;

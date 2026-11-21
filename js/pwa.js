@@ -11,6 +11,7 @@ export function initOffline() {
   const sw = navigator.serviceWorker;
   let wantReload = false;
   sw.addEventListener("controllerchange", () => { if (wantReload) location.reload(); });
+  /** @param {ServiceWorker | null} worker */
   const offer = (worker) => {
     if (!worker || !sw.controller || $(".update-bar")) return; // bez sw.controller = pierwsza instalacja, nie aktualizacja
     const bar = document.createElement("div");
