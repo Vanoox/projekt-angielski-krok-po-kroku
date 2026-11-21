@@ -164,7 +164,7 @@ for (const l of lessons) {
       for (const r of s.rows || []) if (r.length !== s.headers.length) se(`wiersz ma ${r.length} kolumn zamiast ${s.headers.length}`);
     }
     if (s.type === "mistakes" && !(s.items || []).every((m) => m.wrong && m.right && m.why)) se("każdy błąd potrzebuje wrong/right/why");
-    // „Znajdź błąd” (app.js) bierze pierwszy wariant wrong (przed „ / ”) i każe kliknąć słowo z <b>…</b>; fix = pełne poprawne zdania.
+    // „Znajdź błąd” (js/tasks.js, buildFinds) bierze pierwszy wariant wrong (przed „ / ”) i każe kliknąć słowo z <b>…</b>; fix = pełne poprawne zdania.
     if (s.type === "mistakes") for (const m of s.items || []) {
       const w0 = String(m.wrong || "").replace(/\s*\([^()]*\)$/, "").split(/\s+\/\s+/)[0];
       if (m.wrong && !/<b>[^<]*\S[^<]*<\/b>/.test(w0)) se(`wrong bez <b>…</b> w pierwszym wariancie (zadanie „Znajdź błąd” go pominie): ${strip(m.wrong)}`);
@@ -407,18 +407,20 @@ for (const c of CH) {
 }
 
 // ---------- aktualność data/bundle.js, index.html i sw.js (strona ładuje tylko bundle) ----------
-// Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje).
+// Ostrzeżenie, nie błąd: porównujemy treść, a nie daty plików (git ich nie zachowuje); końce linii (LF / CRLF)
+// bez znaczenia. Ten sam warunek jako błąd: npm run check (tools/check.js).
 try {
   const build = require("./build-index.js");
+  const lf = (s) => s.replace(/\r\n/g, "\n");
   const { content } = build.buildBundle();
   const bundlePath = path.join(ROOT, build.BUNDLE);
   const current = fs.existsSync(bundlePath) ? fs.readFileSync(bundlePath, "utf8") : "";
   const html = fs.readFileSync(path.join(ROOT, "index.html"), "utf8");
   const newHtml = build.buildIndex(content);
-  if (current !== content || html !== newHtml)
-    console.log("UWAGA: data/bundle.js albo index.html są nieaktualne – strona pokaże stare dane. Uruchom: node tools/build-index.js");
-  else if (fs.readFileSync(path.join(ROOT, build.SW), "utf8") !== build.buildSw(newHtml).content)
-    console.log("UWAGA: sw.js jest nieaktualny – zainstalowana strona (offline) nie dostanie nowej wersji. Uruchom: node tools/build-index.js");
+  if (lf(current) !== lf(content) || lf(html) !== lf(newHtml))
+    console.log("UWAGA: data/bundle.js albo index.html są nieaktualne – strona pokaże stare dane. Uruchom: npm run build");
+  else if (lf(fs.readFileSync(path.join(ROOT, build.SW), "utf8")) !== lf(build.buildSw(newHtml).content))
+    console.log("UWAGA: sw.js jest nieaktualny – zainstalowana strona (offline) nie dostanie nowej wersji. Uruchom: npm run build");
 } catch (e) {
   console.log("UWAGA: nie udało się sprawdzić data/bundle.js: " + e.message);
 }

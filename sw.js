@@ -1,14 +1,14 @@
 // Service worker – strona działa bez internetu i da się ją zainstalować na telefonie.
 // Leży w katalogu głównym, bo obejmuje tylko pliki ze swojego katalogu i niżej.
 //
-// Część między BUILD:START i BUILD:END wpisuje `node tools/build-index.js` – nie edytuj jej ręcznie.
+// Część między BUILD:START i BUILD:END wpisuje `npm run build` (tools/build-index.js) – nie edytuj jej ręcznie.
 // VERSION to skrót treści wszystkich plików z SHELL, więc zmienia się przy każdej zmianie strony.
 // Przeglądarka sama sprawdza, czy sw.js się zmienił; nowa wersja pobiera pliki w tle, a strona
 // pokazuje pasek „Jest nowa wersja” (js/app.js, initOffline). Po kliknięciu „Odśwież” nowa wersja
 // przejmuje stronę i ta się przeładowuje.
 //
 // Strategia:
-//  - „app shell” (index.html, CSS, app.js, data/bundle.js, manifest, ikony) – z pamięci podręcznej,
+//  - „app shell” (index.html, CSS, app.js i moduły z js/, data/bundle.js, manifest, ikony) – z pamięci podręcznej,
 //    bez czekania na sieć. Adresy mają ?v=<hash>, więc pod danym adresem plik się nie zmienia;
 //    aktualizacja przychodzi w tle razem z nowym sw.js (nowa VERSION = nowa paczka plików).
 //  - fonty Google – z pamięci podręcznej, a gdy ich brak – z sieci (i zapis na później).
@@ -16,11 +16,20 @@
 //  - wszystko inne – zwykle z sieci.
 
 // BUILD:START
-const VERSION = "fee34dc3e6";
+const VERSION = "4e1874be27";
 const SHELL = [
   "./",
   "css/style.css?v=139c2d5169",
-  "js/app.js?v=3e27e52ccc",
+  "js/app.js?v=533d3d1bb1",
+  "js/activity.js?v=3de70268a3",
+  "js/check.js?v=19f275ee30",
+  "js/dates.js?v=ee3b1187e9",
+  "js/errors.js?v=2d620c5201",
+  "js/spelling.js?v=2b559f28c8",
+  "js/srs.js?v=b943ac1720",
+  "js/storage.js?v=95d08d84cf",
+  "js/tasks.js?v=62b67fb417",
+  "js/util.js?v=5bb142604d",
   "data/bundle.js?v=ae9bfa7dbe",
   "manifest.webmanifest",
   "icons/apple-touch-icon.png",
@@ -72,7 +81,9 @@ self.addEventListener("fetch", (e) => {
       e.respondWith(fromCache(INDEX, req, { ignoreSearch: true }));
       return;
     }
-    e.respondWith(fromCache(req, req));
+    // Moduły z js/: przeglądarka bez import map (np. Safari < 16.4) prosi o js/check.js bez ?v= – w pamięci tej
+    // wersji jest dokładnie jedna kopia każdego modułu, więc dopasowanie bez ?v= daje właściwy plik także offline.
+    e.respondWith(fromCache(req, req, url.pathname.includes("/js/") ? { ignoreSearch: true } : undefined));
     return;
   }
 

@@ -1,0 +1,28 @@
+<!doctype html>
+<html><head><meta charset="utf-8"></head>
+<body>
+<iframe id="f" style="width:375px;height:800px;border:0"></iframe>
+<pre id="out"></pre>
+<script>
+(async () => {
+  const st = new URLSearchParams(location.search).get("st") || "student";
+  const routes = ["#/", "#/bledy", "#/slowka", "#/practice", "#/tests", "#/lesson/present-simple", "#/lesson/present-simple/practice", "#/lesson/present-simple/vocab", "#/kolejnosc", "#/vocab", "#/czytanki", "#/czytanki/anna-flat", "#/dialogi/at-the-cafe", "#/rozmowy/new-classmate", "#/odmiana", "#/czasy", "#/test-poziomu/A1"];
+  const f = document.getElementById("f"), out = [];
+  const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+  for (const r of routes) {
+    f.src = "/?__t=" + st + "&r=" + encodeURIComponent(r) + r;
+    await new Promise((ok) => (f.onload = ok));
+    await sleep(800);
+    const d = f.contentDocument, w = d.documentElement.scrollWidth;
+    let worst = "";
+    if (w > 375) {
+      const els = [...d.querySelectorAll("#content *")].filter((e) => e.getBoundingClientRect().right > 376);
+      const leaf = els.filter((e) => ![...e.children].some((c) => els.includes(c)));
+      worst = leaf.slice(0, 3).map((e) => e.tagName.toLowerCase() + "." + [...e.classList].join(".") + "(" + Math.round(e.getBoundingClientRect().right) + ")").join(" ");
+    }
+    out.push(`${w > 375 ? "SZERSZE" : "ok"} ${w} ${r} ${worst}`);
+  }
+  document.getElementById("out").textContent = "RESULT\n" + out.join("\n");
+})();
+</script>
+</body></html>

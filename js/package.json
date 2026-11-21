@@ -1,0 +1,4 @@
+{
+  "//": "Pliki w js/ to moduły ES (import/export) – tak traktuje je Node (testy, node --check). Strona ładuje je przez <script type=\"module\"> w index.html; ten plik nie trafia na stronę.",
+  "type": "module"
+}

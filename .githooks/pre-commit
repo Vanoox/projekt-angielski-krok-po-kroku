@@ -1,0 +1,22 @@
+#!/bin/sh
+# Hook przed commitem: uruchamia `npm run check` (= node tools/check.js): składnia JS, dane kursu (validate.js),
+# aktualność data/bundle.js / index.html / sw.js i testy (node --test). Trwa kilka sekund, bez audytu i bez przeglądarki.
+# Gdy coś się nie zgadza, commit jest zatrzymany – popraw błąd (np. npm run build) i zrób commit jeszcze raz.
+#
+# Włączenie (raz na komputer, w katalogu repozytorium):   git config core.hooksPath .githooks
+# Wyłączenie:                                              git config --unset core.hooksPath
+# Pominięcie w wyjątkowej sytuacji (lepiej nie):           git commit --no-verify
+#
+# Działa w Git Bash na Windows, na macOS i Linuksie – potrzebny tylko Node (bez npm install).
+# Sprawdzane są pliki z katalogu roboczego (także te niedodane do commita).
+
+cd "$(git rev-parse --show-toplevel)" || exit 1
+if ! command -v node >/dev/null 2>&1; then
+  echo "pre-commit: nie znaleziono programu node – zainstaluj Node.js albo pomiń hook: git commit --no-verify" >&2
+  exit 1
+fi
+node tools/check.js || {
+  echo "" >&2
+  echo "pre-commit: commit zatrzymany – popraw błędy powyżej (szczegóły: npm run check)." >&2
+  exit 1
+}

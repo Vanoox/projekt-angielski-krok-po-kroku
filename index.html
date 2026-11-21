@@ -48,11 +48,36 @@
     <main class="content" id="content"></main>
   </div>
 
-  <!-- Dane: data/bundle.js generuje `node tools/build-index.js` – uruchom po każdej zmianie w data/ -->
+  <!-- Dane: data/bundle.js generuje `npm run build` – uruchom po każdej zmianie w data/ -->
   <!-- DATA:START -->
   <script src="data/bundle.js?v=ae9bfa7dbe"></script>
   <!-- DATA:END -->
+  <!-- Moduły ES z js/: import map + modulepreload generuje `npm run build` (moduły nie działają z file:// – npm run serve) -->
+  <!-- MODULES:START -->
+  <script type="importmap">
+  { "imports": {
+    "./js/activity.js": "./js/activity.js?v=3de70268a3",
+    "./js/check.js": "./js/check.js?v=19f275ee30",
+    "./js/dates.js": "./js/dates.js?v=ee3b1187e9",
+    "./js/errors.js": "./js/errors.js?v=2d620c5201",
+    "./js/spelling.js": "./js/spelling.js?v=2b559f28c8",
+    "./js/srs.js": "./js/srs.js?v=b943ac1720",
+    "./js/storage.js": "./js/storage.js?v=95d08d84cf",
+    "./js/tasks.js": "./js/tasks.js?v=62b67fb417",
+    "./js/util.js": "./js/util.js?v=5bb142604d"
+  } }
+  </script>
+  <link rel="modulepreload" href="js/activity.js?v=3de70268a3">
+  <link rel="modulepreload" href="js/check.js?v=19f275ee30">
+  <link rel="modulepreload" href="js/dates.js?v=ee3b1187e9">
+  <link rel="modulepreload" href="js/errors.js?v=2d620c5201">
+  <link rel="modulepreload" href="js/spelling.js?v=2b559f28c8">
+  <link rel="modulepreload" href="js/srs.js?v=b943ac1720">
+  <link rel="modulepreload" href="js/storage.js?v=95d08d84cf">
+  <link rel="modulepreload" href="js/tasks.js?v=62b67fb417">
+  <link rel="modulepreload" href="js/util.js?v=5bb142604d">
+  <!-- MODULES:END -->
   <!-- Aplikacja -->
-  <script src="js/app.js?v=3e27e52ccc"></script>
+  <script type="module" src="js/app.js?v=533d3d1bb1"></script>
 </body>
 </html>

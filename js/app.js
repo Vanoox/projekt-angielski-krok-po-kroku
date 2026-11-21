@@ -1,7 +1,18 @@
+// Aplikacja: widoki, lektor, router. Moduł ES (index.html: <script type="module">) – importy idą przez import map
+// z index.html (adresy z ?v=<hash>, generuje `npm run build`). Logika bez DOM jest w osobnych modułach (testy w tests/).
+import { LEVELS, stripTags, hashStr, esc } from "./util.js";
+import { DAY, dayStr, today, dayDate, shiftDay } from "./dates.js";
+import { spellFold, SP_LL } from "./spelling.js";
+import { expandAnswer, displayAnswer, firstVariant, normalize, variants, matches, feIsStrict, feMatch, lcs, diffHtml as diffCore, vocabMatch, orderParts } from "./check.js";
+import { ERR_INFO, buildErrDict, errClassify as classifyErr, errTagsHtml, errTop } from "./errors.js";
+import { isDue, BOX_DAYS, nextMistake, SRS_DAYS, NEW_CHOICES, SRS_ROUND, wordKey, nextWord, knownEntry, activeDecks as activeDecksOf, srsToday as srsTodayOf } from "./srs.js";
+import { dayTotal, addActivity, streakInfo as streakOf, ACT_WEEKS, actLevel, GOAL_CHOICES, goalCount as goalCountOf, goalJustHit } from "./activity.js";
+import { store, loadState, migrateState, BACKUP_APP, BACKUP_VERSION, readAll, writeAll, parseBackup, mergeData, backupStats as storageBackupStats, backupDue as storageBackupDue } from "./storage.js";
+import { dictText, buildFinds } from "./tasks.js";
+
 (function () {
   "use strict";
 
-  const LEVELS = ["A1", "A2", "B1", "B2"];
   // Ikony liniowe 24×24 (stroke = currentColor). Większość przepisana z Feather Icons (MIT, © 2013–2017 Cole Bemis)
   // i Lucide (ISC, © Lucide Contributors); "cards", "slow" – własne. Użycie: icon("check") → <svg class="ic">.
   const ICONS = {
@@ -94,7 +105,6 @@
   const VOCAB_BY_ID = Object.fromEntries(VOCAB.map((t) => [t.id, t]));
   const vocabItems = (t) => (t.groups || []).flatMap((g) => g.items || []);
 
-  const stripTags = (s) => String(s || "").replace(/<[^>]*>/g, " ").replace(/\s+/g, " ").trim();
   const SEARCH_TEXT = Object.fromEntries(PATH.map((l) => [l.id, stripTags(JSON.stringify({ s: l.sections, v: l.vocab, t: l.summary })).toLowerCase()]));
   const HEAD_TEXT = Object.fromEntries(PATH.map((l) => [l.id, (l.title + " " + l.titlePl + " " + l.id.replace(/-/g, " ")).toLowerCase()]));
   const practiceCount = (l) => l.practice.reduce((s, p) => s + (p.items || []).length, 0);
@@ -103,18 +113,7 @@
   // Rejestr zadań do „Moich błędów”. Zadania nie mają id, więc klucz = id lekcji ~ źródło
   // (e = szybki sprawdzian, p0, p1… = zestawy ćwiczeń, t = test) ~ skrót treści (typ, pytanie, opcje, odpowiedzi).
   // Zmiana treści zadania w data/ daje nowy klucz – stary wpis w eng-mistakes jest wtedy po prostu pomijany.
-  const hashStr = (s) => { let x = 0x811c9dc5; for (let i = 0; i < s.length; i++) { x ^= s.charCodeAt(i); x = Math.imul(x, 0x01000193); } return (x >>> 0).toString(36); };
-  // Dyktando: zdania z przykładów w teorii lekcji (sekcje „examples”, pole en). Pomijamy zdania, których nie da się
-  // jednoznacznie zapisać ze słuchu: z liczbami i walutą (25 / twenty-five), wariantami „A / B”, nawiasami, strzałkami,
-  // wielokropkiem, cudzysłowem, oraz bardzo krótkie (< 3 słów) i bardzo długie (> 16 słów).
-  const DICT_SKIP = /[\/=→←[\]()…_;:"“”„&<>\d£€$%+*#@]|\.\.|\s-\s/;
-  function dictText(html) {
-    const t = String(html || "").replace(/<br\s*\/?>/gi, " ").replace(/<[^>]*>/g, "").replace(/&nbsp;/g, " ")
-      .replace(/\s+/g, " ").replace(/\s+([,.!?])/g, "$1").replace(/^[–—]\s*/, "").trim();
-    if (!t || DICT_SKIP.test(t) || !/[.?!]$/.test(t)) return "";
-    const n = t.split(" ").length;
-    return n >= 3 && n <= 16 ? t : "";
-  }
+  // Dyktando: zdania z przykładów w teorii lekcji, które da się zapisać ze słuchu (dictText w js/tasks.js).
   PATH.forEach((l) => {
     const seen = new Set();
     l.dict = [];
@@ -125,33 +124,8 @@
       l.dict.push({ type: "dictation", say: t, answers: [t], pl: e.pl || "", explain: e.pl ? `<span class="d-pl">Po polsku: ${e.pl}</span>` : "" });
     }));
   });
-  // Znajdź błąd: zadania z sekcji „mistakes” (pary wrong / right / why; błędne miejsce w <b>…</b> – każda z 552 par
-  // je ma, więc nie trzeba klikać „między słowami”). Błędne zdanie = pierwszy wariant przed „ / ”; końcowy dopisek
-  // w nawiasie (po polsku, np. „(przez telefon)”) → podpowiedź pod zdaniem. Poprawne odpowiedzi: pole fix (pełne zdania,
-  // składnia jak w answers: {a|b}, (opcjonalne)), a bez niego warianty z right rozdzielone „ / ” (przy kilku błędnych
-  // wariantach – poprawny o tym samym numerze). fix jest potrzebne, gdy right ma warianty częściowe („I've got / I have
-  // a new phone.”) albo gubi kontekst zdania. Każda para daje dwa zadania: bad (zdanie z błędem) i good (to samo zdanie
-  // poprawnie – do „Tu nie ma błędu”); w rundzie ok. 20% to good.
-  const untag = (s) => String(s || "").replace(/<[^>]*>/g, "").replace(/\s+/g, " ").trim();
-  const FE_ALT = /\s+\/\s+/;
-  PATH.forEach((l) => {
-    l.finds = [];
-    l.sections.filter((s) => s.type === "mistakes").forEach((s) => (s.items || []).forEach((m) => {
-      let w = String(m.wrong || "").trim(), note = "";
-      const pm = w.match(/\s*\(([^()]*)\)$/);
-      if (pm) { note = pm[1].trim(); w = w.slice(0, pm.index).trim(); }
-      const ws = w.split(FE_ALT), rs = String(m.right || "").split(FE_ALT).map(untag);
-      if (ws.length > 1) note = ""; // dopisek dotyczył ostatniego wariantu
-      if (!/<b>/.test(ws[0])) return;
-      const answers = Array.isArray(m.fix) && m.fix.length ? m.fix.slice() : ws.length > 1 && rs.length === ws.length ? [rs[0]] : rs;
-      const model = expandAnswer(answers[0])[0];
-      const common = { type: "finderr", why: m.why || "", wrongHtml: m.wrong, rightHtml: m.right };
-      l.finds.push({
-        bad: { ...common, q: untag(ws[0]), html: ws[0], note, answers, model },
-        good: { ...common, ok: true, q: model, html: model, note: "", answers: [model], model },
-      });
-    }));
-  });
+  // Znajdź błąd: pary { bad, good } z sekcji „mistakes” (zasady w js/tasks.js, buildFinds).
+  PATH.forEach((l) => { l.finds = buildFinds(l); });
   const TASKS = new Map(); // klucz → { ex, lesson, src, instr }
   const KEY_OF = new WeakMap(); // obiekt zadania → klucz
   PATH.forEach((l) => {
@@ -227,7 +201,6 @@
   // Rejestr słówek do „Słówek na dziś”. Talia = słownictwo lekcji („lesson:<id>”) albo dział („vocab:<id>”) –
   // te same klucze co w state.known. Jedna karta na słowo: klucz = angielskie słowo małymi literami
   // (to samo słowo bywa w kilku lekcjach i działach – uczymy się go raz, a nie w każdej talii osobno).
-  const wordKey = (en) => stripTags(en).toLowerCase();
   const DECKS = [
     ...PATH.filter((l) => l.vocab && (l.vocab.items || []).length).map((l) => ({ id: "lesson:" + l.id, items: l.vocab.items, title: `${lessonNo(l)}. ${l.title}`, level: l.level, href: `#/lesson/${l.id}/vocab`, lesson: l })),
     ...VOCAB.map((t) => ({ id: "vocab:" + t.id, items: vocabItems(t), title: `${t.icon || "📘"} ${t.titlePl}`, level: t.level, href: `#/vocab/${t.id}` })),
@@ -258,25 +231,7 @@
   });
 
   // ---------- Stan (localStorage) ----------
-  const store = {
-    get(k, d) { try { const v = localStorage.getItem("eng-" + k); return v == null ? d : JSON.parse(v); } catch (e) { return d; } },
-    set(k, v) { try { localStorage.setItem("eng-" + k, JSON.stringify(v)); } catch (e) {} },
-  };
-  // Cel dzienny (eng-goal): zadania + słówka w fiszkach dziennie (patrz „Cel dzienny” niżej).
-  const GOAL_CHOICES = [10, 20, 30, 50], GOAL_DEFAULT = 20;
-  // Ponownie wywoływane po wczytaniu kopii postępu (Object.assign(state, loadState())).
-  const loadState = () => ({
-    done: store.get("done", {}),
-    scores: store.get("scores", {}),
-    levels: store.get("levels", LEVELS.slice()),
-    showPl: store.get("showPl", true),
-    known: store.get("known", {}),
-    mistakes: store.get("mistakes", {}),
-    srs: store.get("srs", {}),
-    srsNew: store.get("srsNew", 10),
-    activity: store.get("activity", {}),
-    goal: ((g) => (GOAL_CHOICES.includes(g) ? g : GOAL_DEFAULT))(store.get("goal", GOAL_DEFAULT)),
-  });
+  // store, loadState i migracje stanu (klucze eng-*) – js/storage.js.
   const state = loadState();
   const save = () => { for (const k of Object.keys(state)) store.set(k, state[k]); };
   const saveScore = (key, correct, total) => {
@@ -287,75 +242,28 @@
   };
 
   // ---------- Moje błędy: system pudełek (eng-mistakes) ----------
-  // Wpis: { box: 1–4, due: "RRRR-MM-DD", wrong: liczba błędów, lastSeen: ISO }.
-  // Błąd (gdziekolwiek) → pudełko 1, powtórka jutro. Dobra odpowiedź, gdy zadanie jest „na dziś”:
-  // pudełko 1 → 2 (za 3 dni) → 3 (za 7 dni) → 4 (za 14 dni) → zadanie opanowane, znika z listy.
-  // Dobra odpowiedź przed terminem niczego nie zmienia (żeby nie przeskakiwać pudełek tego samego dnia).
-  const BOX_DAYS = [1, 3, 7, 14];
-  const dayStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
-  const today = () => dayStr(new Date());
-  const addDays = (n) => { const d = new Date(); d.setDate(d.getDate() + n); return dayStr(d); };
-  const isDue = (m) => m.due <= today();
+  // Zasady pudełek (1 → 2 → 3 → 4 → opanowane) – js/srs.js, nextMistake.
   const mistakeList = () => Object.entries(state.mistakes).filter(([k]) => hasTask(k)).map(([key, m]) => ({ key, m, ...TASKS.get(key) })); // hasTask: też zadania z trenera odmiany
   const mistakesDue = () => mistakeList().filter((x) => isDue(x.m)).length;
   function recordResult(key, ok) {
-    const prev = state.mistakes[key];
-    if (!ok) state.mistakes[key] = { box: 1, due: addDays(BOX_DAYS[0]), wrong: ((prev && prev.wrong) || 0) + 1, lastSeen: new Date().toISOString() };
-    else if (!prev || !isDue(prev)) return;
-    else if (prev.box >= BOX_DAYS.length) delete state.mistakes[key];
-    else state.mistakes[key] = { ...prev, box: prev.box + 1, due: addDays(BOX_DAYS[prev.box]), lastSeen: new Date().toISOString() };
+    const e = nextMistake(state.mistakes[key], ok);
+    if (e === undefined) return;
+    if (e === null) delete state.mistakes[key]; else state.mistakes[key] = e;
     store.set("mistakes", state.mistakes);
   }
 
   // ---------- Dziennik nauki (eng-activity) ----------
-  // { "RRRR-MM-DD" (data lokalna): { t: zadania, ok: w tym poprawne, w: ocenione słówka, a?: 1 } }.
-  // Zadania: każda odpowiedź w renderExercises (lekcje, zestawy, testy, trening, sprawdziany, Moje błędy,
-  // quizy ze słówek); słówka: każda ocena fiszki (rateWord). a: 1 = dzień przybliżony z historii (migrateActivity).
-  const DAY_RE = /^\d{4}-\d{2}-\d{2}$/;
-  const dayTotal = (e) => (e ? (e.t || 0) + (e.w || 0) : 0);
+  // Format wpisów, seria dni z rzędu i przybliżenie z historii – js/activity.js.
   function logActivity(d) {
-    const k = today(), e = { ...(state.activity[k] || {}) }, before = dayTotal(e);
-    for (const [f, n] of Object.entries(d)) e[f] = (e[f] || 0) + n;
-    delete e.a; // od teraz dzień ma prawdziwe dane (przybliżenie było dolnym oszacowaniem, więc tylko dopisujemy)
+    const k = today(), before = dayTotal(state.activity[k]), e = addActivity(state.activity[k], d);
     state.activity[k] = e;
     store.set("activity", state.activity);
-    // Cel dzienny: komunikat „Cel na dziś zrobiony” tylko w chwili przekroczenia celu i najwyżej raz dziennie
-    // (eng-goalDay = dzień ostatniego komunikatu; np. podniesienie celu po jego zrobieniu nie pokaże go drugi raz).
-    const hit = before < state.goal && dayTotal(e) >= state.goal && store.get("goalDay", "") !== k;
+    // Cel dzienny: komunikat „Cel na dziś zrobiony” tylko w chwili przekroczenia celu i najwyżej raz dziennie (eng-goalDay).
+    const hit = goalJustHit(before, dayTotal(e), state.goal, store.get("goalDay", ""), k);
     if (hit) store.set("goalDay", k);
     syncGoal(hit);
   }
-  // Historia sprzed dziennika (raz – gdy eng-activity jeszcze nie ma, także po wczytaniu starej kopii): PRZYBLIŻENIE
-  // z lastSeen w eng-mistakes (1 zadanie w dniu ostatniej odpowiedzi; poprawne, gdy pudełko > 1) i eng-srs
-  // (1 słówko w dniu ostatniej oceny). Wcześniejsze odpowiedzi nadpisał nowszy lastSeen, więc dni i liczby są zaniżone.
-  function migrateActivity(s) {
-    if (store.get("activity", null) !== null) return;
-    const act = {};
-    const add = (iso, f) => {
-      const d = new Date(iso);
-      if (!iso || isNaN(d)) return;
-      const k = dayStr(d), e = act[k] || (act[k] = { a: 1 });
-      for (const [x, n] of Object.entries(f)) e[x] = (e[x] || 0) + n;
-    };
-    Object.values(s.mistakes || {}).forEach((m) => isObj(m) && add(m.lastSeen, { t: 1, ok: m.box > 1 ? 1 : 0 }));
-    Object.values(s.srs || {}).forEach((m) => isObj(m) && add(m.lastSeen, { w: 1 }));
-    s.activity = act;
-    store.set("activity", act);
-  }
-  const dayDate = (k) => { const [y, m, d] = k.split("-").map(Number); return new Date(y, m - 1, d); };
-  const shiftDay = (k, n) => { const d = dayDate(k); d.setDate(d.getDate() + n); return dayStr(d); };
-  // Seria = dni z rzędu z choć 1 zadaniem albo słówkiem, bez dni przerwy. Bieżąca seria kończy się dziś,
-  // a jeśli dziś jeszcze nic nie zrobiono – wczoraj (seria trwa do końca dnia, w którym można ją przedłużyć).
-  function streakInfo() {
-    const act = state.activity, on = (k) => dayTotal(act[k]) > 0;
-    const days = Object.keys(act).filter((k) => DAY_RE.test(k) && on(k)).sort();
-    let best = 0, run = 0, prev = "";
-    for (const k of days) { run = prev && shiftDay(prev, 1) === k ? run + 1 : 1; best = Math.max(best, run); prev = k; }
-    const t = today(), todayDone = on(t);
-    let cur = 0;
-    for (let k = todayDone ? t : shiftDay(t, -1); on(k); k = shiftDay(k, -1)) cur++;
-    return { current: cur, best, days: days.length, todayDone };
-  }
+  const streakInfo = () => streakOf(state.activity);
   const dni = (n) => `${n} ${n === 1 ? "dzień" : "dni"}`;
   const streakHint = (s) => !s.days ? "Zrób pierwsze zadanie albo oceń słówko w fiszkach – tu zobaczysz swoje dni nauki."
     : s.todayDone ? "Dziś już się uczysz – seria trwa."
@@ -363,8 +271,6 @@
     : "Zrób dziś choć jedno zadanie albo słówko i zacznij nową serię.";
   // Kalendarz jak na GitHubie: kolumny = tygodnie (pn–nd), ostatnie ACT_WEEKS tygodni + bieżący.
   // Odcień wg liczby zadań + słówek w dniu (ACT_STEPS = dolne progi poziomów 1–4).
-  const ACT_WEEKS = 16, ACT_STEPS = [1, 10, 25, 50];
-  const actLevel = (n) => ACT_STEPS.reduce((lv, s, i) => (n >= s ? i + 1 : lv), 0);
   const MONTHS_SHORT = ["sty", "lut", "mar", "kwi", "maj", "cze", "lip", "sie", "wrz", "paź", "lis", "gru"];
   function activityHtml() {
     const s = streakInfo(), t = today(), now = dayDate(t);
@@ -416,7 +322,7 @@
   // Widoki: goalHtml() – karta z kółkiem i zmianą celu (Kolejność nauki, strona główna; do wstawienia w „Twój dzień”),
   // .goal-mini – małe kółko „12/20” na każdej stronie: w górnym pasku (#goalTop), a na telefonie (gdzie w pasku brak
   // miejsca) w menu (.nav-goal). Odświeża je syncGoal() po każdym wpisie w dzienniku.
-  const goalCount = () => dayTotal(state.activity[today()]);
+  const goalCount = () => goalCountOf(state.activity);
   const goalRing = (n, g) => {
     const pct = Math.min(100, Math.round((n / g) * 100));
     return `<svg class="goal-ring${n >= g ? " is-done" : ""}" viewBox="0 0 36 36" aria-hidden="true" focusable="false"><circle class="gr-bg" cx="18" cy="18" r="15"/><circle class="gr-fg" cx="18" cy="18" r="15" pathLength="100" stroke-dasharray="${pct} 100" transform="rotate(-90 18 18)"/></svg>`;
@@ -462,59 +368,16 @@
   }
 
   // ---------- Słówka na dziś: pudełka dla słówek (eng-srs) ----------
-  // Wpis: { box: 1–6, due: "RRRR-MM-DD", deck: talia, z której słowo trafiło do powtórek,
-  //         first: dzień pierwszej oceny (do dziennego limitu nowych słówek), lastSeen: ISO }.
-  // Ocena w fiszce: „Nie wiem” → pudełko 1, powtórka jutro (zawsze, także przed terminem).
-  // „Trudne” → to samo pudełko, „Wiem” → pudełko wyżej; słówko wraca po 1, 3, 7, 14, 30 albo 60 dniach
-  // (pudełko 6 = co 60 dni, słówka nie znikają). „Trudne” i „Wiem” przed terminem niczego nie zmieniają.
-  const SRS_DAYS = [1, 3, 7, 14, 30, 60];
-  const NEW_CHOICES = [5, 10, 15, 20];
-  const SRS_ROUND = 20;
+  // Zasady pudełek, migracja „znam” i kolejka na dziś – js/srs.js.
   function rateWord(k, rating, deck) { // rating: 0 = nie wiem, 1 = trudne, 2 = wiem
     logActivity({ w: 1 }); // każda ocena liczy się do dziennika, także przed terminem
-    const prev = state.srs[k];
-    let box;
-    if (rating === 0) box = 1;
-    else if (prev && !isDue(prev)) return;
-    else box = Math.min((prev ? prev.box : 1) + (rating === 2 ? 1 : 0), SRS_DAYS.length);
-    state.srs[k] = { box, due: addDays(SRS_DAYS[box - 1]), deck: (prev && prev.deck) || deck, first: prev ? prev.first || "" : today(), lastSeen: new Date().toISOString() };
+    const e = nextWord(state.srs[k], rating, deck);
+    if (!e) return;
+    state.srs[k] = e;
     store.set("srs", state.srs);
   }
-  // Migracja (przy starcie i po wczytaniu kopii): słówka oznaczone jako „znam” (✓ albo „Wiem” w fiszkach), których
-  // nie ma jeszcze w powtórkach, trafiają do pudełka 3. Terminy rozkładamy na 2 tygodnie, żeby nie przyszły naraz.
-  // Bez first (nie liczą się do limitu nowych) i bez lastSeen (przy łączeniu kopii wygrywa prawdziwa ocena).
-  const knownEntry = (k, deck) => ({ box: 3, due: addDays(1 + (parseInt(hashStr(k), 36) % 14)), deck });
-  function migrateKnown(s) {
-    if (!isObj(s.srs)) s.srs = {};
-    if (!NEW_CHOICES.includes(s.srsNew)) s.srsNew = 10;
-    let n = 0;
-    for (const [deck, words] of Object.entries(s.known || {})) for (const [en, v] of Object.entries(words || {})) {
-      const k = wordKey(en);
-      if (v && WORDS.has(k) && !s.srs[k]) { s.srs[k] = knownEntry(k, deck); n++; }
-    }
-    if (n) store.set("srs", s.srs);
-  }
-  // Talie w codziennej kolejce: słownictwo przerobionych lekcji oraz lekcje i działy, które uczeń zaczął
-  // (ocenił w nich fiszkę albo oznaczył słowo jako znane).
-  function activeDecks() {
-    const started = new Set(Object.values(state.srs).map((e) => e.deck));
-    for (const [d, ws] of Object.entries(state.known)) if (Object.values(ws || {}).some(Boolean)) started.add(d);
-    return DECKS.filter((d) => (d.lesson && state.done[d.lesson.id]) || started.has(d.id));
-  }
-  // Kolejka na dziś: due = słówka z terminem do dziś (najstarsze najpierw), fresh = nowe słówka (do limitu dziennego,
-  // po kolei z talii: lekcje w kolejności nauki, potem działy), avail = ile nowych czeka w taliach bez limitu.
-  function srsToday() {
-    const t = today(), decks = activeDecks();
-    const due = Object.keys(state.srs).filter((k) => WORDS.has(k) && state.srs[k].due <= t).sort((a, b) => state.srs[a].due.localeCompare(state.srs[b].due));
-    const left = Math.max(0, state.srsNew - Object.values(state.srs).filter((e) => e.first === t).length);
-    const fresh = [], seen = new Set();
-    let avail = 0;
-    for (const d of decks) if (!d.manual) for (const k of d.keys) if (!state.srs[k] && !seen.has(k)) { // talia czytanek – tylko „Dodaj do fiszek”
-      seen.add(k); avail++;
-      if (fresh.length < left) fresh.push({ k, deck: d.id });
-    }
-    return { due, fresh, avail, decks };
-  }
+  const activeDecks = () => activeDecksOf(state, DECKS);
+  const srsToday = () => srsTodayOf(state, DECKS, WORDS);
   const wordsDue = () => { const q = srsToday(); return q.due.length + q.fresh.length; };
   // Treść karty: słowo z podanej talii (albo z pierwszej, w której występuje); inne znaczenia z pozostałych talii jako „też:”.
   function wordCard(k, deckId) {
@@ -541,7 +404,6 @@
 
   // ---------- Pomocnicze ----------
   const $ = (s, r = document) => r.querySelector(s);
-  const esc = (s) => String(s ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
   const slug = (s) => String(s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
   const badge = (lvl) => `<span class="badge" data-level="${lvl}">${lvl}</span>`;
   const shuffle = (a) => { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
@@ -549,334 +411,18 @@
   const scorePill = (s) => s ? `<span class="pill ${pct(s) >= 80 ? "good" : pct(s) >= 50 ? "mid" : "low"}">${s.correct}/${s.total}</span>` : "";
 
   // ---------- Sprawdzanie odpowiedzi ----------
-  // Składnia w odpowiedziach: „(that)” = słowo opcjonalne, „{who|that}” = alternatywy.
-  function expandAnswer(a) {
-    let out = [String(a)];
-    for (let guard = 0; guard < 12; guard++) {
-      let changed = false;
-      out = out.flatMap((s) => {
-        let m = s.match(/\{([^{}]*)\}/);
-        if (m) { changed = true; return m[1].split("|").map((alt) => s.slice(0, m.index) + alt + s.slice(m.index + m[0].length)); }
-        m = s.match(/\(([^()]*)\)/);
-        if (m) { changed = true; return [s.slice(0, m.index) + m[1] + s.slice(m.index + m[0].length), s.slice(0, m.index) + s.slice(m.index + m[0].length)]; }
-        return [s];
-      });
-      if (!changed) break;
-    }
-    return out.map((s) => s.replace(/\s+/g, " ").replace(/\s+([,.!?;:])/g, "$1").trim()).slice(0, 64);
-  }
-  const displayAnswer = (a) => String(a).replace(/\{([^{}]*)\}/g, (_, x) => x.split("|").join("/"));
-  const firstVariant = (a) => expandAnswer(a)[0];
-
-  // Diakrytyki ignorujemy (Poznań = Poznan, café = cafe).
-  const normalize = (s) => String(s || "").toLowerCase().replace(/[’‘`´]/g, "'").replace(/[“”„"«»]/g, "")
-    .normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ł/g, "l")
-    .replace(/\b([ap])\.\s?m\b\.?/g, "$1m").replace(/(\d)\s+([ap]m)\b/g, "$1$2").replace(/(\d)([.:])(\d\d)\b/g, "$1:$3")
-    .replace(/[.!?,;:…–—]+/g, " ").replace(/(^|\s)-+|-+(\s|$)/g, " ").replace(/\s+/g, " ").trim()
-    // Równoważne zapisy tego samego słowa
-    .replace(/\bany more\b/g, "anymore").replace(/\ball right\b/g, "alright").replace(/\bokay\b/g, "ok")
-    .replace(/\be-mail/g, "email").replace(/\bno-one\b/g, "no one").replace(/\bper cent\b/g, "percent")
-    .replace(/\b(some|any|every)body\b/g, "$1one").replace(/\bnobody\b/g, "no one");
-  // ---------- Pisownia brytyjska i amerykańska ----------
-  // Obie pisownie są poprawne niezależnie od wybranego akcentu lektora: przy sprawdzaniu odpowiedzi (matchOne, diffHtml)
-  // i wymowy (prTokens) każde słowo sprowadzamy do jednej postaci (amerykańskiej). Słowa wypisane jawnie, a nie same
-  // reguły („-our → -or”, „-ise → -ize”), bo four/hour/your/tour i promise/advise/exercise/surprise piszemy tak samo.
-  const SP_OUR = "colour favour flavour neighbour behaviour humour honour labour harbour rumour tumour vapour odour armour savour endeavour vigour rigour clamour splendour valour parlour".split(" ");
-  const SP_RE = "cent theat met kilomet centimet millimet lit fib calib somb meag spect lust sab"; // centre(s/d) → center(s/ed)
-  const SP_ISE = "apolog recogn real organ critic memor priorit modern special marginal emphas summar sympath minim maxim categor final util social character civil standard mobil legal visual author custom optim ideal familiar normal personal popular public scrutin stabil symbol theor harmon hospital industrial jeopard legitim local monopol neutral penal privat rational revolution steril subsid econom agon antagon fantas patron colon global digit energ immun mesmer moistur vapor vandal"; // -ise(s/d/ing/ation/er) → -ize…
-  const SP_LL = "travel cancel label model fuel quarrel dial level signal total equal marvel counsel duel tunnel channel pedal shovel swivel grovel snorkel yodel funnel jewel"; // travelled → traveled
-  const SPELL = {};
-  ("grey gray greys grays greyer grayer greyest grayest greyish grayish mum mom mums moms tyre tire tyres tires cheque check cheques checks " +
-    "practise practice practises practices practised practiced practising practicing licence license licences licenses defence defense " +
-    "defences defenses offence offense offences offenses pretence pretense pyjamas pajamas aeroplane airplane aeroplanes airplanes " +
-    "storey story storeys stories programme program programmes programs catalogue catalog catalogues catalogs dialogue dialog dialogues dialogs " +
-    "analogue analog cosy cozy cosier cozier cosiest coziest cosiness coziness mould mold moulds molds mouldy moldy plough plow ploughs plows " +
-    "aluminium aluminum sceptical skeptical sceptic skeptic moustache mustache doughnut donut doughnuts donuts kerb curb yoghurt yogurt " +
-    "judgement judgment ageing aging manoeuvre maneuver manoeuvres maneuvers enrol enroll enrols enrolls enrolment enrollment fulfil fulfill " +
-    "fulfils fulfills fulfilment fulfillment skilful skillful skilfully skillfully wilful willful instalment installment jewellery jewelry " +
-    "analyse analyze analyses analyzes analysed analyzed analysing analyzing paralyse paralyze paralysed paralyzed")
-    .split(" ").forEach((w, i, a) => { if (i % 2 === 0) SPELL[w] = a[i + 1]; });
-  const SP_OUR_RE = new RegExp(`^(${SP_OUR.join("|")})(.*)$`), SP_RE_RE = new RegExp(`^(${SP_RE.replace(/ /g, "|")})re(s|d)?$`);
-  const SP_ISE_RE = new RegExp(`^(${SP_ISE.replace(/ /g, "|")})is(e|es|ed|ing|ation|ations|er|ers)$`);
-  const SP_LL_RE = new RegExp(`^(${SP_LL.replace(/ /g, "|")})l(ed|ing|er|ers|or|ors|ous)$`);
-  function spellFold(w) {
-    if (SPELL[w]) return SPELL[w];
-    let m;
-    if ((m = w.match(SP_OUR_RE))) return m[1].slice(0, -3) + "or" + m[2];
-    if ((m = w.match(SP_RE_RE))) return m[1] + "er" + (m[2] === "d" ? "ed" : m[2] || "");
-    if ((m = w.match(SP_ISE_RE))) return m[1] + "iz" + m[2];
-    if ((m = w.match(SP_LL_RE))) return m[1] + m[2];
-    return w;
-  }
-  const spellFoldStr = (s) => s.split(" ").map(spellFold).join(" ");
-  const CONTR = { "won't": ["will not"], "can't": ["cannot", "can not"], "cannot": ["can not", "can't"], "shan't": ["shall not"], "let's": ["let us"],
-    "'ll": ["will"], "'d": ["would", "had"], "'s": ["is", "has"], "'m": ["am"], "'re": ["are"], "'ve": ["have"] };
-  // Po przeczeniu w szyku pytającym (didn't they, isn't it) nie wolno rozwijać: „did not they” jest niegramatyczne.
-  const SUBJECTS = new Set(["i", "you", "he", "she", "it", "we", "they", "there", "this", "that"]);
-  // 's = has tylko przed imiesłowem (she's got / she's been / she's finished) – „He's a dog” ≠ „He has a dog”.
-  const looksParticiple = (w) => !!w && (/^(got|been|gone|done|had|made|seen|taken|given|written|eaten|known|left|lost|found|bought|brought|thought|told|said|sent|spent|met|heard|read|run|come|become|begun|broken|chosen|driven|fallen|forgotten|flown|grown|hidden|ridden|risen|shown|spoken|stolen|sworn|thrown|woken|worn|won|sold|kept|slept|felt|paid|put|cut|hit|let|set|shut|hurt|cost|understood|stood|sat|taught|caught|fought|built|learnt|burnt|dreamt|already|just|never|ever|always|not|recently|finally|also|still)$/.test(w) || /(ed|en|wn)$/.test(w));
-  function tokenVariants(t, next) {
-    if ((/n't$/.test(t) || t === "cannot") && SUBJECTS.has(next)) return [t];
-    if (CONTR[t]) return [t, ...CONTR[t]];
-    let m;
-    if ((m = t.match(/^(\w+)n't$/)) && t !== "amn't") return [t, m[1] + " not"]; // „amn't” nie istnieje – nie zaliczamy go jako „am not”
-    if ((m = t.match(/^(\w+)'m$/))) return [t, m[1] + " am"];
-    if ((m = t.match(/^(\w+)'re$/))) return [t, m[1] + " are"];
-    if ((m = t.match(/^(\w+)'ve$/))) return [t, m[1] + " have"];
-    if ((m = t.match(/^(\w+)'ll$/))) return [t, m[1] + " will"];
-    if ((m = t.match(/^(\w+)'d$/))) return [t, m[1] + " would", m[1] + " had"];
-    if ((m = t.match(/^(\w+)'s$/))) return /^(got|been|had)$/.test(next) ? [t, m[1] + " has"] : looksParticiple(next) ? [t, m[1] + " is", m[1] + " has"] : [t, m[1] + " is"];
-    return [t];
-  }
-  function variants(s) {
-    let out = [""];
-    const toks = normalize(s).split(" ");
-    for (let i = 0; i < toks.length; i++) {
-      const vs = tokenVariants(toks[i], toks[i + 1]);
-      out = out.flatMap((o) => vs.map((v) => (o ? o + " " + v : v)));
-      if (out.length > 4096) out = out.slice(0, 4096);
-    }
-    return new Set(out.map((x) => x.replace(/\s+/g, " ").trim()));
-  }
-  // Luka „bez przedimka” zapisana w answers jako „-”: akceptujemy też typowe zapisy ucznia (0, x, ø, brak).
-  const NOTHING = new Set(["", "0", "x", "ø", "∅", "brak", "nic", "none", "no article"]);
-  const matchOne = (given, expected) => {
-    if (normalize(expected) === "") return NOTHING.has(normalize(given));
-    const g = new Set([...variants(given)].map(spellFoldStr)); return [...variants(expected)].some((v) => g.has(spellFoldStr(v)));
-  };
-  const matches = (given, answers) => answers.some((a) => expandAnswer(a).some((e) => matchOne(given, e)));
-  // Znajdź błąd – sprawdzanie poprawki. Gdy matches() przyjmuje samo błędne zdanie (różnica tylko w przecinkach albo
-  // w skrócie: „Yes, I'm.” → „Yes, I am.”, „I amn't” = „am not”, „can not” = „cannot”), porównujemy dokładnie:
-  // znak po znaku, bez wielkości liter, odstępów i kropki na końcu (7 par). Wynik zapamiętany w zadaniu (ex.strict).
-  const feStrictForm = (s) => String(s).toLowerCase().replace(/[’‘`´]/g, "'").replace(/\s+/g, " ").replace(/\s+([,.!?;:…])/g, "$1").replace(/[\s.!?…]+$/, "").trim();
-  const feIsStrict = (ex) => { if (ex.strict === undefined) ex.strict = matches(ex.q, ex.answers); return ex.strict; };
-  const feMatch = (given, ex) => feIsStrict(ex)
-    ? ex.answers.some((a) => expandAnswer(a).some((e) => feStrictForm(e) === feStrictForm(given)))
-    : matches(given, ex.answers);
-
-  // Różnice słowo po słowie (LCS) – pokazuje, czego brakuje, a co jest zbędne.
-  function lcs(a, b) {
-    const dp = Array.from({ length: a.length + 1 }, () => new Array(b.length + 1).fill(0));
-    for (let i = a.length - 1; i >= 0; i--) for (let j = b.length - 1; j >= 0; j--)
-      dp[i][j] = a[i] === b[j] ? dp[i + 1][j + 1] + 1 : Math.max(dp[i + 1][j], dp[i][j + 1]);
-    const inA = new Set(), inB = new Set();
-    for (let i = 0, j = 0; i < a.length && j < b.length;) {
-      if (a[i] === b[j]) { inA.add(i); inB.add(j); i++; j++; } else if (dp[i + 1][j] >= dp[i][j + 1]) i++; else j++;
-    }
-    return { n: dp[0][0], inA, inB };
-  }
-  function diffHtml(given, answers) {
-    const gRaw = given.trim().split(/\s+/), gN = gRaw.map((w) => spellFoldStr(normalize(w)));
-    let best = null;
-    // Jeśli uczeń nie używał skrótów, porównujemy z pełną formą wzorca (has not ↔ hasn't), żeby nie zaznaczać fałszywych różnic.
-    const fullForm = (s) => { const t = s.split(/\s+/); return t.map((w, i) => { const v = tokenVariants(normalize(w), normalize(t[i + 1] || "")); if (!/'/.test(w) || v.length < 2) return w; const f = v[v.length - 1]; return /^[A-Z]/.test(w) ? f.charAt(0).toUpperCase() + f.slice(1) : f; }).join(" "); };
-    const useFull = !/['’]/.test(given);
-    for (const a of answers) for (const e0 of expandAnswer(a)) {
-      const e = useFull ? fullForm(e0) : e0;
-      const eRaw = e.split(/\s+/), eN = eRaw.map((w) => spellFoldStr(normalize(w)));
-      const r = lcs(gN, eN);
-      const score = r.n * 2 - eN.length - gN.length;
-      if (!best || score > best.score) best = { score, eRaw, r };
-    }
-    if (!best) return "";
-    const g = gRaw.map((w, i) => best.r.inA.has(i) ? esc(w) : `<span class="d-extra">${esc(w)}</span>`).join(" ");
-    const e = best.eRaw.map((w, j) => best.r.inB.has(j) ? esc(w) : `<span class="d-miss">${esc(w)}</span>`).join(" ");
-    return `<div class="diff"><div><span class="d-lbl">Twoja odpowiedź:</span> ${g}</div><div><span class="d-lbl">Poprawnie:</span> ${e} ${speakBtn(best.eRaw.join(" "))}</div></div>`;
-  }
+  // Cała logika (składnia ( ) i { | }, skróty, pisownia BrE/AmE, różnice słowo po słowie) – js/check.js i js/spelling.js.
+  const diffHtml = (given, answers) => diffCore(given, answers, speakBtn);
 
   // ---------- Typowe błędy (tylko opis błędnej odpowiedzi – ocena się nie zmienia) ----------
-  // Odpowiedź porównujemy z najbliższym wzorcem (skróty rozwinięte do pełnych form) i nazywamy różnice.
-  // Heurystyka: przy wątpliwościach „other” (bez etykiety) – lepiej nic nie napisać niż napisać źle.
-  const ERR_INFO = {
-    s3: { label: "Końcówka -s w 3. osobie", tip: "Po he / she / it czasownik ma -s (she works), ale po does / doesn't / did i po can, will, must już nie (Does she work? She can swim).", lesson: "present-simple" },
-    plural: { label: "Liczba mnoga", tip: "Po two, three, many, these, those rzeczownik ma końcówkę -s (two books, these cars), po a / one / this – nie.", lesson: "plural-nouns" },
-    ends: { label: "Końcówka -s", tip: "Sprawdź końcówkę -s: czasownik po he / she / it (she works) albo rzeczownik w liczbie mnogiej (two books)." },
-    article: { label: "Przedimek a / an / the", tip: "a / an – jedna rzecz, o której mówisz pierwszy raz (an przed samogłoską w wymowie: an apple); the – konkretna, znana już rzecz.", lesson: "articles-basics" },
-    aux: { label: "Czasownik posiłkowy", tip: "do / does / did, am / is / are, was / were, have / has muszą pasować do osoby (he does, they do) i do czasu." },
-    irr: { label: "Forma czasownika nieregularnego", tip: "Sprawdź, której z trzech form potrzeba: go – went (Past Simple) – gone (po have / has).", lesson: "irregular-verbs" },
-    verb: { label: "Forma czasownika", tip: "Sprawdź końcówkę czasownika: -ing (is working), -ed (worked) albo forma podstawowa (can work, didn't work)." },
-    prep: { label: "Przyimek", tip: "Przyimki często nie pasują 1:1 do polskich (in / on / at, to / for) – ucz się ich razem z całym wyrażeniem." },
-    order: { label: "Szyk wyrazów", tip: "Te same słowa, inna kolejność. W zdaniu: podmiot – czasownik – reszta; w pytaniu czasownik posiłkowy przed podmiotem (Do you…? Is she…?).", lesson: "word-order" },
-    typo: { label: "Literówka", tip: "Słowo jest prawie dobre – sprawdź pisownię." },
-    missing: { label: "Brakujące słowo", tip: "W zdaniu brakuje wyrazu – porównaj je z poprawną wersją." },
-    extra: { label: "Zbędne słowo", tip: "W zdaniu jest wyraz, którego nie powinno być." },
-  };
-  const ERR_KEYS = Object.keys(ERR_INFO);
-  const errSet = (s) => new Set(s.split(" "));
-  const ERR_ART = errSet("a an the");
-  const ERR_AUX = errSet("do does did am is are was were have has had be been being will would don't doesn't didn't isn't aren't wasn't weren't haven't hasn't hadn't won't wouldn't");
-  const ERR_PREP = errSet("in on at for from of with by about into onto under over since during until till after before through across between among towards toward behind near above below without inside outside around along");
-  const ERR_SUBJ3 = errSet("he she it who which this that everyone someone anyone one everything something anything nothing");
-  const ERR_BASE = errSet("do does did not can could will would should must might may shall to let's let don't doesn't didn't can't cannot couldn't won't wouldn't shouldn't mustn't");
-  const ERR_PL = errSet("two three four five six seven eight nine ten eleven twelve twenty thirty hundred thousand many some these those few several both all of various");
-  const ERR_SG = errSet("a an one this that every each another");
-  const ERR_DET = errSet("my your his her its our their the this that");
-  const ERR_ADV = errSet("always usually often sometimes never rarely seldom also only just really still hardly ever generally normally even already not");
-  // Słowniki z danych (budowane przy pierwszym użyciu): wszystkie słowa z odpowiedzi, imiona, formy nieregularne,
-  // słowa występujące jako czasownik (po he/she/it z -s, po can/don't…) i jako rzeczownik (po a/the/two…).
+  // Klasyfikacja – js/errors.js. Słowniki z danych kursu (ok. 0,3 s) budujemy raz: w wolnej chwili po starcie
+  // (koniec pliku) albo przy pierwszym błędzie.
   let errDict = null;
-  function errDicts() {
-    if (errDict) return errDict;
-    const known = new Set(), names = new Set(), lower = new Set(), verbs = new Set(), nouns = new Set(), irr = new Map();
-    const irrL = BY_ID["irregular-verbs"];
-    (irrL ? irrL.sections : []).filter((s) => s.type === "table" && /^Bezokolicznik/.test((s.headers || [])[0] || "")).forEach((s) => s.rows.forEach((r) => {
-      const base = stripTags(r[0]).toLowerCase();
-      if (!/^[a-z]+$/.test(base)) return;
-      r.slice(0, 3).forEach((c) => stripTags(c).toLowerCase().split(/[^a-z]+/).forEach((f) => { if (f && f !== "us" && f !== base) irr.set(f, base); }));
-    }));
-    const sing = (w) => /ies$/.test(w) ? w.slice(0, -3) + "y" : /(ch|sh|ss|x|o)es$/.test(w) ? w.slice(0, -2) : w.slice(0, -1);
-    for (const { ex } of TASKS.values()) {
-      const ans = ex.type === "choice" ? [] : (ex.answers || []).flat();
-      for (const a of ans) {
-        const all = String(a).replace(/[{}()|]/g, " ");
-        // Imiona i nazwy: wielka litera w środku zdania i nigdzie małą (odrzuca „– Are you…?” w dialogach).
-        all.split(/\s+/).forEach((w, i) => { const c = w.replace(/[^\w']/g, ""); if (/^[a-z]/.test(c)) lower.add(c); else if (i && /^[A-Z][a-z]+$/.test(c)) names.add(c.toLowerCase()); });
-        normalize(all).split(" ").forEach((w) => tokenVariants(w).forEach((v) => v.split(" ").forEach((x) => known.add(x))));
-        let first = String(a).replace(/[()]/g, "");
-        while (/\{[^{}]*\}/.test(first)) first = first.replace(/\{([^{}|]*)[^{}]*\}/g, "$1");
-        const t = [...variants(first)].pop().split(" ");
-        t.forEach((w, i) => {
-          const p = t[i - 1];
-          if (ERR_BASE.has(p) && p !== "to" && p !== "not") verbs.add(w);
-          if ((p === "he" || p === "she" || p === "it") && /s$/.test(w)) verbs.add(sing(w));
-          if (ERR_ART.has(p)) nouns.add(w);
-          if (ERR_PL.has(p) && p !== "of" && p !== "all" && /s$/.test(w)) nouns.add(sing(w));
-        });
-      }
-    }
-    lower.forEach((w) => names.delete(w));
-    return (errDict = { known, names, verbs, nouns, irr });
-  }
-  const errSForms = (b) => [b + "s", b + "es", /[^aeiou]y$/.test(b) ? b.slice(0, -1) + "ies" : "-"];
-  const errStems = (w) => {
-    const out = new Set([w]);
-    for (const suf of ["ing", "ies", "ied", "es", "ed", "s", "d"]) {
-      if (!w.endsWith(suf) || w.length < suf.length + 2) continue;
-      const s = w.slice(0, -suf.length);
-      out.add(s); out.add(s + "e");
-      if (suf === "ies" || suf === "ied") out.add(s + "y");
-      if (/([^aeiou])\1$/.test(s)) out.add(s.slice(0, -1));
-    }
-    const irr = errDicts().irr;
-    [...out].forEach((s) => { if (irr.has(s)) out.add(irr.get(s)); });
-    return out;
-  };
-  // Odległość edycyjna (zamiana sąsiednich liter liczy się jako jeden błąd).
-  function errDist(a, b) {
-    const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...new Array(b.length).fill(0)]);
-    for (let j = 1; j <= b.length; j++) d[0][j] = j;
-    for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++) {
-      d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
-      if (i > 1 && j > 1 && a[i - 1] === b[j - 2] && a[i - 2] === b[j - 1]) d[i][j] = Math.min(d[i][j], d[i - 2][j - 2] + 1);
-    }
-    return d[a.length][b.length];
-  }
-  // Brak / nadmiar -s: base – forma bez -s, missingS – uczeń pominął -s, ctx – wcześniejsze słowa wzorca.
-  function errEndS(base, missingS, ctx) {
-    const D = errDicts();
-    const k = ctx.filter((w) => !ERR_ADV.has(w)), p = k[k.length - 1], p2 = k[k.length - 2];
-    if (missingS) {
-      if (ERR_SUBJ3.has(p) || D.names.has(p)) return "s3";
-      if (ERR_PL.has(p) || (/^\d+$/.test(p || "") && p !== "1")) return "plural";
-    } else {
-      if (ERR_BASE.has(ctx[ctx.length - 1]) || ERR_BASE.has(p)) return "s3";
-      if (ERR_SG.has(p)) return "plural";
-    }
-    const v = D.verbs.has(base), n = D.nouns.has(base);
-    if (v && !n) return "s3";
-    if (n && !v) return "plural";
-    if (missingS && ERR_DET.has(p2) && p && !/s$/.test(p)) return "s3";
-    return "ends";
-  }
-  function errPair(x, y, ctx) {
-    if (ERR_ART.has(x) && ERR_ART.has(y)) return "article";
-    if (ERR_AUX.has(x) && ERR_AUX.has(y)) return "aux";
-    if (errSForms(x).includes(y) && !ERR_ADV.has(x)) return errEndS(x, true, ctx);
-    if (errSForms(y).includes(x) && !ERR_ADV.has(y)) return errEndS(y, false, ctx);
-    const D = errDicts(), stem = [...errStems(x)].some((s) => errStems(y).has(s)), typo = !D.known.has(x) && y.length > 1 && errDist(x, y);
-    if (stem && (D.irr.has(x) || D.irr.has(y))) return "irr";
-    if (typo === 1) return "typo";
-    if (stem) return "verb";
-    if ((ERR_PREP.has(x) || x === "to") && (ERR_PREP.has(y) || y === "to")) return "prep";
-    if (typo && typo <= (y.length <= 4 ? 1 : 2)) return "typo";
-    return "other";
-  }
-  const errLone = (w, missing) => ERR_ART.has(w) ? "article" : ERR_AUX.has(w) ? "aux" : ERR_PREP.has(w) ? "prep" : missing ? "missing" : "extra";
-  // Zwraca listę kluczy ERR_INFO bez powtórzeń, ["other"] (nie wiadomo) albo [] (brak różnic).
-  function errClassify(given, answers) {
-    // Warianty od pełnych form (did not) – przy remisie wygrywają one, a nie skróty.
-    const toks = (s) => [...variants(s)].slice(0, 8).reverse().map((v) => (v ? v.split(" ") : []));
-    const ev = answers.flatMap((a) => expandAnswer(a).flatMap(toks));
-    // Słowo w innej pisowni (color ↔ colour) zamieniamy na słowo ze wzorca – to nie jest błąd.
-    const spell = new Map(ev.flat().map((w) => [spellFold(w), w]));
-    const gv = toks(given).map((t) => t.map((w) => spell.get(spellFold(w)) || w));
-    const sorted = (t) => t.slice().sort().join(" ");
-    // Najbliższy wzorzec: odległość edycyjna na słowach, podobne słowo (literówka, inna forma, ten sam rodzaj) = pół błędu,
-    // te same słowa w innej kolejności = jeden błąd. Przy remisie – dłuższy wzorzec (z opcjonalnymi słowami).
-    const memo = new Map();
-    const near = (x, y) => {
-      const k = x + " " + y;
-      if (!memo.has(k)) memo.set(k, (ERR_ART.has(x) && ERR_ART.has(y)) || (ERR_AUX.has(x) && ERR_AUX.has(y)) || (ERR_PREP.has(x) && ERR_PREP.has(y))
-        || [...errStems(x)].some((s) => errStems(y).has(s)) || (Math.min(x.length, y.length) > 2 && errDist(x, y) <= (Math.min(x.length, y.length) <= 4 ? 1 : 2)) ? 0.5 : 1);
-      return memo.get(k);
-    };
-    const cost = (a, b) => {
-      let prev = Array.from({ length: b.length + 1 }, (_, j) => j);
-      for (let i = 1; i <= a.length; i++) {
-        const cur = [i];
-        for (let j = 1; j <= b.length; j++) cur[j] = Math.min(prev[j] + 1, cur[j - 1] + 1, prev[j - 1] + (a[i - 1] === b[j - 1] ? 0 : near(a[i - 1], b[j - 1])));
-        prev = cur;
-      }
-      return prev[b.length];
-    };
-    let best = null;
-    for (const e of ev) for (const g of gv) {
-      const c = sorted(g) === sorted(e) ? (g.join(" ") === e.join(" ") ? 0 : 1) : cost(g, e);
-      if (!best || c < best.c || (c === best.c && e.length > best.e.length)) best = { c, g, e };
-    }
-    if (!best || best.c === 0) return [];
-    const { g, e } = best, r = lcs(g, e);
-    if (sorted(g) === sorted(e)) return ["order"];
-    if (e.length > 2 && r.n < Math.ceil(e.length / 2)) return ["other"];
-    // Odcinki różnic między dopasowanymi słowami.
-    const A = [...r.inA].sort((p, q) => p - q), B = [...r.inB].sort((p, q) => p - q), segs = [];
-    for (let k = 0, pi = -1, pj = -1; k <= A.length; k++) {
-      const ai = k < A.length ? A[k] : g.length, bj = k < B.length ? B[k] : e.length;
-      if (ai - pi > 1 || bj - pj > 1) segs.push({ x: g.slice(pi + 1, ai), y: e.slice(pj + 1, bj), j: pj + 1 });
-      pi = ai; pj = bj;
-    }
-    const out = new Set();
-    // Słowo brakujące w jednym miejscu i zbędne w innym = przestawione.
-    const miss = segs.flatMap((s) => s.y), moved = [];
-    segs.forEach((s) => { s.x = s.x.filter((w) => { const i = miss.indexOf(w); if (i < 0) return true; miss.splice(i, 1); moved.push(w); return false; }); });
-    segs.forEach((s) => { s.y = s.y.filter((w) => { const i = moved.indexOf(w); if (i < 0) return true; moved.splice(i, 1); out.add("order"); return false; }); });
-    for (const s of segs) {
-      const { x, y } = s, ctx = e.slice(0, s.j);
-      // Różna długość: z dłuższej strony zdejmujemy przedimki / posiłkowe / przyimki (brakujące albo zbędne).
-      while (x.length !== y.length && x.length && y.length) {
-        const long = x.length > y.length ? x : y, i = long.findIndex((w) => ERR_ART.has(w) || ERR_AUX.has(w) || ERR_PREP.has(w));
-        if (i < 0) break;
-        out.add(errLone(long[i], long === y));
-        long.splice(i, 1);
-      }
-      if (x.length && y.length && x.length !== y.length) { out.add("other"); continue; }
-      if (!x.length) y.forEach((w) => out.add(errLone(w, true)));
-      else if (!y.length) x.forEach((w) => out.add(errLone(w, false)));
-      else x.forEach((w, i) => out.add(errPair(w, y[i], ctx.concat(y.slice(0, i)))));
-    }
-    if (out.size > 1) out.delete("other");
-    return [...out];
-  }
-  // Etykiety pod poprawką przy jednym zadaniu.
-  const errTagsHtml = (keys) => {
-    const k = (keys || []).filter((x) => ERR_INFO[x]);
-    return k.length ? `<div class="err-tags">${k.map((x) => `<span class="err-tag" title="${esc(ERR_INFO[x].tip)}">${ERR_INFO[x].label}</span>`).join("")}</div>` : "";
-  };
-  // Podsumowanie po zestawie: 1–3 najczęstsze typy błędów (każdy typ liczony raz na zadanie).
+  const errDicts = () => errDict || (errDict = buildErrDict([...TASKS.values()].map((t) => t.ex), BY_ID["irregular-verbs"]));
+  const errClassify = (given, answers) => classifyErr(given, answers, errDicts());
+  // Podsumowanie po zestawie: 1–3 najczęstsze typy błędów (liczenie – errTop w js/errors.js).
   function errSummaryHtml(ctls) {
-    const cnt = new Map();
-    ctls.forEach((c) => { if (c.result && !c.result.ok) (c.result.errs || []).forEach((k) => { if (ERR_INFO[k]) cnt.set(k, (cnt.get(k) || 0) + 1); }); });
-    const top = [...cnt].sort((a, b) => b[1] - a[1] || ERR_KEYS.indexOf(a[0]) - ERR_KEYS.indexOf(b[0])).slice(0, 3);
+    const top = errTop(ctls.map((c) => c.result));
     if (!top.length) return "";
     // Link do lekcji z wyjaśnieniem tylko wtedy, gdy nie jest dalej na ścieżce niż lekcje z tego zestawu.
     const reach = Math.max(-1, ...ctls.map((c) => { const t = TASKS.get(KEY_OF.get(c.ex)); return t ? PATH.indexOf(t.lesson) : -1; }));
@@ -1374,133 +920,8 @@
   }
 
   // ---------- Kopia postępu: eksport / import (sekcja #kopia na stronie „Kolejność nauki”) ----------
-  // Plik: { app: "angielski", version: 1, date, data: { "eng-done": {...}, "eng-scores": {...}, ... } } –
-  // wszystkie klucze eng-* z localStorage oprócz BACKUP_SKIP. Wartości zapisane jako JSON trafiają do pliku
-  // już odczytane (plik da się przeczytać); eng-theme jest w localStorage zwykłym tekstem, stąd RAW_KEYS.
-  const BACKUP_APP = "angielski", BACKUP_VERSION = 1;
-  const RAW_KEYS = ["eng-theme"];
-  // Dane przypomnienia o kopii i dzień komunikatu o celu dziennym dotyczą tylko tego urządzenia.
-  const BACKUP_SKIP = ["eng-backup", "eng-goalDay"];
-  const DAY = 864e5, REMIND_DAYS = 14;
-  const isObj = (v) => !!v && typeof v === "object" && !Array.isArray(v);
-  // Sprawdzenie typów przy wczytywaniu – plik niezgodny z tym opisem jest odrzucany w całości.
-  const BACKUP_CHECK = {
-    "eng-done": isObj,
-    "eng-scores": (v) => isObj(v) && Object.values(v).every((s) => isObj(s) && s.total > 0 && s.correct >= 0),
-    "eng-known": (v) => isObj(v) && Object.values(v).every(isObj),
-    "eng-levels": (v) => Array.isArray(v) && v.length > 0 && v.every((x) => LEVELS.includes(x)),
-    "eng-showPl": (v) => typeof v === "boolean",
-    "eng-mistakes": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
-    "eng-srs": (v) => isObj(v) && Object.values(v).every((m) => isObj(m) && m.box >= 1 && typeof m.due === "string"),
-    "eng-srsNew": (v) => NEW_CHOICES.includes(v),
-    "eng-goal": (v) => GOAL_CHOICES.includes(v),
-    "eng-voice": isObj, // pola sprawdza loadVoiceCfg (zły akcent / tempo → wartość domyślna)
-    "eng-theme": (v) => v === "light" || v === "dark",
-    "eng-activity": (v) => isObj(v) && Object.entries(v).every(([k, e]) => DAY_RE.test(k) && isObj(e) &&
-      ["t", "ok", "w"].every((f) => e[f] === undefined || (Number.isFinite(e[f]) && e[f] >= 0))),
-  };
-  // Łączenie kopii z postępem na tym urządzeniu (a = to urządzenie, b = kopia), reguła dla każdego klucza.
-  const ratio = (s) => s.correct / s.total;
-  const MERGE = {
-    "eng-done": (a, b) => ({ ...a, ...b }), // lekcja przerobiona w którymkolwiek miejscu
-    "eng-scores": (a, b) => { // lepszy wynik (przy remisie zostaje wynik z tego urządzenia, jak w saveScore)
-      const out = { ...a };
-      for (const [k, s] of Object.entries(b)) if (!out[k] || ratio(s) > ratio(out[k])) out[k] = s;
-      return out;
-    },
-    "eng-known": (a, b) => { // suma słówek oznaczonych jako „znam”
-      const out = { ...a };
-      for (const [k, words] of Object.entries(b)) out[k] = { ...(out[k] || {}), ...words };
-      return out;
-    },
-    // Dziennik nauki: dla każdego dnia większa wartość każdego pola (nie suma – ta sama kopia wczytana dwa razy
-    // nie może podwoić liczb). Znacznik przybliżenia „a” zostaje tylko wtedy, gdy obie strony mają dzień przybliżony.
-    "eng-activity": (a, b) => {
-      const out = { ...a };
-      for (const [k, e] of Object.entries(b)) {
-        const c = out[k];
-        if (!c) { out[k] = e; continue; }
-        const m = {};
-        for (const f of ["t", "ok", "w"]) { const n = Math.max(c[f] || 0, e[f] || 0); if (n) m[f] = n; }
-        if (c.a && e.a) m.a = 1;
-        out[k] = m;
-      }
-      return out;
-    },
-  };
-  // Ustawienia (poziomy w menu, tłumaczenia, motyw, limit nowych słówek, cel dzienny, głos lektora) przy łączeniu zostają takie, jak na tym urządzeniu –
-  // także gdy tu nie były zmieniane (wartość domyślna), więc z kopii ich nie bierzemy.
-  const KEEP_LOCAL = ["eng-levels", "eng-showPl", "eng-theme", "eng-srsNew", "eng-goal", "eng-voice"];
-  // Klucze bez własnej reguły (eng-mistakes, eng-srs – w postaci { klucz: { box, due, lastSeen, … } }):
-  // obiekty łączymy wpis po wpisie, a gdy wpis jest w obu miejscach, wygrywa ten z późniejszym lastSeen
-  // (bez lastSeen – ten z tego urządzenia). Inne wartości zostają z tego urządzenia.
-  // Nowa funkcja z własnymi danymi powinna dopisać do MERGE (i BACKUP_CHECK) regułę dla swojego klucza.
-  // eng-mistakes celowo bez reguły: przy tym samym zadaniu wygrywa świeższy stan pudełka. (Zadanie opanowane
-  // na jednym urządzeniu, a wciąż obecne w kopii z drugiego, wraca na listę – lepiej powtórzyć raz za dużo.)
-  // eng-srs też bez reguły: przy tym samym słówku wygrywa ostatnia ocena; wpisy z migracji „znam” (bez lastSeen)
-  // przegrywają z każdą prawdziwą oceną. Słówka „znam” bez wpisu dostają go po wczytaniu (migrateKnown).
-  const lastSeen = (e) => (isObj(e) && Date.parse(e.lastSeen)) || 0;
-  function mergeDefault(a, b) {
-    if (!isObj(a) || !isObj(b)) return a;
-    const out = { ...a };
-    for (const [k, e] of Object.entries(b)) if (!(k in out) || lastSeen(e) > lastSeen(out[k])) out[k] = e;
-    return out;
-  }
-  function mergeData(cur, inc) {
-    const out = { ...cur };
-    for (const [k, v] of Object.entries(inc)) {
-      if (KEEP_LOCAL.includes(k)) continue;
-      out[k] = k in cur ? (MERGE[k] || mergeDefault)(cur[k], v) : v;
-    }
-    return out;
-  }
-
-  function lsKeys() {
-    const out = [];
-    try { for (let i = 0; i < localStorage.length; i++) { const k = localStorage.key(i); if (k && k.startsWith("eng-") && !BACKUP_SKIP.includes(k)) out.push(k); } } catch (e) {}
-    return out;
-  }
-  function readAll() {
-    const data = {};
-    for (const k of lsKeys()) {
-      const raw = localStorage.getItem(k);
-      if (RAW_KEYS.includes(k)) { data[k] = raw; continue; }
-      try { data[k] = JSON.parse(raw); } catch (e) {} // uszkodzony wpis – i tak nie jest używany (store.get daje domyślny)
-    }
-    return data;
-  }
-  function writeAll(data, replace) {
-    try {
-      if (replace) lsKeys().forEach((k) => localStorage.removeItem(k));
-      for (const [k, v] of Object.entries(data)) localStorage.setItem(k, RAW_KEYS.includes(k) ? String(v) : JSON.stringify(v));
-      return true;
-    } catch (e) { return false; }
-  }
-  // Zwraca { data, date } albo { error: "komunikat dla ucznia" }.
-  function parseBackup(text) {
-    let obj;
-    try { obj = JSON.parse(text); } catch (e) { return { error: "To nie jest plik z kopią postępu (zły format pliku)." }; }
-    if (!isObj(obj) || obj.app !== BACKUP_APP || !isObj(obj.data)) return { error: "Ten plik nie jest kopią postępu z tej strony." };
-    if (typeof obj.version !== "number" || obj.version > BACKUP_VERSION) return { error: "Ta kopia pochodzi z nowszej wersji strony. Odśwież stronę i spróbuj jeszcze raz." };
-    const data = {};
-    for (const [k, v] of Object.entries(obj.data)) {
-      if (!k.startsWith("eng-") || BACKUP_SKIP.includes(k)) continue;
-      if (BACKUP_CHECK[k] && !BACKUP_CHECK[k](v)) return { error: "Plik z kopią jest uszkodzony – nie da się go wczytać." };
-      data[k] = v;
-    }
-    return { data, date: obj.date };
-  }
-  function backupStats(data) {
-    const done = data["eng-done"] || {}, known = data["eng-known"] || {};
-    return {
-      done: Object.keys(done).filter((id) => done[id] && BY_ID[id]).length,
-      scores: Object.keys(data["eng-scores"] || {}).length,
-      words: Object.values(known).reduce((s, o) => s + Object.values(o).filter(Boolean).length, 0),
-      mistakes: Object.keys(data["eng-mistakes"] || {}).filter((k) => hasTask(k)).length,
-      srs: Object.keys(data["eng-srs"] || {}).filter((k) => WORDS.has(k)).length,
-      days: Object.values(data["eng-activity"] || {}).filter((e) => dayTotal(e) > 0).length,
-    };
-  }
+  // Format pliku, sprawdzanie, łączenie i zapis – js/storage.js; tu widok (przypomnienie, pobieranie, podgląd, wczytanie).
+  const backupStats = (data) => storageBackupStats(data, { lesson: (id) => !!BY_ID[id], task: (k) => hasTask(k), word: (k) => WORDS.has(k) });
   const fmtDate = (iso, time) => {
     const d = new Date(iso);
     if (isNaN(d)) return "";
@@ -1510,12 +931,7 @@
   // Przypomnienie: 14 dni od ostatniej kopii (albo od „Później” / początku nauki), o ile od ostatniej kopii przybyło postępu.
   // eng-backup = { last: data ostatniej kopii, since: od kiedy liczymy 14 dni, count: ile było postępu przy ostatniej kopii }.
   const progressCount = () => Object.keys(state.done).length + Object.keys(state.scores).length;
-  function backupDue() {
-    const n = progressCount(), b = store.get("backup", null);
-    if (!n) return false;
-    if (!isObj(b)) { store.set("backup", { since: new Date().toISOString(), count: 0 }); return false; }
-    return n > (b.count || 0) && Date.now() - (Date.parse(b.since) || 0) >= REMIND_DAYS * DAY;
-  }
+  const backupDue = () => storageBackupDue(progressCount());
   const backupReminder = () => backupDue() ? `<div class="card backup-reminder" role="note">
       <span class="br-ico" aria-hidden="true">${icon("save")}</span>
       <div class="br-text"><b>Zrób kopię postępu</b><span>Postęp jest zapisany tylko w tej przeglądarce. Kopia w pliku przyda się, gdy wyczyścisz dane przeglądarki albo zmienisz urządzenie.</span></div>
@@ -1604,8 +1020,7 @@
     function apply(data, replace, stats) {
       if (!writeAll(data, replace)) return fail("Nie udało się zapisać postępu (brak miejsca w przeglądarce?).");
       Object.assign(state, loadState());
-      migrateKnown(state);
-      migrateActivity(state);
+      migrateState(state, (k) => WORDS.has(k));
       voiceCfg = loadVoiceCfg(); pickVoice();
       const t = localStorage.getItem("eng-theme");
       if (t) document.documentElement.dataset.theme = t; else delete document.documentElement.dataset.theme;
@@ -1828,10 +1243,7 @@
   }
 
   function orderTokens(ex) {
-    const ans = firstVariant(ex.answers[0]);
-    const end = (ans.match(/[.?!]+$/) || [""])[0];
-    let toks = ex.words ? ex.words.slice() : ans.replace(/[.?!]+$/, "").split(/\s+/);
-    if (!ex.words && !ex.keepCase && toks.length && !/^I(\b|')/.test(toks[0])) toks[0] = toks[0].charAt(0).toLowerCase() + toks[0].slice(1);
+    const { toks, end } = orderParts(ex);
     return { toks: shuffle(toks.concat(ex.extra || [])), end };
   }
 
@@ -2214,27 +1626,7 @@
   }
 
   // ---------- Słownictwo (komponent wspólny: lekcje i działy tematyczne) ----------
-  // Warianty akceptowane w quizie: „flat / apartment”, „(to) arrive”, „a headache”.
-  function vocabAnswers(en) {
-    const base = stripTags(en).replace(/\((AmE|BrE|US|UK|pot\.|form\.|inf\.)\)/gi, "");
-    const alts = base.split(/\s*[\/;]\s*/).map((s) => s.trim()).filter(Boolean);
-    const out = new Set();
-    for (const a of alts) {
-      for (const v of expandAnswer(a)) {
-        const s = v.replace(/\s+/g, " ").trim();
-        if (!s) continue;
-        out.add(s);
-        out.add(s.replace(/^(to|a|an|the)\s+/i, ""));
-      }
-    }
-    return [...out];
-  }
-  // Wypełniacze typu „accuse (sb) of” / „do someone a favour” – pomijamy je po obu stronach.
-  const dropFillers = (s) => normalize(s).replace(/\b(sb|sth|somebody|someone|something|one's|sb's)\b/g, " ").replace(/^(to|a|an|the)\s+/, "").replace(/\s+/g, " ").trim();
-  const vocabMatch = (given, en) => {
-    const g = dropFillers(given);
-    return vocabAnswers(en).some((a) => matchOne(g, dropFillers(a)));
-  };
+  // Sprawdzanie odpowiedzi w quizie (vocabAnswers, vocabMatch) – js/check.js.
   const knownSet = (key) => (state.known[key] = state.known[key] || {});
 
   function vocabListHtml(groups, key) {
@@ -4870,8 +4262,7 @@
   // Udostępnione do testów automatycznych (tools/).
   window.__ENG = { matches, expandAnswer, vocabMatch, variants, rdLookup, rdParse, READING, DIALOGUES, dlgVoices, CHATS, chatVoices, TASKS };
 
-  migrateKnown(state);
-  migrateActivity(state);
+  migrateState(state, (k) => WORDS.has(k));
   renderLevelFilter();
   route();
 })();

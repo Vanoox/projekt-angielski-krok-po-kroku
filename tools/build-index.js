@@ -1,5 +1,5 @@
 // Buduje dane strony i aktualizuje index.html.
-// Użycie: node tools/build-index.js
+// Użycie: npm run build   (= node tools/build-index.js; npm run check sprawdza, czy wszystko jest aktualne)
 //
 // URUCHAMIAJ PO KAŻDEJ ZMIANIE W data/ (lekcje, ćwiczenia, słownictwo, czytanki, dialogi, rozmowy, sprawdziany, order.json).
 // Strona NIE czyta plików z data/ bezpośrednio – ładuje tylko data/bundle.js (jeden plik, mniej żądań),
@@ -13,10 +13,13 @@
 //  3. W index.html wstawia <script src="data/bundle.js?v=<hash>"> między <!-- DATA:START --> i <!-- DATA:END -->
 //     oraz dopisuje ?v=<hash> do css/style.css i js/app.js – po każdej zmianie adres się zmienia,
 //     więc przeglądarka nie użyje starej wersji z pamięci podręcznej.
+//     Między <!-- MODULES:START --> i <!-- MODULES:END --> wstawia import map (<script type="importmap">) i
+//     <link rel="modulepreload"> dla wszystkich modułów ES z js/ (oprócz app.js): importy w kodzie piszemy zwykle
+//     (import … from "./check.js"), a import map zamienia je na js/check.js?v=<hash>. Nowy plik w js/ trafia tu sam.
 //  4. W sw.js (service worker – działanie offline, PWA) między // BUILD:START i // BUILD:END wpisuje
-//     listę plików „app shell” (adresy z index.html + manifest + ikony z icons/), adres arkusza fontów
-//     i VERSION = skrót ich treści. Zmiana VERSION = telefony pobiorą nową wersję i pokażą „Jest nowa wersja”.
-//     Bez przebudowania zainstalowana strona zostaje na starej wersji.
+//     listę plików „app shell” (adresy z index.html, w tym moduły z import map + manifest + ikony z icons/),
+//     adres arkusza fontów i VERSION = skrót ich treści. Zmiana VERSION (także po zmianie jednego modułu) =
+//     telefony pobiorą nową wersję i pokażą „Jest nowa wersja”. Bez przebudowania zainstalowana strona zostaje na starej.
 //
 // Pliki źródłowe w data/ zostają do edycji; narzędzia z tools/ i tools/audit/ czytają katalogi, nie bundle.
 // Kolejność lekcji = kolejność w data/lessons/order.json = ścieżka nauki (lekcja może używać tylko
@@ -33,6 +36,9 @@ const GLOBALS = ["LESSONS", "PRACTICE", "VOCAB", "CHECKPOINTS", "READING", "DIAL
 
 const hash = (s) => crypto.createHash("sha1").update(s).digest("hex").slice(0, 10);
 const listJs = (d) => (fs.existsSync(rel(d)) ? fs.readdirSync(rel(d)).filter((f) => f.endsWith(".js")).sort() : []);
+// Skrót pliku: tekst liczony po zamianie CRLF → LF (git na Windows zamienia końce linii w kopii roboczej –
+// ten sam plik ma dawać ten sam ?v= na każdym komputerze i na GitHubie), obrazki – bajt po bajcie.
+const fileHash = (f) => { const b = fs.readFileSync(rel(f)); return /\.(png|jpe?g|ico|webp|woff2?)$/i.test(f) ? hash(b) : hash(b.toString("utf8").replace(/\r\n/g, "\n")); };
 
 // Pliki danych w kolejności ładowania.
 function dataFiles() {
@@ -92,12 +98,38 @@ function buildBundle() {
   return { content: parts.join("\n") + "\n", files };
 }
 
+// Moduły ES strony: wszystkie pliki .js w js/ (także w podkatalogach) oprócz js/app.js, który index.html ładuje
+// wprost (<script type="module" src="js/app.js?v=…">). Kolejność stała (po nazwie), żeby index.html się nie zmieniał.
+function moduleFiles() {
+  const out = [];
+  const walk = (d) => fs.readdirSync(rel(d), { withFileTypes: true }).sort((a, b) => (a.name < b.name ? -1 : a.name > b.name ? 1 : 0)).forEach((e) => {
+    const p = `${d}/${e.name}`;
+    if (e.isDirectory()) walk(p);
+    else if (e.name.endsWith(".js") && p !== "js/app.js") out.push(p);
+  });
+  walk("js");
+  return out;
+}
+
 function buildIndex(bundleContent) {
-  const ver = (f) => hash(fs.readFileSync(rel(f)));
+  const ver = fileHash;
   let html = fs.readFileSync(rel("index.html"), "utf8");
   if (!/<!-- DATA:START -->[\s\S]*<!-- DATA:END -->/.test(html)) throw new Error("Brak znaczników <!-- DATA:START --> / <!-- DATA:END --> w index.html");
+  if (!/<!-- MODULES:START -->[\s\S]*<!-- MODULES:END -->/.test(html)) throw new Error("Brak znaczników <!-- MODULES:START --> / <!-- MODULES:END --> w index.html");
+  if (!/<script type="module" src="js\/app\.js/.test(html)) throw new Error('Brak <script type="module" src="js/app.js"> w index.html');
+  // Import map: import "./check.js" w js/app.js → adres js/check.js?v=<hash> (zmiana pliku = nowy adres, jak dla app.js);
+  // modulepreload – przeglądarka pobiera wszystkie moduły od razu, a nie dopiero po przeczytaniu importów.
+  const mods = moduleFiles().map((f) => [f, `${f}?v=${ver(f)}`]);
+  const map = mods.map(([f, u]) => `    ${JSON.stringify("./" + f)}: ${JSON.stringify("./" + u)}`).join(",\n");
+  const modBlock = [
+    "<!-- MODULES:START -->",
+    `  <script type="importmap">\n  { "imports": {\n${map}\n  } }\n  </script>`,
+    ...mods.map(([, u]) => `  <link rel="modulepreload" href="${u}">`),
+    "  <!-- MODULES:END -->",
+  ].join("\n");
   html = html
     .replace(/<!-- DATA:START -->[\s\S]*<!-- DATA:END -->/, `<!-- DATA:START -->\n  <script src="${BUNDLE}?v=${hash(bundleContent)}"></script>\n  <!-- DATA:END -->`)
+    .replace(/<!-- MODULES:START -->[\s\S]*<!-- MODULES:END -->/, () => modBlock)
     .replace(/(href="css\/style\.css)(\?v=[^"]*)?"/, `$1?v=${ver("css/style.css")}"`)
     .replace(/(src="js\/app\.js)(\?v=[^"]*)?"/, `$1?v=${ver("js/app.js")}"`);
   return html;
@@ -109,6 +141,7 @@ function buildSw(html) {
   const assets = [
     attr(/href="(css\/style\.css[^"]*)"/, "css/style.css"),
     attr(/src="(js\/app\.js[^"]*)"/, "js/app.js"),
+    ...[...html.matchAll(/<link rel="modulepreload" href="([^"]+)">/g)].map((m) => m[1]), // moduły z js/ (import map)
     attr(/src="(data\/bundle\.js[^"]*)"/, BUNDLE),
     attr(/rel="manifest" href="([^"]+)"/, "<link rel=\"manifest\">"),
   ];
@@ -116,7 +149,7 @@ function buildSw(html) {
   const shell = ["./", ...assets, ...icons];
   const fontCss = attr(/href="(https:\/\/fonts\.googleapis\.com\/css2[^"]+)"/, "arkusza fontów Google");
   // Wersja = skrót index.html i treści wszystkich plików (adres bez ?v=).
-  const version = hash(html + shell.slice(1).map((u) => hash(fs.readFileSync(rel(u.split("?")[0])))).join(""));
+  const version = hash(html.replace(/\r\n/g, "\n") + shell.slice(1).map((u) => fileHash(u.split("?")[0])).join(""));
   const block = [
     "// BUILD:START",
     `const VERSION = ${JSON.stringify(version)};`,
@@ -130,7 +163,7 @@ function buildSw(html) {
   return { content: sw.replace(re, () => block), version };
 }
 
-module.exports = { buildBundle, buildIndex, buildSw, hash, BUNDLE, SW };
+module.exports = { buildBundle, buildIndex, buildSw, moduleFiles, hash, BUNDLE, SW };
 
 if (require.main === module) {
   try {

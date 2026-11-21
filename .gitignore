@@ -7,3 +7,6 @@ node_modules/
 # Notatki robocze
 POSTEP.md
 PLAN.md
+
+# Wyniki zdjęć wzorcowych (tools/golden)
+tools/golden/out/
